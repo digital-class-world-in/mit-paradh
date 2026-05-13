@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-size-base: 15px;
+  --color-primary: #ff9f1c;
+  --color-primary-dark: #f08a10;
+  --color-primary-light: #fff8f0;
+  --color-institutional-dark: #343a40;
+  --color-institutional-gold: #ecc94b;
+  
+  --font-headline: 'Public Sans', sans-serif;
+  --font-body: 'Public Sans', sans-serif;
+  
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem; 
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+
+  --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+
+  html {
+    font-size: var(--font-size-base);
+  }
+
+  body {
+    @apply antialiased;
+    font-family: var(--font-body);
+    color: #334155;
+    background-color: #f1f5f9;
+    background-image: none;
+  }
+
+  /* Universal Font Enforcement */
+  * {
+    font-family: inherit;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-headline);
+    @apply tracking-tight font-bold capitalize;
+  }
+
+  h1 { @apply text-4xl mb-4; }
+  h2 { @apply text-3xl mb-3; }
+  h3 { @apply text-2xl mb-2; }
+
+  /* Global Placeholder Styling */
+  input::placeholder, textarea::placeholder {
+    color: #000000 !important;
+    opacity: 1 !important;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
+  }
+  
+  .premium-shadow {
+    @apply shadow-premium;
+  }
+
+  .interactive-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .interactive-card:hover {
+    @apply -translate-y-2 shadow-2xl scale-[1.01];
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-blue-200/50 rounded-full border-4 border-transparent bg-clip-padding hover:bg-blue-300;
+}
+
+/* College Panel Theme Overrides */
+.college-panel, .college-panel * {
+  color: #000000 !important;
+  font-weight: 400 !important;
+}
+
+.college-panel h1, .college-panel h2, .college-panel h3, .college-panel h4, .college-panel h5, .college-panel h6 {
+  font-weight: 500 !important;
+}
