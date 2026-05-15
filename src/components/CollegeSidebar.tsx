@@ -87,6 +87,8 @@ export default function CollegeSidebar({ activeTab, setActiveTab, onLogout, coll
       id: 80,
       subItems: [
         { label: 'Transfer certificate', id: 81 },
+        { label: 'Student marksheet', id: 82 },
+        { label: 'Course certificate', id: 83 },
       ]
     },
     { 

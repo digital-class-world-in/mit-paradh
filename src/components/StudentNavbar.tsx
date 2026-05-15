@@ -38,7 +38,7 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
       type: 'dropdown',
       items: [
         { name: 'a) Fee', id: 5 },
-        { name: 'b) Payment slip', id: 5 },
+        { name: 'b) Payment slip', id: 15 },
       ]
     },
     { 
@@ -61,6 +61,7 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-slate-200 hover:scale-105 transition-transform overflow-hidden">
              <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-full h-full object-contain" />
           </div>
+          <h1 className="text-[18px] font-black text-[#003366] tracking-tight uppercase hidden md:block">MIT PARADH</h1>
         </div>
 
         {/* NSSC Style Menu (No Icons) */}
@@ -80,7 +81,7 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
                   }
                 }}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-3 rounded-md font-normal text-[15px] tracking-tight transition-all duration-300 whitespace-nowrap",
+                  "flex items-center gap-1.5 px-4 py-3 rounded-md font-normal text-[16px] tracking-tight transition-all duration-300 whitespace-nowrap",
                   (activeTab === group.id || (group.type === 'dropdown' && group.items?.some(i => i.id === activeTab)))
                     ? "text-[#00a5a5] bg-slate-50" 
                     : "text-black hover:bg-slate-50 hover:text-[#00a5a5]"
@@ -101,7 +102,7 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
                         setOpenDropdown(null);
                       }}
                       className={cn(
-                        "w-full text-left px-6 py-3 text-xs font-normal transition-all hover:bg-slate-50",
+                        "w-full text-left px-6 py-3 text-[16px] font-normal transition-all hover:bg-slate-50",
                         activeTab === item.id ? "bg-[#00a5a5] text-white" : "text-black hover:text-[#00a5a5]"
                       )}
                     >

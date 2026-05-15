@@ -37,8 +37,8 @@ export const Navbar = () => {
   const [courseTypes, setCourseTypes] = useState<string[]>([]);
 
   const portals = [
-    { label: 'College Portal', href: '/login/college', icon: Building2, color: 'text-emerald-500' },
     { label: 'Admin Portal', href: '/login/admin', icon: ShieldCheck, color: 'text-slate-400' },
+    { label: 'College Portal', href: '/login/college', icon: Building2, color: 'text-emerald-500' },
     { label: 'Staff Portal', href: '/login/staff', icon: User, color: 'text-blue-400' },
     { label: 'Student Portal', href: '/login/student', icon: GraduationCap, color: 'text-amber-500' },
   ];
@@ -63,7 +63,7 @@ export const Navbar = () => {
           >
             <Link 
               href={item.href} 
-              className="flex items-center gap-2 px-6 h-full text-white/80 hover:text-white hover:bg-white/10 transition-all font-bold text-xs capitalize tracking-tight border-r border-white/10"
+              className="flex items-center gap-2 px-6 h-full text-white/80 hover:text-white hover:bg-white/10 transition-all font-bold text-[18px] capitalize tracking-tight border-r border-white/10"
             >
               <item.icon size={14} className="opacity-50" />
               {item.label}
@@ -130,9 +130,9 @@ export const Navbar = () => {
           <button 
             onMouseEnter={() => setIsLoginOpen(true)}
             onMouseLeave={() => setIsLoginOpen(false)}
-            className="bg-amber-400 hover:bg-amber-500 text-[#003366] px-6 py-2 rounded-md font-black text-xs capitalize tracking-tight transition-all flex items-center gap-2 shadow-lg active:scale-95"
+            className="bg-amber-400 hover:bg-amber-500 text-[#003366] px-6 py-2 rounded-md font-black text-[16px] capitalize tracking-tight transition-all flex items-center gap-2 shadow-lg active:scale-95"
           >
-            <LogIn size={14} /> Portals Login <ChevronDown size={14} className={`transition-transform duration-300 ${isLoginOpen ? 'rotate-180' : ''}`} />
+            <LogIn size={16} /> Login <ChevronDown size={16} className={`transition-transform duration-300 ${isLoginOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Dropdown Menu */}
@@ -153,8 +153,8 @@ export const Navbar = () => {
                     href={portal.href} 
                     className="flex items-center gap-3 p-3 rounded-md hover:bg-white/10 transition-colors group"
                   >
-                    <portal.icon size={16} className={`${portal.color} opacity-70 group-hover:opacity-100 transition-opacity`} />
-                    <span className="text-[11px] font-bold text-white/80 group-hover:text-white transition-colors capitalize tracking-wider">{portal.label}</span>
+                    <portal.icon size={20} className={`${portal.color} opacity-70 group-hover:opacity-100 transition-opacity`} />
+                    <span className="text-[16px] font-bold text-white/80 group-hover:text-white transition-colors capitalize tracking-wider">{portal.label}</span>
                   </Link>
                 ))}
               </div>

@@ -836,8 +836,12 @@ function StaffDashboardContent() {
             <ExamFormManager collegeId={staffData?.collegeId} />
           ) : activeTab === 63 ? (
             <ExamFeesManager collegeId={staffData?.collegeId} />
-          ) : activeTab === 81 ? (
-            <CertificateManager collegeId={staffData?.collegeId} />
+          ) : (activeTab === 80 || activeTab === 81) ? (
+            <CertificateManager collegeId={staffData?.collegeId} defaultTab="tc" />
+          ) : activeTab === 82 ? (
+            <CertificateManager collegeId={staffData?.collegeId} defaultTab="marksheet" />
+          ) : activeTab === 83 ? (
+            <CertificateManager collegeId={staffData?.collegeId} defaultTab="course" />
           ) : activeTab === 24 ? (
             <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
                <div className="flex items-center justify-between">

@@ -27,7 +27,7 @@ export default function StaffHeader({ activeTab, setActiveTab, onLogout, staffNa
     { 
       label: 'Student info', 
       id: 2,
-      subItems: [{ label: 'Admission confirm', id: 1022 }, { label: 'Pending admission', id: 1024 }, { label: 'Cancel admission', id: 1023 }, { label: 'Approved admission', id: 25 }, { label: 'Student registration', id: 19 }, { label: 'Leave request', id: 23 }]
+      subItems: [{ label: 'Admission confirm', id: 1022 }, { label: 'Pending admission', id: 1024 }, { label: 'Cancel admission', id: 1023 }, { label: 'Approved admission', id: 25 }, { label: 'Student registration', id: 19 }]
     },
     { 
       label: 'Fees', 
@@ -46,7 +46,11 @@ export default function StaffHeader({ activeTab, setActiveTab, onLogout, staffNa
     { 
       label: 'Certificate', 
       id: 80,
-      subItems: [{ label: 'Transfer certificate', id: 81 }]
+      subItems: [
+        { label: 'Transfer certificate', id: 81 },
+        { label: 'Student marksheet', id: 82 },
+        { label: 'Course certificate', id: 83 },
+      ]
     },
     { 
       label: 'Course', 

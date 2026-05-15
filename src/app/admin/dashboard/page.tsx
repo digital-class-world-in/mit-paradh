@@ -41,6 +41,8 @@ import CollegeListManager from '@/components/CollegeListManager';
 import AdminTrashManager from '@/components/AdminTrashManager';
 import ExamFormManager from '@/components/ExamFormManager';
 import ExamFeesManager from '@/components/ExamFeesManager';
+import CertificateManager from '@/components/CertificateManager';
+
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -115,6 +117,12 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseInt(searchParams.get('tab') || '1');
+  
+  const setActiveTab = (id: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', id.toString());
+    router.push(`?${params.toString()}`);
+  };
 
   const [stats, setStats] = useState({
     admissionList: 0,
@@ -282,8 +290,9 @@ function DashboardContent() {
                   <ModuleCard title="Human Resources" desc="Manage staff profiles, payroll and attendance." icon={Users} onClick={() => {}} />
                   <ModuleCard title="Financial Center" desc="Secure ledger management and fee tracking." icon={CreditCard} onClick={() => {}} />
                   <ModuleCard title="Website Manager" desc="CMS protocols for home page and facility setup." icon={Globe} onClick={() => {}} />
-                  <ModuleCard title="Inquiry Board" desc="Direct CRM bridge for potential student leads." icon={Bell} onClick={() => {}} />
-                  <ModuleCard title="System Reports" desc="Export detailed analytics and audit logs." icon={FileText} onClick={() => {}} />
+                  <ModuleCard title="Inquiry Board" desc="Direct CRM bridge for potential student leads." icon={Bell} onClick={() => setActiveTab(90)} />
+                  <ModuleCard title="Certification" desc="Issue and manage institutional certificates." icon={Award} onClick={() => setActiveTab(80)} />
+                  <ModuleCard title="System Reports" desc="Export detailed analytics and audit logs." icon={FileText} onClick={() => setActiveTab(1)} />
                </div>
             </div>
           </div>
@@ -326,6 +335,13 @@ function DashboardContent() {
         return <AdmissionInquiryManager collegeId={undefined} mode="pending" />;
       case 3023: // Cancel Admission
         return <AdmissionInquiryManager collegeId={undefined} mode="cancelled" />;
+      case 80:
+      case 81:
+        return <CertificateManager collegeId={undefined} defaultTab="tc" />;
+      case 82:
+        return <CertificateManager collegeId={undefined} defaultTab="marksheet" />;
+      case 83:
+        return <CertificateManager collegeId={undefined} defaultTab="course" />;
       case 99: // Trash
         return <AdminTrashManager />;
       case 15: 

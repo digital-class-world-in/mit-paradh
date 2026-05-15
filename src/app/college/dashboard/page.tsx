@@ -509,8 +509,13 @@ function DashboardContent() {
         return <ExamFormManager collegeId={collegeAuth.currentUser?.uid} />;
       case 63:
         return <ExamFeesManager collegeId={collegeAuth.currentUser?.uid} />;
+      case 80:
       case 81:
-        return <CertificateManager collegeId={collegeAuth.currentUser?.uid} />;
+        return <CertificateManager collegeId={collegeAuth.currentUser?.uid} defaultTab="tc" />;
+      case 82:
+        return <CertificateManager collegeId={collegeAuth.currentUser?.uid} defaultTab="marksheet" />;
+      case 83:
+        return <CertificateManager collegeId={collegeAuth.currentUser?.uid} defaultTab="course" />;
       case 202: // Payment History
         return (
           <div className="space-y-8 animate-in fade-in duration-700">

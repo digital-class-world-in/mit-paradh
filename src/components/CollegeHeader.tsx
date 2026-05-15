@@ -26,7 +26,7 @@ export default function CollegeHeader({ activeTab, setActiveTab, onLogout, colle
     { 
       label: 'Student info', 
       id: 2,
-      subItems: [{ label: 'Admission confirm', id: 1022 }, { label: 'Pending admission', id: 1024 }, { label: 'Cancel admission', id: 1023 }, { label: 'Approved admission', id: 25 }, { label: 'Student registration', id: 19 }, { label: 'Leave request', id: 23 }]
+      subItems: [{ label: 'Admission confirm', id: 1022 }, { label: 'Pending admission', id: 1024 }, { label: 'Cancel admission', id: 1023 }, { label: 'Approved admission', id: 25 }, { label: 'Student registration', id: 19 }]
     },
     { 
       label: 'Fees', 

@@ -51,6 +51,15 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
       subItems: [{ label: 'Fees management', id: 71 }]
     },
     { 
+      label: 'Certificate', 
+      id: 80,
+      subItems: [
+        { label: 'Transfer certificate', id: 81 },
+        { label: 'Student marksheet', id: 82 },
+        { label: 'Course certificate', id: 83 },
+      ]
+    },
+    { 
       label: 'Payment', id: 200,
       subItems: [
         { label: 'Online payments', id: 201 },

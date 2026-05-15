@@ -94,9 +94,6 @@ function StudentLayoutContent({
       <main className="max-w-[1600px] mx-auto px-4 md:px-12 pb-20 pt-32 transition-all">
         {children}
       </main>
-      <footer className="text-center py-12 opacity-30 mt-auto">
-        <p className="text-[13px] font-black capitalize tracking-[0.5em] text-black">Institutional ERP Phase IV | Safe Campus Edition</p>
-      </footer>
     </div>
   );
 }

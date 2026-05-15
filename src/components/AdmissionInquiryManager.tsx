@@ -120,7 +120,10 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           rollNumber: rollNumber || 'N/A',
           confirmedAt: Date.now(),
           verificationStatus: 'Verified',
-          paymentStatus: 'Pending'
+          paymentStatus: 'Pending',
+          // Preserve original application timing
+          appliedAt: selectedInquiry.appliedAt || selectedInquiry.date || new Date().toISOString(),
+          date: selectedInquiry.date || selectedInquiry.appliedAt || new Date().toISOString()
         };
 
         const updates: any = {};
@@ -401,7 +404,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             courseName: selectedInquiry.courseName,
             courseType: selectedInquiry.courseType || 'Regular',
             fees: selectedInquiry.fees || '0',
-            admissionDate: new Date().toISOString(),
+            admissionDate: selectedInquiry.appliedAt || selectedInquiry.date || new Date().toISOString(),
             admissionStatus: 'Confirmed',
             status: 'Confirmed',
             inquiryId: selectedInquiry.id,
@@ -410,7 +413,10 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             collegeId: targetCollegeId,
             collegeName: selectedInquiry.collegeName,
             confirmedAt: new Date().toISOString(),
-            isActive: true
+            isActive: true,
+            // Explicitly preserve original timing fields
+            appliedAt: selectedInquiry.appliedAt || selectedInquiry.date || new Date().toISOString(),
+            date: selectedInquiry.date || selectedInquiry.appliedAt || new Date().toISOString()
           });
 
           alert(`SUCCESS: Application from ${selectedInquiry.studentName} has been CONFIRMED. Admission record created.`);
