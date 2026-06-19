@@ -686,7 +686,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
           const fileRef = storageRef(storage, `courses/recovered_thumbnails/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
           const uploadTask = uploadBytesResumable(fileRef, blob);
           await new Promise((resolve, reject) => {
-            uploadTask.on('state_changed', null, reject, resolve);
+            uploadTask.on('state_changed', null, reject, () => { resolve(null); });
           });
           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
           return downloadUrl;
