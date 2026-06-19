@@ -1087,7 +1087,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
     } else if (key === 'syllabus_copy') {
       tableValues = courses.flatMap(c => String(c.syllabus_copy || '').split(', ').map(s => s.trim())).filter(Boolean);
     } else if (key === 'course_type') {
-      tableValues = courses.flatMap(c => String(c.syllabus_copy || '').split(', ').map(s => s.trim())).filter(Boolean);
+      tableValues = courses.map(c => String(c.course_type || c.type || '').trim()).filter(Boolean);
     } else if (key === 'duration') {
       tableValues = courses.map(c => String(c.duration || '').trim()).filter(Boolean);
     } else if (key === 'semester') {
@@ -1097,9 +1097,9 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
     }
 
     if (tableValues.length > 0) {
-      return Array.from(new Set([...defaultOpts, ...tableValues])).sort();
+      return Array.from(new Set([...defaultOpts, ...tableValues])).sort((a, b) => String(a).localeCompare(String(b), undefined, { sensitivity: 'base' }));
     }
-    return defaultOpts;
+    return defaultOpts.sort((a, b) => String(a).localeCompare(String(b), undefined, { sensitivity: 'base' }));
   };
 
 
@@ -1336,7 +1336,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
             openDropdownId={openDropdownId}
             setOpenDropdownId={setOpenDropdownId}
             placeholder="All Types"
-            options={dropdownOptions['course_type'] || []}
+            options={getFilterDropdownOptions('course_type')}
             className="w-full bg-slate-50 border border-black rounded-xl py-3.5 px-4 text-xs font-normal focus:bg-white focus:border-[#00a5a5] transition-all cursor-pointer"
           />
         </div>
@@ -1365,7 +1365,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
             openDropdownId={openDropdownId}
             setOpenDropdownId={setOpenDropdownId}
             placeholder="All Durations"
-            options={dropdownOptions['duration'] || []}
+            options={getFilterDropdownOptions('duration')}
             className="w-full bg-slate-50 border border-black rounded-xl py-3.5 px-4 text-xs font-normal focus:bg-white focus:border-[#00a5a5] transition-all cursor-pointer"
           />
         </div>
@@ -1394,6 +1394,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
             setOpenDropdownId={setOpenDropdownId}
             placeholder="All Streams"
             options={getFilterDropdownOptions('subcategory')}
+            searchable={true}
             className="w-full bg-slate-50 border border-black rounded-xl py-3.5 px-4 text-xs font-normal focus:bg-white focus:border-[#00a5a5] transition-all cursor-pointer"
           />
         </div>
@@ -1446,9 +1447,9 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">College Name</th>
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Course Type</th>
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black">Course Name</th>
+                  <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Stream/Branch</th>
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Duration</th>
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Semester</th>
-                  <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Stream/Branch</th>
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight text-center">Action</th>
                 </tr>
               </thead>
@@ -1494,15 +1495,15 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
                       </div>
                     </td>
                     <td className="px-6 py-6 border-r border-black text-center">
+                      <span className="text-[14px] font-bold text-slate-500">{course.subcategory || course.stream || course.branch || '—'}</span>
+                    </td>
+                    <td className="px-6 py-6 border-r border-black text-center">
                       <div className="flex items-center justify-center gap-2 text-slate-500 font-bold text-[14px]">
                         <Timer size={14} className="text-[#00a5a5]" /> {course.duration || '—'}
                       </div>
                     </td>
                     <td className="px-6 py-6 border-r border-black text-center">
                       <span className="text-[14px] font-bold text-slate-500">{course.semester || '—'}</span>
-                    </td>
-                    <td className="px-6 py-6 border-r border-black text-center">
-                      <span className="text-[14px] font-bold text-slate-500">{course.subcategory || course.stream || course.branch || '—'}</span>
                     </td>
                     <td className="px-6 py-6">
                       <div className="flex items-center justify-center gap-2">
