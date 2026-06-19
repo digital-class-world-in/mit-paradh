@@ -1824,8 +1824,8 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
                             openDropdownId={openDropdownId}
                             setOpenDropdownId={setOpenDropdownId}
                             placeholder={`Select ${label}`}
-                            options={['course_name', 'course_faculty', 'eligibility_criteria', 'upi_id'].includes(key) ? getFilterDropdownOptions(key) : (dropdownOptions[key] || [])}
-                            searchable={['course_name', 'course_faculty', 'eligibility_criteria', 'upi_id'].includes(key)}
+                            options={['course_name', 'course_faculty', 'eligibility_criteria', 'upi_id', 'subcategory'].includes(key) ? getFilterDropdownOptions(key) : (dropdownOptions[key] || [])}
+                            searchable={['course_name', 'course_faculty', 'eligibility_criteria', 'upi_id', 'subcategory'].includes(key)}
                             className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm font-medium focus:border-[#00a5a5] transition-all cursor-pointer"
                           />
                         )}
