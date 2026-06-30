@@ -47,6 +47,7 @@ import CredentialManager from '@/components/CredentialManager';
 import WebsiteManager from '@/components/WebsiteManager';
 import ContactEnquiriesManager from '@/components/ContactEnquiriesManager';
 import BackupManager from '@/components/BackupManager';
+import NoticeManager from '@/components/NoticeManager';
 import { getDefaultAdminUid } from '@/lib/adminUtils';
 
 function cn(...inputs: ClassValue[]) {
@@ -357,6 +358,10 @@ function DashboardContent() {
 
         <div className={(activeTab === 41 || activeTab === 4) ? "block" : "hidden"}>
           {shouldRender([41, 4]) && <CourseManager adminUid={resolvedAdminUid} />}
+        </div>
+
+        <div className={(activeTab === 20) ? "block" : "hidden"}>
+          {shouldRender([20]) && <NoticeManager adminUid={resolvedAdminUid} />}
         </div>
 
         <div className={(activeTab === 70 || activeTab === 71 || activeTab === 72) ? "block" : "hidden"}>

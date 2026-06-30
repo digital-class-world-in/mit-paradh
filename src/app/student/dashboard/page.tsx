@@ -6,6 +6,9 @@ import { studentAuth, realtimeDb, storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ref, get, onValue, set, push, update } from 'firebase/database';
+import ApplicationPreviewModal from '@/components/ApplicationPreviewModal';
+import StudentNoticeBoard from '@/components/StudentNoticeBoard';
+import StudentIDCard from '@/components/StudentIDCard';
 import ProfileWizard from '@/components/ProfileWizard';
 import StudentNavbar from '@/components/StudentNavbar';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -726,6 +729,63 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
   );
 };
 
+const FeeTablePortal = ({ availableCourses, availableColleges }: any) => {
+  return (
+    <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
+      <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
+        <header className="mb-10">
+          <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Course Fee Structure</h3>
+          <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official registry of course fees across all colleges</p>
+        </header>
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse border-[0.5px] border-black">
+            <thead>
+              <tr className="bg-slate-50/50 border-b-[0.5px] border-black">
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black w-16 text-center">Sr.</th>
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black">College Name</th>
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black">Course Name</th>
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black text-center">Duration</th>
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black text-center">Type</th>
+                <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest text-right">Fee (₹)</th>
+              </tr>
+            </thead>
+            <tbody className="border-b-[0.5px] border-black">
+              {availableCourses.map((course: any, i: number) => {
+                const college = availableColleges.find((c: any) => c.id === course.collegeId);
+                const collegeName = college ? college.name : (course.source === 'Global' ? 'Global Course' : 'N/A');
+                return (
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors border-b-[0.5px] border-black">
+                    <td className="px-6 py-5 border-r-[0.5px] border-black text-center font-bold text-black">{i + 1}.</td>
+                    <td className="px-6 py-5 border-r-[0.5px] border-black">
+                      <span className="text-[12px] font-bold text-slate-800 capitalize tracking-tight">{collegeName}</span>
+                    </td>
+                    <td className="px-6 py-5 border-r-[0.5px] border-black">
+                      <p className="text-sm font-black text-slate-800 tracking-tight leading-none mb-1 capitalize">{course.course_name}</p>
+                      <p className="text-[10px] font-medium text-slate-400 capitalize">{course.subcategory || course.category}</p>
+                    </td>
+                    <td className="px-6 py-5 border-r-[0.5px] border-black text-center text-sm font-bold text-slate-600">{course.duration}</td>
+                    <td className="px-6 py-5 border-r-[0.5px] border-black text-center">
+                      <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-100">{course.course_type || course.type || 'Reg'}</span>
+                    </td>
+                    <td className="px-6 py-5 text-right text-[15px] font-black text-emerald-600">
+                      ₹{parseFloat(course.price || course.online_price || course.offline_price || '0').toLocaleString()}
+                    </td>
+                  </tr>
+                );
+              })}
+              {availableCourses.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">No courses available.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, hasActiveAdmission, setIsOtherCourseMode, setIsCourseModalOpen, handleTabChange, activeApp }: any) => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -797,13 +857,16 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
             { l: 'Admission year', v: '2026-2027' },
             {
               l: 'Name',
-              v: toTitleCase(`${userData?.firstName || ''} ${userData?.middleName || ''} ${userData?.lastName || ''}`.trim() || 'Student')
+              v: toTitleCase(`${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
             { l: 'Form number', v: 'F-2026/00452' },
-            { l: 'Mobile number', v: userData?.phone || 'N/A' },
+            { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
             { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
-            { l: 'DOB', v: userData?.dateOfBirth || 'N/A' },
-            { l: 'Email ID', v: userData?.email || 'N/A' },
+            { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
+            (activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo) 
+              ? { l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo }
+              : { l: 'Auto Reg No.', v: activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo || 'N/A' },
+            { l: 'Email ID', v: userData?.email || userData?.studentEmail || 'N/A' },
           ].map((item, i) => (
             <div key={i} className="flex border-2 border-slate-200 rounded-md overflow-hidden bg-white h-12">
               <div className="w-1/3 bg-[#e6f7f7] px-4 py-2 text-[#00a5a5] font-normal text-[15px] flex items-center tracking-tight">{item.l}</div>
@@ -1195,7 +1258,7 @@ const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt }: any
 
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-      <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
+      <div className="glass-effect p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border-4 border-white shadow-2xl">
         <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Approved Payment Slips</h3>
@@ -1217,43 +1280,53 @@ const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt }: any
             </p>
           </div>
         ) : (
-          <div className="p-0 overflow-x-auto">
-            <table className="w-full text-left border-collapse border-[0.5px] border-black">
-              <thead>
+          <div className="p-0 overflow-x-auto no-scrollbar">
+            <table className="w-full text-left border-collapse md:border-[0.5px] border-black block md:table">
+              <thead className="hidden md:table-header-group">
                 <tr className="text-[14px] font-normal text-[#00a5a5] border-b-[0.5px] border-black bg-slate-50">
-                  <th className="px-6 py-4 border-r-[0.5px] border-black text-center w-16">Sr.</th>
-                  <th className="px-6 py-4 border-r-[0.5px] border-black">Receipt No.</th>
-                  <th className="px-6 py-4 border-r-[0.5px] border-black">College / Course</th>
-                  <th className="px-6 py-4 border-r-[0.5px] border-black text-center">Approved Date</th>
-                  <th className="px-6 py-4 border-r-[0.5px] border-black text-right">Amount</th>
-                  <th className="px-6 py-4 text-center">Action</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black text-center w-16">Sr.</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black">Receipt No.</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black">College / Course</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black text-center">Approved Date</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black text-right">Amount</th>
+                  <th className="px-6 py-4 border-[0.5px] border-black text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="border-b-[0.5px] border-black text-[14px] font-normal text-slate-600">
+              <tbody className="block md:table-row-group text-[14px] font-normal text-slate-600">
                 {approvedPayments.map((pay: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black">
-                    <td className="px-6 py-5 text-center border-r-[0.5px] border-black font-bold text-black">{idx + 1}.</td>
-                    <td className="px-6 py-5 border-r-[0.5px] border-black">
+                  <tr key={idx} className="block md:table-row bg-white md:bg-transparent border border-slate-200 md:border-b-[0.5px] md:border-black rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors">
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center font-bold text-black">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Sr.</span>
+                      <span>{idx + 1}.</span>
+                    </td>
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Receipt No.</span>
                       <span className="text-[11px] font-black text-[#00a5a5] uppercase tracking-widest bg-[#e6f7f7] px-3 py-1 rounded-md">
                         {pay.receiptNo || ('REC-' + pay.id?.slice(-8).toUpperCase())}
                       </span>
                     </td>
-                    <td className="px-6 py-5 border-r-[0.5px] border-black">
-                      <p className="text-sm font-bold text-slate-800 tracking-tight leading-none mb-1">{pay.courseName}</p>
-                      <p className="text-[10px] font-medium text-slate-400 capitalize">{pay.collegeName}</p>
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">College / Course</span>
+                      <div className="text-right md:text-left">
+                        <p className="text-sm font-bold text-slate-800 tracking-tight leading-none mb-1">{pay.courseName}</p>
+                        <p className="text-[10px] font-medium text-slate-400 capitalize">{pay.collegeName}</p>
+                      </div>
                     </td>
-                    <td className="px-6 py-5 border-r-[0.5px] border-black text-center text-sm font-medium text-slate-500">
-                      {pay.approvedAt ? new Date(pay.approvedAt).toLocaleDateString() : pay.date ? new Date(pay.date).toLocaleDateString() : 'N/A'}
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center text-sm font-medium text-slate-500">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Approved Date</span>
+                      <span>{pay.approvedAt ? new Date(pay.approvedAt).toLocaleDateString() : pay.date ? new Date(pay.date).toLocaleDateString() : 'N/A'}</span>
                     </td>
-                    <td className="px-6 py-5 border-r-[0.5px] border-black text-right text-[15px] font-black text-emerald-600">
-                      ₹{parseFloat(pay.amount || '0').toLocaleString()}
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-right text-[15px] font-black text-emerald-600">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Amount</span>
+                      <span>₹{parseFloat(pay.amount || '0').toLocaleString()}</span>
                     </td>
-                    <td className="px-6 py-5 text-center">
+                    <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
+                      <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
                       <button
                         onClick={() => { setLastReceipt(pay); setShowReceipt(true); }}
-                        className="px-5 py-2 bg-[#00a5a5] text-black hover:bg-[#5D5fb1] text-[11px] font-black uppercase transition-all shadow-md flex items-center gap-1.5 justify-center mx-auto rounded-xl active:scale-95"
+                        className="px-5 py-2 bg-[#00a5a5] text-black hover:bg-[#5D5fb1] text-[11px] font-black uppercase transition-all shadow-md flex items-center gap-1.5 justify-center rounded-xl active:scale-95"
                       >
-                        <Download size={12} /> View Slip / Receipt
+                        <Download size={12} /> View Slip
                       </button>
                     </td>
                   </tr>
@@ -1283,9 +1356,9 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
     </header>
     <div className="bg-white border-2 border-black rounded-xl shadow-2xl overflow-hidden">
       <div className="bg-slate-800 text-white py-4 px-8 font-bold text-sm tracking-wide">DOCUMENT REPOSITORY</div>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
+      <div className="overflow-x-auto no-scrollbar">
+        <table className="w-full border-collapse block md:table">
+          <thead className="hidden md:table-header-group">
             <tr className="bg-slate-100">
               <th className="px-6 py-5 border-2 border-black text-[12px] font-black text-black uppercase text-center w-16">Sr.</th>
               <th className="px-6 py-5 border-2 border-black text-[12px] font-black text-black uppercase">Document Name</th>
@@ -1293,31 +1366,49 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
               <th className="px-6 py-5 border-2 border-black text-[12px] font-black text-black uppercase text-center">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="block md:table-row-group">
             {profileDocs.map((doc: any, idx: number) => {
               const fileUrl = doc.url || userData?.profile?.[doc.key];
               return (
-                <tr key={`p-${idx}`} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-5 border-2 border-black text-center text-[14px] font-bold text-slate-700">{idx + 1}</td>
-                  <td className="px-6 py-5 border-2 border-black font-bold text-slate-800 capitalize">{doc.label}</td>
-                  <td className="px-6 py-5 border-2 border-black text-center">
-                    <span className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 flex items-center justify-center gap-2 mx-auto w-fit", fileUrl ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-500 border-rose-100")}>
+                <tr key={`p-${idx}`} className="block md:table-row bg-white md:bg-transparent border border-slate-200 md:border-none rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors">
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center text-[14px] font-bold text-slate-700">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Sr.</span>
+                    <span>{idx + 1}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black font-bold text-slate-800 capitalize">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Document Name</span>
+                    <span className="text-right md:text-left">{doc.label}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Status</span>
+                    <span className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 flex items-center justify-center gap-2 md:mx-auto w-fit", fileUrl ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-500 border-rose-100")}>
                       {fileUrl ? <Check size={12} /> : <X size={12} />} {fileUrl ? 'Verified' : 'Missing'}
                     </span>
                   </td>
-                  <td className="px-6 py-5 border-2 border-black text-center">
-                    {fileUrl ? <button onClick={() => setModalPreview({ url: fileUrl, label: doc.label })} className="px-5 py-2.5 bg-[#00a5a5] text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 mx-auto"><Eye size={14} /> Preview</button> : <button onClick={() => handleDocumentUpload(doc)} className="px-5 py-2.5 bg-amber-500 text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 mx-auto"><Plus size={14} /> Upload</button>}
+                  <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
+                    {fileUrl ? <button onClick={() => setModalPreview({ url: fileUrl, label: doc.label })} className="px-5 py-2.5 bg-[#00a5a5] text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 md:mx-auto"><Eye size={14} /> Preview</button> : <button onClick={() => handleDocumentUpload(doc)} className="px-5 py-2.5 bg-amber-500 text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 md:mx-auto"><Plus size={14} /> Upload</button>}
                   </td>
                 </tr>
               );
             })}
             {customDocuments.map((doc: any, idx: number) => (
-              <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-5 border-2 border-black text-center text-[14px] font-bold text-slate-700">{profileDocs.length + idx + 1}</td>
-                <td className="px-6 py-5 border-2 border-black font-bold text-slate-800 capitalize">{doc.name}</td>
-                <td className="px-6 py-5 border-2 border-black text-center"><span className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase border-2 border-emerald-100 flex items-center justify-center gap-2 mx-auto w-fit"><Check size={12} /> Available</span></td>
-                <td className="px-6 py-5 border-2 border-black text-center">
-                  <div className="flex items-center justify-center gap-3">
+              <tr key={doc.id} className="block md:table-row bg-white md:bg-transparent border border-slate-200 md:border-none rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors">
+                <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center text-[14px] font-bold text-slate-700">
+                  <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Sr.</span>
+                  <span>{profileDocs.length + idx + 1}</span>
+                </td>
+                <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black font-bold text-slate-800 capitalize">
+                  <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Document Name</span>
+                  <span className="text-right md:text-left">{doc.name}</span>
+                </td>
+                <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center">
+                  <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Status</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase border-2 border-emerald-100 flex items-center justify-center gap-2 md:mx-auto w-fit"><Check size={12} /> Available</span>
+                </td>
+                <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
+                  <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
+                  <div className="flex items-center justify-end md:justify-center gap-3">
                     <button onClick={() => setModalPreview({ url: doc.fileUrl, label: doc.name })} className="px-5 py-2.5 bg-[#00a5a5] text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2"><Eye size={14} /> View</button>
                     <button onClick={() => handleDeleteCustomDoc(doc.id)} className="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-lg text-[11px] font-black uppercase border-2 border-rose-100 flex items-center gap-2"><X size={14} /> Delete</button>
                   </div>
@@ -1535,6 +1626,10 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                           <td style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000', width: '150px' }}>{userData.profile?.gender || 'N/A'}</td>
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Date of Birth:</td>
                           <td style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.profile?.dateOfBirth || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Manual Reg No:</td>
+                          <td colSpan={3} style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'}</td>
                         </tr>
                         <tr>
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Blood Group:</td>
@@ -1953,9 +2048,9 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
       <div className="bg-white border border-black rounded-xl shadow-2xl overflow-hidden print:hidden">
         <div className="bg-slate-800 text-white py-4 px-8 font-bold text-sm tracking-wide">YOUR ADMISSION APPLICATIONS</div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border-[0.5px] border-black">
-            <thead>
-              <tr className="bg-slate-50 border-b-[0.5px] border-black whitespace-nowrap">
+          <table className="w-full text-left border-collapse md:border-[0.5px] border-black block md:table">
+            <thead className="hidden md:table-header-group">
+              <tr className="bg-slate-50 border-b-[0.5px] border-black">
                 <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center w-16">Sr No.</th>
                 <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">Admission Date & Time</th>
                 <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">Student Name</th>
@@ -1967,12 +2062,16 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="border-b-[0.5px] border-black text-[15px] font-medium text-black">
+            <tbody className="block md:table-row-group text-[15px] font-medium text-black">
               {userApplications.filter((app: any) => app.profileLocked === true).map((app: any, i: number) => (
-                <tr key={`${app.id}-${i}`} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black whitespace-nowrap">
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold">{i + 1}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black">
-                    <div className="flex items-center gap-2">
+                <tr key={`${app.id}-${i}`} className="block md:table-row bg-white border md:border-none border-slate-200 rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors md:border-b-[0.5px] border-black">
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center font-bold">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Sr No.</span>
+                    <span>{i + 1}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Date & Time</span>
+                    <div className="flex items-center justify-end md:justify-start gap-2">
                       <Clock size={14} className="text-[#00a5a5]" />
                       {(() => {
                         const d = new Date(app.appliedAt || app.date || Date.now());
@@ -1980,20 +2079,35 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                       })()}
                     </div>
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black capitalize">{app.collegeName || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black font-bold capitalize">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Student Name</span>
+                    <span className="text-right md:text-left">{app.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black capitalize">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">College</span>
+                    <span className="text-right md:text-left">{app.collegeName || 'N/A'}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Course Type</span>
                     <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-200">{app.courseType || 'Regular'}</span>
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.courseName}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-right font-bold text-emerald-600">₹{parseFloat(app.fees || '0').toLocaleString()}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black font-bold capitalize">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Course</span>
+                    <span>{app.courseName}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-right font-bold text-emerald-600">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Fees</span>
+                    <span>₹{parseFloat(app.fees || '0').toLocaleString()}</span>
+                  </td>
+                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Status</span>
                     <span className={cn("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 shadow-sm", app.status === 'Accepted' || app.status === 'Confirmed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-500 border-amber-100")}>
                       {app.status || 'Pending'}
                     </span>
                   </td>
-                  <td className="px-4 py-6 text-center">
-                    <div className="flex items-center justify-center gap-3">
+                  <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-4 py-4 md:py-6 text-center">
+                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
+                    <div className="flex items-center justify-end md:justify-center gap-3">
                       <button onClick={() => handlePreview(app)} className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-90" title="Preview Application"><Eye size={18} /></button>
                       <button
                         onClick={() => handleDownloadPDF(app)}
@@ -2019,7 +2133,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
       {showPreview && selectedApp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300 print:relative print:inset-0 print:p-0 print:z-0">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm print:hidden" onClick={() => setShowPreview(false)} />
-          <div className="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-[2rem] shadow-2xl relative flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 print:rounded-none print:shadow-none print:max-h-none print:h-auto print:overflow-visible">
+          <div className="bg-white w-11/12 max-w-5xl max-h-[95vh] rounded-[2rem] shadow-2xl relative flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 print:rounded-none print:shadow-none print:max-h-none print:h-auto print:overflow-visible">
             {/* Modal Header */}
             <div className="px-10 py-6 bg-slate-50 border-b-2 border-black flex items-center justify-between shrink-0 print:hidden">
               <div className="flex items-center gap-4">
@@ -2044,19 +2158,13 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
             {/* Application Content */}
             <div className="flex-1 overflow-y-auto p-12 custom-scrollbar print:overflow-visible print:p-0 print:block">
               {/* Institutional Header (For Print) */}
-              <div className="hidden print:flex flex-col items-center text-center mb-10 border-b-4 border-black pb-8">
-                <div className="w-24 h-24 bg-[#002147] rounded-full mb-4 flex items-center justify-center text-white font-black text-2xl border-4 border-black shadow-lg">MIT</div>
-                <h1 className="text-3xl font-black text-black uppercase tracking-tight">{selectedApp.collegeName || 'Official Institution Registry'}</h1>
-                <p className="text-sm font-bold text-black uppercase tracking-widest mt-1">Admission Application Form — Academic Year 2026-27</p>
-                <div className="mt-6 flex gap-10">
-                  <div className="text-left">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Application ID</p>
-                    <p className="text-sm font-black text-black">{selectedApp.applicationId}</p>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Registration No.</p>
-                    <p className="text-sm font-black text-black">{userData.profile?.regNo || 'PENDING'}</p>
-                  </div>
+              <div className="hidden print:flex items-center gap-6 mb-8 border-b-4 border-black pb-6">
+                <div className="shrink-0">
+                  <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-24 h-24 object-contain" />
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-black text-black uppercase tracking-tight">MAHALAXMI NURSING AND TECHNICAL INSTITUTE PARADH</h1>
+                  <p className="text-sm font-bold text-black uppercase mt-1">Paradh, Maharashtra</p>
                 </div>
               </div>
 
@@ -2065,9 +2173,28 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <div className="md:col-span-2">
                   <SectionHeader title="Step 1: Primary Information" icon={User} />
                 </div>
+                
+                <div className="md:col-span-2 flex justify-end mb-4 print:flex">
+                  <div className="flex gap-4">
+                    <div className="w-[120px] h-[150px] border-2 border-slate-800 p-1 bg-white flex items-center justify-center overflow-hidden">
+                      {(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo) && String(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo).length > 10 ? (
+                        <img src={userData.profile?.photoUrl || userData.profile?.photo || userData?.photo} alt="Photo" className="w-full h-full object-cover print:block" />
+                      ) : null}
+                      <span className="text-xs text-slate-400 font-bold text-center" style={{ display: (userData.profile?.photoUrl || userData.profile?.photo || userData?.photo) && String(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo).length > 10 ? 'none' : 'block' }}>Passport Photo</span>
+                    </div>
+                    <div className="w-[150px] h-[60px] border border-slate-800 p-1 bg-white flex items-center justify-center overflow-hidden mt-auto">
+                      {(userData.profile?.signatureUrl || userData.profile?.signUrl) && String(userData.profile?.signatureUrl || userData.profile?.signUrl).length > 10 ? (
+                        <img src={userData.profile?.signatureUrl || userData.profile?.signUrl} alt="Signature" className="max-h-full object-contain print:block" />
+                      ) : null}
+                      <span className="text-xs text-slate-400 font-bold text-center" style={{ display: (userData.profile?.signatureUrl || userData.profile?.signUrl) && String(userData.profile?.signatureUrl || userData.profile?.signUrl).length > 10 ? 'none' : 'block' }}>Signature</span>
+                    </div>
+                  </div>
+                </div>
+
                 <DataRow label="Full Name" value={`${userData.profile?.firstName} ${userData.profile?.middleName || ''} ${userData.profile?.lastName}`} />
                 <DataRow label="Gender" value={toTitleCase(userData.profile?.gender || userData.gender || '')} />
                 <DataRow label="Date of Birth" value={userData.profile?.dateOfBirth || userData.dateOfBirth} />
+                <DataRow label="Manual Reg No." value={userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'} />
                 <DataRow label="Blood Group" value={userData.profile?.bloodGroup} />
                 <DataRow label="Nationality" value={userData.profile?.nationality || 'Indian'} />
                 <DataRow label="Mother Tongue" value={userData.profile?.motherTongue} />
@@ -2160,10 +2287,10 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <div className="md:col-span-2">
                   <SectionHeader title="Step 8: Bank Account Information" icon={Landmark} />
                 </div>
-                <DataRow label="Bank Name" value={userData.profile?.bankName} />
-                <DataRow label="Account Number" value={userData.profile?.accountNumber} />
-                <DataRow label="IFSC Code" value={userData.profile?.ifscCode} />
-                <DataRow label="Branch" value={userData.profile?.bankBranch} />
+                <DataRow label="Bank Name" value={userData.bankDetails?.bankName || userData.profile?.bankName} />
+                <DataRow label="Account Number" value={userData.bankDetails?.accountNumber || userData.profile?.accountNumber} />
+                <DataRow label="IFSC Code" value={userData.bankDetails?.ifscCode || userData.profile?.ifscCode} />
+                <DataRow label="Branch" value={userData.bankDetails?.branchName || userData.profile?.bankBranch} />
 
                 {/* Section: Documents */}
                 <div className="md:col-span-2">
@@ -2932,7 +3059,7 @@ function DashboardContent() {
       5: (p.qualifications && p.qualifications.length > 0) ? 100 : 0,
       6: p.hasTraining ? 100 : 0,
       7: (p.languagesKnown && p.languagesKnown.length > 0) ? 100 : 0,
-      8: p.panCardNo ? 100 : 0,
+      8: (p.hasBankAccount === 'No' || p.bankPassbookUrl) ? 100 : 0,
       9: p.hasWorkExperience ? 100 : 0,
       10: (userApplications.length > 0 && !!userApplications[0].courseId) ? 100 : 0,
       11: p.profileLocked ? 100 : 0,
@@ -3588,15 +3715,26 @@ function DashboardContent() {
         if (!currentApp) {
           return (
             <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-              <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
-                <header className="mb-10">
-                  <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Admission Profile Forms</h3>
-                  <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Select an application to complete or update your admission profile</p>
+              <div className="glass-effect p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border-4 border-white shadow-2xl">
+                <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Admission Profile Forms</h3>
+                    <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Select an application to complete or update your admission profile</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsOtherCourseMode(true);
+                      handleTabChange(3, 1, 'new');
+                    }}
+                    className="bg-[#00a5a5] hover:bg-[#003366] text-white px-6 py-2.5 rounded-xl font-black text-[12px] uppercase tracking-tight shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Plus size={16} /> Apply for New Admission
+                  </button>
                 </header>
 
                 <div className="overflow-x-auto no-scrollbar">
-                  <table className="w-full text-left border-collapse border border-black">
-                    <thead>
+                  <table className="w-full text-left border-collapse border border-black block md:table">
+                    <thead className="hidden md:table-header-group">
                       <tr className="bg-slate-50/50 border-b border-black">
                         <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r border-black text-center w-16">Sr.</th>
                         <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r border-black">Date & Time</th>
@@ -3606,21 +3744,32 @@ function DashboardContent() {
                         <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="border-b border-black">
+                    <tbody className="block md:table-row-group">
                       {[...userApplications].sort((a, b) => new Date(b.appliedAt || 0).getTime() - new Date(a.appliedAt || 0).getTime()).map((app, i) => (
-                        <tr key={`${app.id}-${i}`} className="hover:bg-slate-50/50 transition-colors border-b border-black">
-                          <td className="px-6 py-6 border-r border-black text-[13px] font-medium text-slate-400 text-center">{i + 1}.</td>
-                          <td className="px-6 py-6 border-r border-black">
-                            <p className="text-[13px] font-bold text-black">{new Date(app.appliedAt).toLocaleDateString()}</p>
-                            <p className="text-[10px] font-medium text-slate-400">{new Date(app.appliedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                        <tr key={`${app.id}-${i}`} className="block md:table-row hover:bg-slate-50/50 transition-colors border-b border-black bg-white md:bg-transparent rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none md:border-t-0 border-t border-r border-l">
+                          <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r border-black text-[13px] font-medium text-slate-400 text-center">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Sr.</span>
+                            <span>{i + 1}.</span>
                           </td>
-                          <td className="px-6 py-6 border-r border-black font-bold text-slate-800 text-[13px]">{app.collegeName}</td>
-                          <td className="px-6 py-6 border-r border-black">
+                          <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r border-black">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Date & Time</span>
+                            <div className="text-right md:text-left">
+                              <p className="text-[13px] font-bold text-black">{new Date(app.appliedAt).toLocaleDateString()}</p>
+                              <p className="text-[10px] font-medium text-slate-400">{new Date(app.appliedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                            </div>
+                          </td>
+                          <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r border-black font-bold text-slate-800 text-[13px]">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">College</span>
+                            <span className="text-right md:text-left">{app.collegeName}</span>
+                          </td>
+                          <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r border-black">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Course Type</span>
                             <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-100">
                               {app.courseType || 'Reg'}
                             </span>
                           </td>
-                          <td className="px-6 py-6 border-r border-black text-center">
+                          <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r border-black text-center">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Status</span>
                             <div className={cn(
                               "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border",
                               app.status === 'Accepted' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
@@ -3630,7 +3779,8 @@ function DashboardContent() {
                               {app.status || 'Pending'}
                             </div>
                           </td>
-                          <td className="px-6 py-6 text-center">
+                          <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-6 text-center">
+                            <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Action</span>
                             <button
                               onClick={() => handleTabChange(3, 1, app.id)}
                               className="px-6 py-2 bg-[#002147] text-white rounded-xl text-[11px] font-black uppercase tracking-tight shadow-md hover:bg-[#00a5a5] transition-all active:scale-95"
@@ -3641,8 +3791,8 @@ function DashboardContent() {
                         </tr>
                       ))}
                       {userApplications.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="py-20 text-center text-slate-400 italic">No applications found.</td>
+                        <tr className="block md:table-row">
+                          <td colSpan={6} className="py-20 text-center text-slate-400 italic block md:table-cell">No applications found.</td>
                         </tr>
                       )}
                     </tbody>
@@ -3708,7 +3858,7 @@ function DashboardContent() {
       case 5: {
         const subTabName = searchParams.get('name') || '';
 
-        if (subTabName === 'b)-payment-slip') {
+        if (subTabName === 'b)-payment-slip' || subTabName === 'Payment Slip') {
           return (
             <PaymentSlipPortal
               userPayments={userPayments}
@@ -3784,6 +3934,23 @@ function DashboardContent() {
             userData={userData}
             availableColleges={availableColleges}
           />
+        );
+      case 14:
+        return (
+          <FeeTablePortal
+            availableCourses={availableCourses}
+            availableColleges={availableColleges}
+          />
+        );
+      case 10:
+        return (
+          <div className="animate-in fade-in zoom-in-95 duration-500">
+            <StudentNoticeBoard collegeId={userData?.profile?.collegeId || userData?.collegeId} userId={userData?.uid || userData?.id} />
+          </div>
+        );
+      case 12:
+        return (
+          <StudentIDCard userData={userData} activeApp={activeApp} />
         );
       default:
         return (
@@ -3974,7 +4141,7 @@ function DashboardContent() {
       {modalPreview && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setModalPreview(null)} />
-          <div className="bg-white w-full max-w-4xl h-full max-h-[85vh] rounded-[2rem] shadow-2xl relative flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="bg-white w-11/12 max-w-4xl h-full max-h-[85vh] rounded-[2rem] shadow-2xl relative flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="px-8 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#00a5a5] flex items-center justify-center text-white">
@@ -4608,16 +4775,20 @@ function DashboardContent() {
                 }}
               >
                 {/* Header */}
-                <div className="flex items-start gap-4 pb-2 relative border-b border-red-100 shrink-0">
+                <div className="flex items-start gap-4 pb-2 relative border-b border-[#fee2e2] shrink-0">
                   <div className="shrink-0 pt-1">
-                    <img src={lastReceipt.collegeLogo} alt="Logo" className="w-16 h-16 object-contain" />
+                    {lastReceipt.collegeLogo && lastReceipt.collegeLogo.length > 10 ? (
+                      <img src={lastReceipt.collegeLogo} alt="Logo" className="w-16 h-16 object-contain" crossOrigin="anonymous" />
+                    ) : (
+                      <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-16 h-16 object-contain" crossOrigin="anonymous" />
+                    )}
                   </div>
                   <div className="flex-1 text-center pr-20">
-                    <h5 className="text-[10px] font-bold uppercase text-red-600">{lastReceipt.collegeParentOrg}</h5>
-                    <h1 className="text-[18px] font-black text-red-700 uppercase leading-none tracking-tighter mt-1">
+                    <h5 className="text-[10px] font-bold uppercase text-[#dc2626]">{lastReceipt.collegeParentOrg}</h5>
+                    <h1 className="text-[18px] font-black text-[#b91c1c] uppercase leading-none tracking-tighter mt-1">
                       Mahalaxmi Nursing and technical institute Paradh
                     </h1>
-                    <p className="text-[12px] font-bold uppercase tracking-widest mt-1 text-red-600">{lastReceipt.collegeAddress}</p>
+                    <p className="text-[12px] font-bold uppercase tracking-widest mt-1 text-[#dc2626]">{lastReceipt.collegeAddress}</p>
                   </div>
                 </div>
 
@@ -4625,11 +4796,11 @@ function DashboardContent() {
                 <div className="flex items-end justify-between mt-4 shrink-0">
                   <div className="flex items-baseline gap-2">
                     <span className="text-[13px] font-bold uppercase italic">Receipt No :</span>
-                    <span className="text-[14px] font-black border-b border-dotted border-red-400 px-4">{lastReceipt.receiptNo}</span>
+                    <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">{lastReceipt.receiptNo}</span>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-[13px] font-bold uppercase italic">Date :</span>
-                    <span className="text-[14px] font-black border-b border-dotted border-red-400 px-4">{new Date(lastReceipt.submittedAt || lastReceipt.approvedAt || lastReceipt.date).toLocaleDateString()}</span>
+                    <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">{new Date(lastReceipt.submittedAt || lastReceipt.approvedAt || lastReceipt.date).toLocaleDateString()}</span>
                   </div>
                 </div>
 
@@ -4638,58 +4809,58 @@ function DashboardContent() {
                   <div className="flex items-center gap-10">
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Name of Student :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.studentName}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.studentName}</div>
                     </div>
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">College Name :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.collegeName}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.collegeName}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-10">
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo}</div>
                     </div>
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-10">
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Course :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.courseName}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.courseName}</div>
                     </div>
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.courseType || 'Reg'}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.courseType || 'Reg'}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Table */}
-                <div className="mt-4 border-[1.5px] border-red-600 rounded-sm overflow-hidden flex-1">
+                <div className="mt-4 border-[1.5px] border-[#dc2626] rounded-sm overflow-hidden flex-1">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-red-50/20 border-b-[1.5px] border-red-600 font-black text-[11px] uppercase">
-                        <th className="px-3 py-1.5 border-r-[1.5px] border-red-600 w-12 text-center">Sr.</th>
-                        <th className="px-4 py-1.5 border-r-[1.5px] border-red-600 text-left">Particular's</th>
-                        <th className="px-4 py-1.5 border-r-[1.5px] border-red-600 text-left w-32">Remark</th>
+                      <tr className="bg-[#fef2f2] border-b-[1.5px] border-[#dc2626] font-black text-[11px] uppercase">
+                        <th className="px-3 py-1.5 border-r-[1.5px] border-[#dc2626] w-12 text-center">Sr.</th>
+                        <th className="px-4 py-1.5 border-r-[1.5px] border-[#dc2626] text-left">Particular's</th>
+                        <th className="px-4 py-1.5 border-r-[1.5px] border-[#dc2626] text-left w-32">Remark</th>
                         <th className="px-4 py-1.5 text-right w-40">Amount (Rs)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {["Tuition Fee", "Admission Fee/Enrollment Fee", "University Eligibility Fee", "Univ Exam. Fee", "Univ Sports Fee", "Univ Welfare Fund", "Student Insurance", "Caution Money Deposit", "I-Card, Magazines", "Journals / Stationary", "Extra Curricular Fee", "College Development Fee", "Library Fee", "Laboratory Fee", "Professional Membership", "Transportation Fee", "Medical Exam Fee", "Development Fee", "Other Fees"].map((item, idx) => (
-                        <tr key={idx} className="border-b-[1px] border-red-400 text-[12px]">
-                          <td className="px-3 py-1 border-r-[1.5px] border-red-600 text-center font-bold">{idx + 1}</td>
-                          <td className="px-4 py-1 border-r-[1.5px] border-red-600 font-medium">{item}</td>
-                          <td className="px-4 py-1 border-r-[1.5px] border-red-600">-</td>
+                        <tr key={idx} className="border-b-[1px] border-[#f87171] text-[12px]">
+                          <td className="px-3 py-1 border-r-[1.5px] border-[#dc2626] text-center font-bold">{idx + 1}</td>
+                          <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626] font-medium">{item}</td>
+                          <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626]">-</td>
                           <td className="px-4 py-1 text-right font-black">{idx === 0 ? `₹${parseFloat(lastReceipt.amount).toLocaleString()}` : '-'}</td>
                         </tr>
                       ))}
-                      <tr className="border-t-[1.5px] border-red-600 font-black bg-red-50/10">
-                        <td colSpan={3} className="px-4 py-2 text-right text-[12px] uppercase border-r-[1.5px] border-red-600">Total Fess</td>
-                        <td className="px-4 py-2 text-right text-[14px] text-red-800">₹{parseFloat(lastReceipt.amount).toLocaleString()}</td>
+                      <tr className="border-t-[1.5px] border-[#dc2626] font-black bg-[#fef2f2]">
+                        <td colSpan={3} className="px-4 py-2 text-right text-[12px] uppercase border-r-[1.5px] border-[#dc2626]">Total Fess</td>
+                        <td className="px-4 py-2 text-right text-[14px] text-[#991b1b]">₹{parseFloat(lastReceipt.amount).toLocaleString()}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -4699,21 +4870,21 @@ function DashboardContent() {
                 <div className="mt-4 space-y-4 shrink-0">
                   <div className="flex items-baseline gap-4 w-full">
                     <span className="text-[13px] font-bold uppercase shrink-0 italic">Amount In Words Rs :</span>
-                    <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-0.5 text-[14px] font-black uppercase pl-4">{numberToWords(parseFloat(lastReceipt.amount))}</div>
+                    <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 text-[14px] font-black uppercase pl-4">{numberToWords(parseFloat(lastReceipt.amount))}</div>
                   </div>
                   <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[12px] font-bold italic uppercase">
-                    <div className="flex items-baseline gap-4"><span className="shrink-0">Cash/D.D. No :</span><div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-0.5 pl-4">{lastReceipt.utrId || 'Online Payment'}</div></div>
-                    <div className="flex items-baseline gap-4"><span className="shrink-0">Bank :</span><div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-0.5 pl-4">N/A</div></div>
+                    <div className="flex items-baseline gap-4"><span className="shrink-0">Cash/D.D. No :</span><div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 pl-4">{lastReceipt.utrId || 'Online Payment'}</div></div>
+                    <div className="flex items-baseline gap-4"><span className="shrink-0">Bank :</span><div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 pl-4">N/A</div></div>
                   </div>
                   <div className="pt-6 flex justify-end">
                     <div className="text-center space-y-2">
-                      <div className="w-56 h-16 border border-red-100 rounded bg-red-50/5 flex items-center justify-center"><span className="text-[9px] font-bold text-red-100 uppercase italic">Institutional Stamp</span></div>
-                      <p className="text-[13px] font-black text-red-700 uppercase">(Accountant / Authorized Sign.)</p>
+                      <div className="w-56 h-16 border border-[#fee2e2] rounded bg-[#fef2f2] flex items-center justify-center"><span className="text-[9px] font-bold text-[#fee2e2] uppercase italic">Institutional Stamp</span></div>
+                      <p className="text-[13px] font-black text-[#b91c1c] uppercase">(Accountant / Authorized Sign.)</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-auto text-center text-[9px] text-red-400 font-bold uppercase tracking-[0.2em] border-t border-red-50 pt-2 shrink-0">* Computer Generated Official Receipt - Mahalaxmi Nursing and technical institute *</div>
+                <div className="mt-auto text-center text-[9px] text-[#f87171] font-bold uppercase tracking-[0.2em] border-t border-[#fef2f2] pt-2 shrink-0">* Computer Generated Official Receipt - Mahalaxmi Nursing and technical institute *</div>
               </div>
             </div>
           </div>

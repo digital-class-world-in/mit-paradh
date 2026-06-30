@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, ChevronDown, Trash2, Globe, FileText, Database } from 'lucide-react';
+import { LogOut, ChevronDown, Trash2, Globe, FileText, Database, Menu, X } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -28,6 +28,7 @@ interface MenuItem {
 
 export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminName }: AdminHeaderProps) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -97,6 +98,10 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
       subItems: [{ label: 'Admission Inquiry', id: 91 }, { label: 'Contact Us', id: 94 }]
     },
     {
+      label: 'Notice Board',
+      id: 20
+    },
+    {
       label: 'Website Manager',
       id: 15,
       icon: Globe,
@@ -129,7 +134,16 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center gap-1 mx-4">
+        <div className="lg:hidden flex items-center gap-4">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 text-[#00a5a5] hover:bg-slate-100 rounded-md transition-colors"
+          >
+            <Menu size={28} />
+          </button>
+        </div>
+
+        <div className="hidden lg:flex flex-1 items-center justify-center gap-1 mx-4">
           {menuItems.map((group, idx) => (
             <div key={idx} className="relative group/nav">
               <button
@@ -187,7 +201,7 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
           ))}
         </div>
 
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="hidden lg:flex items-center gap-4 shrink-0">
           <button
             onClick={onLogout}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md font-normal text-[15px] tracking-tight transition-all flex items-center gap-2 shadow-lg active:scale-95"
@@ -196,6 +210,99 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 lg:hidden" onClick={() => setIsMobileMenuOpen(false)}>
+          <div 
+            className="absolute left-0 top-0 bottom-0 w-72 bg-white flex flex-col overflow-y-auto animate-in slide-in-from-left duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 flex items-center justify-between border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-slate-200">
+                    <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-full h-full object-contain" />
+                 </div>
+                 <div>
+                    <h2 className="text-sm font-bold text-[#00a5a5]">MIT PARADH</h2>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest">Admin</p>
+                 </div>
+              </div>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-red-500 rounded-md">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-1 flex-1">
+               {menuItems.map((group, idx) => (
+                 <div key={idx}>
+                   <button
+                     onClick={() => {
+                       if (group.subItems && group.subItems.length > 0) {
+                         setOpenDropdown(openDropdown === group.label ? null : group.label);
+                       } else if (group.isExternal) {
+                         window.open('/', '_blank');
+                       } else if (group.url) {
+                         router.push(group.url);
+                         setIsMobileMenuOpen(false);
+                       } else if (group.id) {
+                         setActiveTab(group.id);
+                         setIsMobileMenuOpen(false);
+                       }
+                     }}
+                     className={cn(
+                       "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-bold transition-all",
+                       (activeTab === group.id || group.subItems?.some(i => i.id === activeTab))
+                         ? "text-[#5D5fb1] bg-slate-50"
+                         : "text-slate-700 hover:bg-slate-50 hover:text-[#5D5fb1]"
+                     )}
+                   >
+                     <div className="flex items-center gap-3">
+                       {group.icon && <group.icon size={18} />}
+                       <span>{group.label}</span>
+                     </div>
+                     {group.subItems && group.subItems.length > 0 && <ChevronDown size={16} className={cn("transition-transform duration-300", openDropdown === group.label && "rotate-180")} />}
+                   </button>
+                   {group.subItems && group.subItems.length > 0 && openDropdown === group.label && (
+                     <div className="pl-12 pr-4 py-2 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                       {group.subItems.map((item, iIdx) => (
+                         <button
+                           key={iIdx}
+                           onClick={() => {
+                             if (item.url) {
+                               router.push(item.url);
+                             } else if (item.id && group.id) {
+                               setActiveTab(group.id, item.id, group.label, item.label);
+                             }
+                             setIsMobileMenuOpen(false);
+                           }}
+                           className={cn(
+                             "w-full text-left py-2 text-[13px] font-semibold transition-all",
+                             (activeTab === item.id || pathname === item.url)
+                               ? "text-[#5D5fb1]"
+                               : "text-slate-500 hover:text-[#5D5fb1]"
+                           )}
+                         >
+                           {item.label}
+                         </button>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+               ))}
+            </div>
+            
+            <div className="p-6 border-t border-slate-200">
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); onLogout(); }}
+                className="w-full bg-red-50 hover:bg-red-600 text-red-600 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+              >
+                <LogOut size={18} /> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

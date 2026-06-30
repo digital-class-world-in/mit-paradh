@@ -73,15 +73,23 @@ export default function ApplicationPreviewModal({
                 </th>
               </tr>
               <tr>
-                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Candidate's Name</td>
-                <td className="border border-slate-800 p-2.5 w-1/4">{`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim() || '-'}</td>
-                <td rowSpan={4} colSpan={2} className="border border-slate-800 p-4 w-1/2 align-middle text-center">
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Registration No</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold text-indigo-700">{formData.regNo || formData.registrationNo || 'PENDING'}</td>
+                <td rowSpan={6} colSpan={2} className="border border-slate-800 p-4 w-1/2 align-middle text-center print:table-cell">
                   <div className="flex justify-center items-center h-full">
                     <div className="w-[120px] h-[150px] border-2 border-slate-800 p-1 bg-white shadow-sm flex items-center justify-center overflow-hidden">
-                      {formData.photoUrl ? <img src={formData.photoUrl} alt="Photo" className="w-full h-full object-cover" /> : <span className="text-xs text-slate-400">Passport Photo</span>}
+                      {formData.photoUrl || formData.photo ? <img src={formData.photoUrl || formData.photo} alt="Photo" crossOrigin="anonymous" className="w-full h-full object-cover print:block" /> : <span className="text-xs text-slate-400">Passport Photo</span>}
                     </div>
                   </div>
                 </td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Course</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.courseName || formData.course || '-'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Candidate's Name</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 uppercase font-bold">{`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim() || formData.studentName || '-'}</td>
               </tr>
               <tr>
                 <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50">Date of Birth</td>
@@ -252,7 +260,7 @@ export default function ApplicationPreviewModal({
                   8. Bank Details
                 </th>
               </tr>
-              {formData.hasBankAccount === 'Yes' ? (
+              {(formData.hasBankAccount === 'Yes' || formData.accountNumber || formData.bankName) ? (
                 <>
                   <tr>
                     <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50">Account Name</td>
@@ -344,7 +352,7 @@ export default function ApplicationPreviewModal({
                     </div>
                     <div className="flex flex-col items-center">
                       <div className="w-40 h-16 border-b-2 border-slate-800 mb-2 flex items-end justify-center pb-1">
-                        {formData.signUrl ? <img src={formData.signUrl} alt="Signature" className="max-h-full object-contain" /> : <span className="text-slate-400 italic text-xs mb-2">Signature</span>}
+                        {formData.signUrl || formData.signature ? <img src={formData.signUrl || formData.signature} alt="Signature" crossOrigin="anonymous" className="max-h-full object-contain print:block" /> : <span className="text-slate-400 italic text-xs mb-2">Signature</span>}
                       </div>
                       <p className="text-sm font-bold text-slate-900 uppercase tracking-wide">Signature of Student</p>
                     </div>

@@ -102,6 +102,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
   const [availableColleges, setAvailableColleges] = useState<any[]>([]);
   const [selectedCollegeId, setSelectedCollegeId] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('Accepted');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const getDbRef = (path: string) => {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
@@ -203,6 +204,18 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         return st === statusFilter;
       });
 
+      // Apply search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(adm => {
+          const name = (adm.studentName || '').toLowerCase();
+          const email = (adm.studentEmail || '').toLowerCase();
+          const phone = (adm.studentPhone || '').toLowerCase();
+          const reg = (adm.regNo || adm.manualRegNo || '').toLowerCase();
+          return name.includes(q) || email.includes(q) || phone.includes(q) || reg.includes(q);
+        });
+      }
+
       if (filteredData.length > 0) {
          setFirstKey(filteredData[0].id);
          setLastKey(filteredData[filteredData.length - 1].id);
@@ -222,7 +235,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
   useEffect(() => {
     setAdmissions([]);
     fetchPage('first');
-  }, [statusFilter, selectedCollegeId, collegeId, resolvedAdminUid]);
+  }, [statusFilter, selectedCollegeId, collegeId, resolvedAdminUid, searchQuery]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -401,8 +414,10 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
       // Admission Data
       admissionDate: student.admissionDate || '',
       regNo: student.regNo || '',
+      manualRegNo: student.manualRegNo || profile.manualRegNo || '',
       rollNumber: student.rollNumber || '',
       fees: student.fees || '',
+      paidFees: student.paidFees || '',
       admissionStatus: student.admissionStatus || 'Pending',
 
       gender: profile.gender || '',
@@ -472,8 +487,9 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
     try {
       const admissionRef = getDbRef(`colleges/${editingStudent.collegeId}/studentAdmissions/${editingStudent.id}`);
       const fullName = `${studentForm.firstName} ${studentForm.lastName}`;
+      const cleanData = (obj: any) => JSON.parse(JSON.stringify(obj));
       
-      const profileUpdates = {
+      const profileUpdates = cleanData({
         firstName: studentForm.firstName,
         middleName: studentForm.middleName,
         lastName: studentForm.lastName,
@@ -501,24 +517,25 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         district: studentForm.district,
         taluka: studentForm.taluka,
         pincode: studentForm.pincode,
-        photoUrl: studentForm.photoUrl,
-        signUrl: studentForm.signUrl,
-        aadhaarFrontUrl: studentForm.aadhaarFrontUrl,
-        aadhaarBackUrl: studentForm.aadhaarBackUrl,
-        casteCertificateUrl: studentForm.casteCertificateUrl,
-        domicileUrl: studentForm.domicileUrl,
-        pwdCertificateUrl: studentForm.pwdCertificateUrl,
-        trainingCertificateUrl: studentForm.trainingCertificateUrl,
-        bankPassbookUrl: studentForm.bankPassbookUrl,
-        panCardUrl: studentForm.panCardUrl,
-        transferCertificateUrl: studentForm.transferCertificateUrl,
-        bonafideCertificateUrl: studentForm.bonafideCertificateUrl,
+        photoUrl: studentForm.photoUrl || null,
+        signUrl: studentForm.signUrl || null,
+        aadhaarFrontUrl: studentForm.aadhaarFrontUrl || null,
+        aadhaarBackUrl: studentForm.aadhaarBackUrl || null,
+        casteCertificateUrl: studentForm.casteCertificateUrl || null,
+        domicileUrl: studentForm.domicileUrl || null,
+        pwdCertificateUrl: studentForm.pwdCertificateUrl || null,
+        trainingCertificateUrl: studentForm.trainingCertificateUrl || null,
+        bankPassbookUrl: studentForm.bankPassbookUrl || null,
+        panCardUrl: studentForm.panCardUrl || null,
+        transferCertificateUrl: studentForm.transferCertificateUrl || null,
+        bonafideCertificateUrl: studentForm.bonafideCertificateUrl || null,
         regNo: studentForm.regNo,
+        manualRegNo: studentForm.manualRegNo,
         rollNumber: studentForm.rollNumber,
         admissionDate: studentForm.admissionDate
-      };
+      });
 
-      const updatedAdmission = {
+      const updatedAdmission = cleanData({
         ...editingStudent,
         studentName: fullName,
         studentEmail: studentForm.studentEmail,
@@ -529,14 +546,16 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         // Admission updates
         admissionDate: studentForm.admissionDate,
         regNo: studentForm.regNo,
+        manualRegNo: studentForm.manualRegNo,
         rollNumber: studentForm.rollNumber,
         fees: studentForm.fees,
+        paidFees: studentForm.paidFees,
         admissionStatus: studentForm.admissionStatus,
 
         profileData: { ...editingStudent.profileData, ...profileUpdates },
         isActive: studentForm.isActive,
         updatedAt: new Date().toISOString()
-      };
+      });
       
       delete updatedAdmission.id;
       delete updatedAdmission.collegeName;
@@ -548,15 +567,16 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         const appId = editingStudent.applicationId;
 
         // 1. Update Global User Info
-        await update(ref(realtimeDb, `users/${uid}`), {
+        await update(ref(realtimeDb, `users/${uid}`), cleanData({
           email: studentForm.studentEmail,
           password: studentForm.password,
           firstName: studentForm.firstName,
           lastName: studentForm.lastName,
           regNo: studentForm.regNo,
+          manualRegNo: studentForm.manualRegNo,
           rollNumber: studentForm.rollNumber,
           adminUid: resolvedAdminUid
-        });
+        }));
 
         // 2. Update Profile Node
         await update(ref(realtimeDb, `users/${uid}/profile`), profileUpdates);
@@ -564,15 +584,16 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         // 3. Update Admin Registrations Info
         if (resolvedAdminUid) {
           const adminRegPath = `users/${resolvedAdminUid}/modules/registrations/${uid}`;
-          await update(ref(realtimeDb, adminRegPath), {
+          await update(ref(realtimeDb, adminRegPath), cleanData({
             email: studentForm.studentEmail,
             password: studentForm.password,
             firstName: studentForm.firstName,
             lastName: studentForm.lastName,
             regNo: studentForm.regNo,
+            manualRegNo: studentForm.manualRegNo,
             rollNumber: studentForm.rollNumber,
             adminUid: resolvedAdminUid
-          });
+          }));
           await update(ref(realtimeDb, `${adminRegPath}/profile`), profileUpdates);
         }
 
@@ -584,12 +605,14 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
             const apps = appsSnap.val();
             for (const [key, val] of Object.entries(apps)) {
               if ((val as any).applicationId === appId) {
-                const appUpdate = {
+                const appUpdate = cleanData({
                   regNo: studentForm.regNo,
+                  manualRegNo: studentForm.manualRegNo,
                   fees: studentForm.fees,
+                  paidFees: studentForm.paidFees,
                   status: studentForm.admissionStatus,
                   isActive: studentForm.isActive
-                };
+                });
                 await update(ref(realtimeDb, `users/${uid}/applications/${key}`), appUpdate);
                 if (resolvedAdminUid) {
                   await update(ref(realtimeDb, `users/${resolvedAdminUid}/modules/registrations/${uid}/applications/${key}`), appUpdate);
@@ -690,32 +713,58 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
         </div>
       </div>
       <div className="bg-white rounded-[2.5rem] border border-black shadow-sm p-8">
-         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-            <h3 className="text-xl font-black text-slate-800 capitalize tracking-tight">Admitted Students</h3>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <select 
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
-              >
-                 <option value="All">All Statuses</option>
-                 <option value="Pending">Pending</option>
-                 <option value="Accepted">Approved / Accepted</option>
-                 <option value="Rejected">Rejected</option>
-              </select>
-              {!collegeId && (
-                <select 
-                  value={selectedCollegeId}
-                  onChange={(e) => setSelectedCollegeId(e.target.value)}
-                  className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
-                >
-                   <option value="">All Colleges</option>
-                   {availableColleges.map(c => (
-                     <option key={c.id} value={c.id}>{c.name}</option>
-                   ))}
-                </select>
-              )}
-            </div>
+
+         {/* Filter Bar - Top */}
+         <div className="mb-8 space-y-4">
+           <div className="flex flex-col md:flex-row gap-3">
+             {/* Search */}
+             <div className="relative flex-1">
+               <input
+                 type="text"
+                 value={searchQuery}
+                 onChange={e => { setSearchQuery(e.target.value); }}
+                 placeholder="Search by name, email, phone, or reg no..."
+                 className="w-full bg-slate-50 border border-black rounded-xl px-4 py-2.5 pl-10 text-[14px] font-medium text-black outline-none focus:border-[#003366] transition-all"
+               />
+               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+             </div>
+             {/* Status */}
+             <select 
+               value={statusFilter}
+               onChange={(e) => setStatusFilter(e.target.value)}
+               className="bg-slate-50 border border-black rounded-xl px-4 py-2.5 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
+             >
+                <option value="All">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Approved / Accepted</option>
+                <option value="Rejected">Rejected</option>
+             </select>
+             {/* College */}
+             {!collegeId && (
+               <select 
+                 value={selectedCollegeId}
+                 onChange={(e) => setSelectedCollegeId(e.target.value)}
+                 className="bg-slate-50 border border-black rounded-xl px-4 py-2.5 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
+               >
+                  <option value="">All Colleges</option>
+                  {availableColleges.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+               </select>
+             )}
+           </div>
+           {/* Result Count */}
+           <div className="flex items-center justify-between">
+             <p className="text-[13px] font-medium text-slate-500">
+               Showing <span className="font-black text-black">{admissions.length}</span> student{admissions.length !== 1 ? 's' : ''}
+               {searchQuery && <span className="text-indigo-500"> matching "{searchQuery}"</span>}
+             </p>
+             {searchQuery && (
+               <button onClick={() => setSearchQuery('')} className="text-[12px] font-bold text-rose-500 hover:text-rose-700 transition-all">
+                 ✕ Clear Search
+               </button>
+             )}
+           </div>
          </div>
          <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border border-black">
@@ -926,8 +975,10 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                    <EditField label="Course Type" value={studentForm.courseType} onChange={() => {}} readOnly />
                    <EditField label="Admission Date" type="datetime-local" value={studentForm.admissionDate} onChange={(v: any) => setStudentForm({...studentForm, admissionDate: v})} />
                    <EditField label="Registration No." value={studentForm.regNo} onChange={(v: any) => setStudentForm({...studentForm, regNo: v})} />
-                    <EditField label="Roll Number" value={studentForm.rollNumber} onChange={(v: any) => setStudentForm({...studentForm, rollNumber: v})} />
+                   <EditField label="Manual Reg No." value={studentForm.manualRegNo} onChange={(v: any) => setStudentForm({...studentForm, manualRegNo: v})} />
+                   <EditField label="Roll Number" value={studentForm.rollNumber} onChange={(v: any) => setStudentForm({...studentForm, rollNumber: v})} />
                    <EditField label="Course Fees (₹)" type="number" value={studentForm.fees} onChange={(v: any) => setStudentForm({...studentForm, fees: v})} />
+                   <EditField label="Amount Paid (₹)" type="number" value={studentForm.paidFees} onChange={(v: any) => setStudentForm({...studentForm, paidFees: v})} />
                    <EditSelect label="Admission Status" value={studentForm.admissionStatus} options={['Pending', 'Accepted', 'Rejected', 'Verified', 'Confirmed']} onChange={(v: any) => setStudentForm({...studentForm, admissionStatus: v})} />
                 </div>
              </section>
@@ -1096,7 +1147,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                       <Phone size={12} /> {processingStudent.studentPhone || processingStudent.profileData?.phone || 'No Phone'}
                     </p>
                     <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2">
-                      <Calendar size={12} /> Reg: {processingStudent.regNo}
+                      <Calendar size={12} /> Reg: {processingStudent.manualRegNo ? `${processingStudent.manualRegNo} / ` : ''}{processingStudent.regNo}
                     </p>
                   </div>
                 </div>
@@ -1119,7 +1170,9 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                   <DetailItem label="Course Enrolled" value={processingStudent.courseName} />
                   <DetailItem label="Course Type" value={processingStudent.courseType} />
                   <DetailItem label="Admission Date" value={processingStudent.admissionDate ? new Date(processingStudent.admissionDate).toLocaleDateString() : 'N/A'} />
-                  <DetailItem label="Fees Paid" value={`₹${processingStudent.fees || '0'}`} />
+                  <DetailItem label="Manual Reg No." value={processingStudent.manualRegNo || 'N/A'} />
+                  <DetailItem label="Course Fees" value={`₹${processingStudent.fees || '0'}`} />
+                  <DetailItem label="Amount Paid" value={`₹${processingStudent.paidFees || '0'}`} />
                   <DetailItem label="College" value={processingStudent.collegeName} />
                 </div>
               </section>
@@ -1337,7 +1390,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
           </div>
 
           {/* Footer Actions */}
-          <div className="p-8 bg-white border-t border-black flex items-center justify-between shrink-0 rounded-b-[3rem]">
+          <div className="p-8 bg-white border-t border-black flex flex-col sm:flex-row items-center justify-between shrink-0 rounded-b-[3rem] gap-4">
              <div className="flex items-center gap-2">
                  <div className={`w-3 h-3 rounded-full ${processingStudent.admissionStatus === 'Confirmed' || processingStudent.admissionStatus === 'Accepted' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
                  <p className="text-[13px] font-black text-black capitalize tracking-tight">
@@ -1345,20 +1398,28 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                 </p>
              </div>
              
-             <div className="flex gap-4">
+             <div className="flex flex-wrap gap-3 justify-end">
+                {/* Edit Application Form */}
+                <button 
+                  onClick={() => { setIsProcessModalOpen(false); handleEditOpen(processingStudent); }}
+                  className="bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white font-black px-6 py-3 rounded-2xl text-[11px] capitalize tracking-normal transition-all flex items-center gap-2 border border-amber-200"
+                >
+                  <Edit2 size={16} /> Edit Application Form
+                </button>
+
                 {(processingStudent.admissionStatus !== 'Confirmed' && processingStudent.admissionStatus !== 'Accepted') && (
                   <>
                     <button 
                       onClick={handleRejectAdmission}
                       disabled={isSubmitting}
-                      className="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-black px-8 py-4 rounded-2xl text-[11px] capitalize tracking-normal transition-all flex items-center gap-3 border border-rose-100 disabled:opacity-50"
+                      className="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-black px-6 py-3 rounded-2xl text-[11px] capitalize tracking-normal transition-all flex items-center gap-2 border border-rose-100 disabled:opacity-50"
                     >
-                      <XCircle size={18} /> Reject Admission
+                      <XCircle size={18} /> Reject
                     </button>
                     <button 
                       onClick={handleAcceptAdmission}
                       disabled={isSubmitting}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-8 py-4 rounded-2xl text-[11px] capitalize tracking-normal transition-all shadow-lg flex items-center gap-3 disabled:opacity-50"
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-6 py-3 rounded-2xl text-[11px] capitalize tracking-normal transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
                     >
                       <CheckCircle2 size={18} /> Accept Admission
                     </button>
@@ -1367,7 +1428,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                 {(processingStudent.admissionStatus === 'Confirmed' || processingStudent.admissionStatus === 'Accepted') && (
                   <button 
                     disabled
-                    className="bg-slate-100 text-slate-400 font-black px-8 py-4 rounded-2xl text-[11px] capitalize tracking-normal border border-slate-200 flex items-center gap-3 cursor-not-allowed"
+                    className="bg-slate-100 text-slate-400 font-black px-6 py-3 rounded-2xl text-[11px] capitalize tracking-normal border border-slate-200 flex items-center gap-2 cursor-not-allowed"
                   >
                     <CheckCircle2 size={18} /> Admission Confirmed
                   </button>

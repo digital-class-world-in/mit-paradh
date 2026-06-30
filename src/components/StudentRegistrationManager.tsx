@@ -49,7 +49,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
     firstName: '', middleName: '', lastName: '', fatherFirstName: '',
     dateOfBirth: '', gender: '',
     email: '', password: '', phone: '', alternatePhone: '',
-    securityQuestion: '', securityAnswer: ''
+    securityQuestion: '', securityAnswer: '', regNo: ''
   });
 
   useEffect(() => {
@@ -260,7 +260,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
           securityAnswer:   u.securityAnswer   || '',
           // Credentials
           email:    u.email    || '',
-          password: u.password || ''
+          password: u.password || '',
+          regNo:    u.regNo    || p.regNo || ''
         });
         setIsEditModalOpen(true);
       }
@@ -292,6 +293,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
       updates[`users/${uid}/dateOfBirth`]      = editForm.dateOfBirth;
       updates[`users/${uid}/securityQuestion`] = editForm.securityQuestion;
       updates[`users/${uid}/securityAnswer`]   = editForm.securityAnswer;
+      updates[`users/${uid}/regNo`]            = editForm.regNo;
       updates[`users/${uid}/profile/firstName`]      = editForm.firstName;
       updates[`users/${uid}/profile/lastName`]       = editForm.lastName;
       updates[`users/${uid}/profile/fatherFirstName`]= editForm.fatherFirstName;
@@ -315,6 +317,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         updates[`${adminRegPath}/dateOfBirth`]      = editForm.dateOfBirth;
         updates[`${adminRegPath}/securityQuestion`] = editForm.securityQuestion;
         updates[`${adminRegPath}/securityAnswer`]   = editForm.securityAnswer;
+        updates[`${adminRegPath}/regNo`]            = editForm.regNo;
         updates[`${adminRegPath}/profile/firstName`]      = editForm.firstName;
         updates[`${adminRegPath}/profile/lastName`]       = editForm.lastName;
         updates[`${adminRegPath}/profile/fatherFirstName`]= editForm.fatherFirstName;
@@ -1190,6 +1193,16 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Registration No.</label>
+                    <input
+                      type="text"
+                      value={editForm.regNo}
+                      onChange={e => setEditForm({...editForm, regNo: e.target.value})}
+                      placeholder="Enter Custom Registration No."
+                      className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
+                    />
                   </div>
                 </div>
               </div>

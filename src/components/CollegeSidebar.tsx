@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   LogOut,
   Building2,
+  Bell,
   Users,
   BookOpen,
   GraduationCap,
@@ -134,6 +135,11 @@ export default function CollegeSidebar({ activeTab, setActiveTab, onLogout, coll
         { label: 'Postal services', id: 93 },
         { label: 'Contact Us', id: 94 },
       ]
+    },
+    { 
+      label: 'Notice Board', 
+      icon: Bell, 
+      id: 20,
     },
     { label: 'Trash', icon: Trash2, id: 99 },
   ];

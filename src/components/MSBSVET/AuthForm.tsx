@@ -237,12 +237,12 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
           try {
             let firstUid = null;
             const inputValLower = email.toLowerCase().trim();
-            const collegeSnap = await get(ref(realtimeDb, 'colleges'));
+            const collegeQuery = query(ref(realtimeDb, 'colleges'), orderByChild('email'), equalTo(inputValLower));
+            const collegeSnap = await get(collegeQuery);
             if (collegeSnap.exists()) {
-              const allColleges = collegeSnap.val();
-              for (const uid in allColleges) {
-                const colEmail = (allColleges[uid].email || '').toLowerCase().trim();
-                if (colEmail === inputValLower && allColleges[uid].password === password) {
+              const matchingColleges = collegeSnap.val();
+              for (const uid in matchingColleges) {
+                if (matchingColleges[uid].password === password) {
                   firstUid = uid;
                   break;
                 }

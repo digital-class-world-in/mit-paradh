@@ -337,21 +337,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
           }
         }
 
-        // Fetch global courses
-        const globalSnap = await get(getDbRef('courses'));
-        if (globalSnap.exists()) {
-          globalSnap.forEach((child) => {
-            const val = child.val();
-            allData.push({
-              id: child.key,
-              source: 'Global',
-              collegeName: 'System Registry',
-              ...val,
-              course_name: val.course_name || val.name || '',
-              course_type: val.course_type || val.type || '',
-            });
-          });
-        }
+
 
         // Fetch courses from ALL colleges in parallel
         if (currentCollegesList.length > 0) {
@@ -724,10 +710,9 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
           courseData.course_group_id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
         }
 
-        const newGlobalRef = push(getDbRef('courses'));
+        const newGlobalRef = push(getDbRef('courses')); // just for generating a key
         if (targetId) {
           await set(getDbRef(`colleges/${targetId}/courses/${newGlobalRef.key}`), { ...courseData, id: newGlobalRef.key, source: 'College', collegeId: targetId });
-          await set(newGlobalRef, { ...courseData, id: newGlobalRef.key, source: 'College', collegeId: targetId });
         } else {
           await set(newGlobalRef, { ...courseData, id: newGlobalRef.key });
         }
@@ -761,7 +746,6 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
         if (Object.keys(cleanData).length > 0) {
            if (source === 'College' && cId) {
              await update(getDbRef(`colleges/${cId}/courses/${existingId}`), cleanData);
-             await update(getDbRef(`courses/${existingId}`), cleanData); // Keep global in sync
            } else {
              await update(getDbRef(`courses/${existingId}`), cleanData);
            }
@@ -781,6 +765,13 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
 
   const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const targetId = collegeId || selectedCollegeId;
+    if (!targetId) {
+      alert("Please assign this course to a specific college.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const generatedSlug = (formData.course_name || '')
@@ -834,12 +825,11 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
         }
       } else {
         const targetId = collegeId || selectedCollegeId;
-        const newCourseRefGlobal = push(getDbRef('courses'));
+        const newCourseRefGlobal = push(getDbRef('courses')); // we just use this to generate a key
         courseData.id = newCourseRefGlobal.key;
         
         if (targetId) {
           await set(getDbRef(`colleges/${targetId}/courses/${newCourseRefGlobal.key}`), { ...courseData, source: 'College', collegeId: targetId });
-          await set(newCourseRefGlobal, { ...courseData, source: 'College', collegeId: targetId });
         } else {
           await set(newCourseRefGlobal, courseData);
         }
@@ -998,7 +988,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
         Eligibility_Criteria: rest.eligibility_criteria || '',
         Minimum_Document_Required: rest.minimum_document_required || '',
         Maximum_Document_Required: rest.maximum_document_required || '',
-        Price: rest.price,
+        Course_Fee: rest.price,
         Online_Price: rest.online_price,
         Offline_Price: rest.offline_price,
         Discount: rest.discount,
@@ -1575,14 +1565,14 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
             <form onSubmit={handleSaveCourse} className="p-8 space-y-8">
               {!collegeId && (
                 <div className="space-y-1.5 max-w-md">
-                  <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Assign to College (Optional)</label>
+                  <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Assign to College <span className="text-red-500">*</span></label>
                   <CustomDropdown
                     id="form_assign_college"
                     value={selectedCollegeId}
                     onChange={setSelectedCollegeId}
                     openDropdownId={openDropdownId}
                     setOpenDropdownId={setOpenDropdownId}
-                    placeholder="Institutional (Global)"
+                    placeholder="Select College..."
                     options={collegesList.map((col) => ({ value: col.id, label: `${col.name} (${col.collegeId})` }))}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-normal text-black focus:border-[#00a5a5] transition-all cursor-pointer"
                   />
@@ -1593,7 +1583,8 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
               <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {/* BASIC DETAILS */}
                 {Object.keys(defaultCourseData).map((key) => {
-                  const label = key.replace(/_/g, ' ');
+                  let label = key.replace(/_/g, ' ');
+                  if (key === 'price') label = 'Course Fee';
 
                   if (key === 'syllabus_copy') {
                     return (

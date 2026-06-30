@@ -167,10 +167,10 @@ function StudentLayoutContent({
           unsubUser = onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.val();
-              const firstName = data.firstName || data.name || 'Student';
+              const firstName = data.profile?.firstName || data.firstName || data.name || 'Student';
               const displayFirstName = firstName.trim().split(' ')[0];
-              const middleName = data.middleName || '';
-              const lastName = data.lastName || '';
+              const middleName = data.profile?.middleName || data.middleName || '';
+              const lastName = data.profile?.lastName || data.lastName || '';
               const fullName = `${firstName} ${middleName} ${lastName}`.replace(/\s+/g, ' ').trim();
               const updatedUser = { ...data, firstName: fullName, displayFirstName, uid: currentUid };
               setUserData(updatedUser);
@@ -372,7 +372,7 @@ function StudentLayoutContent({
       <StudentNavbar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
-        studentName={userData?.displayFirstName || 'Student'}
+        studentName={userData?.firstName || 'Student'}
         onLogout={handleLogout}
         hasApplied={hasApplied}
         isExamConfigured={isExamConfigured}

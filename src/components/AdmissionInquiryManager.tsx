@@ -8,7 +8,7 @@ import {
   PhoneCall, X, CheckCircle2, XCircle, Eye, User, Users, MapPin, Tag,
   GraduationCap, Briefcase, Landmark, FileText, Image as ImageIcon,
   Download, Mail, Phone, Calendar, Trash2, Award as AwardIcon,
-  Building2, FileBadge, Unlock, Plus, PenTool, ShieldCheck
+  Building2, FileBadge, Unlock, Plus, PenTool, ShieldCheck, Settings, Edit2, Check
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -66,20 +66,39 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
   const [editingReasonKey, setEditingReasonKey] = useState<string | null>(null);
   const [editReasonText, setEditReasonText] = useState('');
 
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [isManageSessionsOpen, setIsManageSessionsOpen] = useState(false);
+  const [newSessionText, setNewSessionText] = useState('');
+  const [editingSessionKey, setEditingSessionKey] = useState<string | null>(null);
+  const [editSessionText, setEditSessionText] = useState('');
+
   useEffect(() => {
     if (!selectedInquiry) return;
     const targetCollegeId = selectedInquiry.collegeId || collegeId;
     if (!targetCollegeId) return;
 
     const reasonsRef = ref(realtimeDb, `colleges/${targetCollegeId}/settings/rejectionReasons`);
-    const unsubscribe = onValue(reasonsRef, (snap) => {
+    const unsubscribeReasons = onValue(reasonsRef, (snap) => {
       if (snap.exists()) {
         setRejectionReasons(Object.entries(snap.val()).map(([key, val]: any) => ({ key, text: val.text })));
       } else {
         setRejectionReasons([]);
       }
     });
-    return () => unsubscribe();
+
+    const sessionsRef = ref(realtimeDb, `colleges/${targetCollegeId}/settings/sessions`);
+    const unsubscribeSessions = onValue(sessionsRef, (snap) => {
+      if (snap.exists()) {
+        setSessions(Object.entries(snap.val()).map(([key, val]: any) => ({ key, text: val.text })));
+      } else {
+        setSessions([]);
+      }
+    });
+
+    return () => {
+      unsubscribeReasons();
+      unsubscribeSessions();
+    };
   }, [selectedInquiry, collegeId]);
 
   const handleAddReason = async () => {
@@ -114,6 +133,42 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
     if (!targetCollegeId) return;
     try {
       await remove(ref(realtimeDb, `colleges/${targetCollegeId}/settings/rejectionReasons/${key}`));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddSession = async () => {
+    if (!newSessionText.trim()) return;
+    const targetCollegeId = selectedInquiry?.collegeId || collegeId;
+    if (!targetCollegeId) return;
+    try {
+      const newRef = push(ref(realtimeDb, `colleges/${targetCollegeId}/settings/sessions`));
+      await set(newRef, { text: newSessionText.trim() });
+      setNewSessionText('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateSession = async () => {
+    if (!editSessionText.trim() || !editingSessionKey) return;
+    const targetCollegeId = selectedInquiry?.collegeId || collegeId;
+    if (!targetCollegeId) return;
+    try {
+      await update(ref(realtimeDb, `colleges/${targetCollegeId}/settings/sessions/${editingSessionKey}`), { text: editSessionText.trim() });
+      setEditingSessionKey(null);
+      setEditSessionText('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteSession = async (key: string) => {
+    const targetCollegeId = selectedInquiry?.collegeId || collegeId;
+    if (!targetCollegeId) return;
+    try {
+      await remove(ref(realtimeDb, `colleges/${targetCollegeId}/settings/sessions/${key}`));
     } catch (err) {
       console.error(err);
     }
@@ -738,6 +793,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear,
           regNo: regNo,
+          manualRegNo: processManualRegNo,
           collegeId: targetCollegeId
         });
         // Remove from old college if applicable
@@ -750,7 +806,8 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           processedAt: new Date().toISOString(),
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear,
-          regNo: regNo
+          regNo: regNo,
+          manualRegNo: processManualRegNo
         });
       }
 
@@ -768,6 +825,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
               await update(ref(realtimeDb, `users/${uid}/applications/${appId}`), {
                 status,
                 regNo: regNo,
+                manualRegNo: processManualRegNo,
                 admissionDate: formattedDate,
                 admissionYear: admissionDate.admissionYear
               });
@@ -779,11 +837,13 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         // Update profile
         await update(ref(realtimeDb, `users/${uid}/profile`), {
           regNo: regNo,
+          manualRegNo: processManualRegNo,
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear
         });
         await update(ref(realtimeDb, `users/${uid}`), {
-          regNo: regNo
+          regNo: regNo,
+          manualRegNo: processManualRegNo
         });
       }
 
@@ -801,6 +861,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         admissionStatus: 'Confirmed',
         isActive: true, // Default to active when admitted
         regNo: regNo,
+        manualRegNo: processManualRegNo,
         inquiryId: selectedInquiry.id,
         status: 'Accepted',
         processedAt: new Date().toISOString(),
@@ -1732,14 +1793,25 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-black uppercase tracking-tight mb-2">Select Session</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. 2026-2027"
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-xs font-bold text-black uppercase tracking-tight">Select Session</label>
+                          <button
+                            onClick={() => setIsManageSessionsOpen(true)}
+                            className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold hover:bg-indigo-200 transition-all"
+                          >
+                            Manage
+                          </button>
+                        </div>
+                        <select
                           value={processSession}
                           onChange={(e) => setProcessSession(e.target.value)}
                           className="w-full bg-slate-50 border border-black rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5D5fb1]"
-                        />
+                        >
+                          <option value="">Select Session...</option>
+                          {sessions.map(s => (
+                            <option key={s.key} value={s.text}>{s.text}</option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-black uppercase tracking-tight mb-2">Select Date</label>
@@ -2008,85 +2080,127 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
 
       {/* Manage Rejection Reasons Modal */}
       {isManageReasonsOpen && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsManageReasonsOpen(false)} />
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative z-10 flex flex-col max-h-[80vh]">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Manage Rejection Reasons</h3>
-              <button onClick={() => setIsManageReasonsOpen(false)} className="text-slate-400 hover:text-black">
+          <div className="bg-white rounded-3xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 border-2 border-black">
+            <div className="p-6 border-b border-black flex items-center justify-between bg-red-50">
+              <h3 className="text-lg font-black text-black capitalize tracking-tight flex items-center gap-2">
+                <Settings size={20} className="text-red-500" /> Manage Rejection Reasons
+              </h3>
+              <button onClick={() => setIsManageReasonsOpen(false)} className="text-slate-400 hover:text-black transition-all">
                 <X size={20} />
               </button>
             </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  value={newReasonText}
+                  onChange={(e) => setNewReasonText(e.target.value)}
+                  placeholder="Add new reason..."
+                  className="flex-1 border border-slate-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddReason()}
+                />
+                <button onClick={handleAddReason} className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all">Add</button>
+              </div>
 
-            <div className="flex gap-2 mb-6">
-              <input
-                type="text"
-                value={newReasonText}
-                onChange={(e) => setNewReasonText(e.target.value)}
-                placeholder="Type new reason..."
-                className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5D5fb1]"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddReason()}
-              />
-              <button
-                onClick={handleAddReason}
-                className="bg-[#5D5fb1] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#002147] transition-all"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-              {rejectionReasons.length === 0 ? (
-                <p className="text-center text-slate-400 text-sm py-4">No reasons added yet.</p>
-              ) : (
-                rejectionReasons.map(r => (
-                  <div key={r.key} className="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-lg">
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
+                {rejectionReasons.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No reasons added yet.</p>}
+                {rejectionReasons.map((r) => (
+                  <div key={r.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 group">
                     {editingReasonKey === r.key ? (
-                      <div className="flex-1 flex items-center gap-2 mr-2">
+                      <div className="flex flex-1 gap-2 mr-2">
                         <input
                           type="text"
                           value={editReasonText}
                           onChange={(e) => setEditReasonText(e.target.value)}
-                          className="flex-1 bg-white border border-[#5D5fb1] rounded px-2 py-1 text-sm outline-none"
+                          className="flex-1 border border-slate-300 rounded-lg px-2 py-1 text-sm outline-none"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleUpdateReason();
                             if (e.key === 'Escape') setEditingReasonKey(null);
                           }}
                         />
-                        <button onClick={handleUpdateReason} className="text-emerald-600 hover:text-emerald-700">
-                          <CheckCircle2 size={16} />
-                        </button>
-                        <button onClick={() => setEditingReasonKey(null)} className="text-slate-400 hover:text-slate-600">
-                          <X size={16} />
-                        </button>
+                        <button onClick={handleUpdateReason} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16}/></button>
+                        <button onClick={() => setEditingReasonKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16}/></button>
                       </div>
                     ) : (
-                      <span className="text-sm flex-1">{r.text}</span>
-                    )}
-
-                    {editingReasonKey !== r.key && (
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => {
-                            setEditingReasonKey(r.key);
-                            setEditReasonText(r.text);
-                          }}
-                          className="text-indigo-400 hover:text-indigo-600 transition-all p-1"
-                        >
-                          <PenTool size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteReason(r.key)}
-                          className="text-red-400 hover:text-red-600 transition-all p-1"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      <>
+                        <span className="text-sm text-black">{r.text}</span>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                           <button onClick={() => { setEditingReasonKey(r.key); setEditReasonText(r.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14}/></button>
+                           <button onClick={() => handleDeleteReason(r.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14}/></button>
+                        </div>
+                      </>
                     )}
                   </div>
-                ))
-              )}
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Sessions Modal */}
+      {isManageSessionsOpen && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsManageSessionsOpen(false)} />
+          <div className="bg-white rounded-3xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 border-2 border-black">
+            <div className="p-6 border-b border-black flex items-center justify-between bg-indigo-50">
+              <h3 className="text-lg font-black text-black capitalize tracking-tight flex items-center gap-2">
+                <Settings size={20} className="text-indigo-500" /> Manage Sessions
+              </h3>
+              <button onClick={() => setIsManageSessionsOpen(false)} className="text-slate-400 hover:text-black transition-all">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  value={newSessionText}
+                  onChange={(e) => setNewSessionText(e.target.value)}
+                  placeholder="Add new session (e.g. 2026-2027)..."
+                  className="flex-1 border border-slate-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddSession()}
+                />
+                <button onClick={handleAddSession} className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all">Add</button>
+              </div>
+
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
+                {sessions.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No sessions added yet.</p>}
+                {sessions.map((s) => (
+                  <div key={s.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 group">
+                    {editingSessionKey === s.key ? (
+                      <div className="flex flex-1 gap-2 mr-2">
+                        <input
+                          type="text"
+                          value={editSessionText}
+                          onChange={(e) => setEditSessionText(e.target.value)}
+                          className="flex-1 border border-slate-300 rounded-lg px-2 py-1 text-sm outline-none"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleUpdateSession();
+                            if (e.key === 'Escape') setEditingSessionKey(null);
+                          }}
+                        />
+                        <button onClick={handleUpdateSession} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16}/></button>
+                        <button onClick={() => setEditingSessionKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16}/></button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-sm text-black">{s.text}</span>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                           <button onClick={() => { setEditingSessionKey(s.key); setEditSessionText(s.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14}/></button>
+                           <button onClick={() => handleDeleteSession(s.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14}/></button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

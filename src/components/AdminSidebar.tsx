@@ -143,6 +143,11 @@ export default function AdminSidebar({ activeTab, setActiveTab, onLogout, adminN
       ]
     },
     {
+      label: 'Notice Board',
+      icon: Bell,
+      id: 20,
+    },
+    {
       label: 'Front office',
       icon: PhoneCall,
       id: 90,

@@ -56,6 +56,7 @@ import CourseManager from '@/components/CourseManager';
 import ExamFormManager from '@/components/ExamFormManager';
 import ExamFeesManager from '@/components/ExamFeesManager';
 import ContactEnquiriesManager from '@/components/ContactEnquiriesManager';
+import NoticeManager from '@/components/NoticeManager';
 
 const hrLabels: Record<number, string> = {
   31: 'Staff Directory',
@@ -590,6 +591,16 @@ function DashboardContent() {
             <PaymentHistoryManager collegeId={collegeData?.uid || collegeAuth.currentUser?.uid} />
           </div>
         );
+      case 20:
+        return <NoticeManager collegeId={collegeData?.uid || collegeAuth.currentUser?.uid} adminUid={collegeData?.uid || collegeAuth.currentUser?.uid} />;
+      case 41:
+      case 4:
+        return <CourseManager collegeId={collegeData?.uid || collegeAuth.currentUser?.uid} collegeName={collegeData?.name} />;
+      case 31:
+      case 33:
+      case 34:
+      case 35:
+        return <StaffRegistryManager collegeId={collegeData?.uid || collegeAuth.currentUser?.uid} />;
       case 71:
         return <FeesCollectionManager collegeId={collegeData?.uid || collegeAuth.currentUser?.uid} />;
       case 23: // Leave request
