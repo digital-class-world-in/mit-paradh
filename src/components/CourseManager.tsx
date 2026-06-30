@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 interface CourseManagerProps {
   collegeId?: string;
   adminUid?: string;
+  collegeName?: string;
 }
 
 const defaultCourseData = {
