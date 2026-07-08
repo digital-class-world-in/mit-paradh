@@ -178,27 +178,20 @@ export default function ProfileWizard({
 
   // Fetch colleges list efficiently
   useEffect(() => {
-    const fetchColleges = async () => {
-      try {
-        const url = `https://mit-paradh-default-rtdb.firebaseio.com/colleges.json?shallow=true`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data) {
-          const promises = Object.keys(data).map(async (id) => {
-            const nameRes = await fetch(`https://mit-paradh-default-rtdb.firebaseio.com/colleges/${id}/name.json`);
-            const name = await nameRes.json();
-            return { id, name };
-          });
-          const fetchedColleges = await Promise.all(promises);
-          setAvailableColleges(fetchedColleges);
-        } else {
-          setAvailableColleges([]);
-        }
-      } catch (err) {
-        console.error("Error fetching colleges shallow list", err);
+    const collegesRef = ref(realtimeDb, 'colleges');
+    const unsubscribe = onValue(collegesRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        const fetchedColleges = Object.keys(data).map(id => ({
+          id,
+          name: data[id].name || 'Unnamed College'
+        }));
+        setAvailableColleges(fetchedColleges);
+      } else {
+        setAvailableColleges([]);
       }
-    };
-    fetchColleges();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Fetch student's applications
@@ -719,9 +712,9 @@ export default function ProfileWizard({
             // Preserve critical admission fields
             applicationId: applicationId || null,
             studentUid: userId,
-            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim(),
-            studentPhone: formData.phone || '',
-            studentEmail: formData.email || '',
+            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
+            studentPhone: formData.phone || userData?.phone || '',
+            studentEmail: formData.email || userData?.email || '',
             courseName: courseName || null,
             courseType: courseType || null,
             duration: duration || null,
@@ -737,18 +730,14 @@ export default function ProfileWizard({
             updatedAt: Date.now()
           };
 
-          Object.keys(inqData).forEach(key => {
-            if (inqData[key] === undefined) {
-              delete inqData[key];
-            }
-          });
+          const cleanInqData = JSON.parse(JSON.stringify(inqData));
 
 
           if (existingInqId) {
-            await update(ref(realtimeDb, `colleges/${collegeId}/frontOffice/admissionInquiries/${existingInqId}`), inqData);
+            await update(ref(realtimeDb, `colleges/${collegeId}/frontOffice/admissionInquiries/${existingInqId}`), cleanInqData);
           } else {
             await push(inqRef, {
-              ...inqData,
+              ...cleanInqData,
               appliedAt: Date.now(),
               date: new Date().toISOString()
             });
@@ -772,9 +761,9 @@ export default function ProfileWizard({
             ...formData,
             applicationId: applicationId || null,
             studentUid: userId,
-            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim(),
-            studentPhone: formData.phone || '',
-            studentEmail: formData.email || '',
+            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
+            studentPhone: formData.phone || userData?.phone || '',
+            studentEmail: formData.email || userData?.email || '',
             courseName: courseName || null,
             courseType: courseType || null,
             duration: duration || null,
@@ -786,17 +775,17 @@ export default function ProfileWizard({
             profileLocked: true,
           };
 
-          // Remove undefined values
-          Object.keys(baseAdmData).forEach(key => baseAdmData[key] === undefined && delete baseAdmData[key]);
+          // Deep clean baseAdmData
+          const cleanBaseAdmData = JSON.parse(JSON.stringify(baseAdmData));
 
           if (existingAdmId) {
             await update(ref(realtimeDb, `colleges/${collegeId}/studentAdmissions/${existingAdmId}`), {
-              ...baseAdmData,
+              ...cleanBaseAdmData,
               lastModified: Date.now()
             });
           } else {
             await push(admRef, {
-              ...baseAdmData,
+              ...cleanBaseAdmData,
               status: (appStatus === 'Unlocked' || appStatus === 'Updated') ? 'Updated' : (appStatus || 'Submitted'),
               admissionStatus: 'Pending',
               createdAt: Date.now()
@@ -834,6 +823,7 @@ export default function ProfileWizard({
   };
 
   const checkStepValid = (stepId: number, data: any): boolean => {
+    return true;
     let required: string[] = [];
     if (stepId === 1) {
       required = ['firstName', 'gender', 'dateOfBirth', 'aadhaarNo', 'phone'];
@@ -892,6 +882,7 @@ export default function ProfileWizard({
   };
 
   const validateStep = (step: number) => {
+    return true;
     let required: string[] = [];
     if (step === 1) {
       required = ['firstName', 'gender', 'dateOfBirth', 'aadhaarNo', 'phone'];
@@ -1009,9 +1000,13 @@ export default function ProfileWizard({
         };
       }
 
+      // Remove undefined values early to prevent Firebase errors in appData and inquiryData
+      Object.keys(dataToSave).forEach(key => dataToSave[key] === undefined && delete dataToSave[key]);
+
       if (currentStep === 10) {
         if (!selectedCollege || !selectedCourseId) {
           alert("Please select target college and course details.");
+          setLoading(false);
           return;
         }
 
@@ -1054,7 +1049,10 @@ export default function ProfileWizard({
           profileLocked: existingApp?.profileLocked || false
         };
 
-        await update(appRef, appData);
+        // Deep clean appData of all undefined values using JSON stringify/parse
+        const cleanAppData = JSON.parse(JSON.stringify(appData));
+
+        await update(appRef, cleanAppData);
 
         if (existingApp?.collegeId && existingApp.collegeId !== selectedCollege) {
           const oldInquiryRef = ref(realtimeDb, `colleges/${existingApp.collegeId}/frontOffice/admissionInquiries/${appRef.key}`);
@@ -1067,11 +1065,33 @@ export default function ProfileWizard({
             ...appData,
             studentUid: userId,
             source: 'Student Portal',
-            studentName: `${dataToSave.firstName || ''} ${dataToSave.lastName || ''}`.trim(),
-            studentEmail: dataToSave.email || '',
-            studentPhone: dataToSave.phone || '',
+            studentName: `${dataToSave.firstName || ''} ${dataToSave.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
+            studentEmail: dataToSave.email || userData?.email || '',
+            studentPhone: dataToSave.phone || userData?.phone || '',
           };
-          await update(inquiryRef, inquiryData);
+          
+          // Deep clean inquiryData of all undefined values
+          const cleanInquiryData = JSON.parse(JSON.stringify(inquiryData));
+          
+          await update(inquiryRef, cleanInquiryData);
+
+          // ALSO save to studentAdmissions immediately upon Send to College
+          const admRef = ref(realtimeDb, `colleges/${selectedCollege}/studentAdmissions/${appRef.key}`);
+          const baseAdmData = {
+            ...appData,
+            profile: dataToSave,
+            studentUid: userId,
+            studentName: inquiryData.studentName,
+            studentEmail: inquiryData.studentEmail,
+            studentPhone: inquiryData.studentPhone,
+            admissionStatus: 'Pending',
+            status: appData.status || 'Submitted',
+            createdAt: Date.now()
+          };
+          const cleanBaseAdmData = JSON.parse(JSON.stringify(baseAdmData));
+          await update(admRef, cleanBaseAdmData);
+
+          alert("Application Successfully Sent to College! Pending Admission.");
         }
 
         // Update URL query parameter if it was a new application, so going back doesn't push a new one
@@ -1097,11 +1117,9 @@ export default function ProfileWizard({
         }));
       }
 
-      // Remove undefined values to prevent Firebase errors
-      Object.keys(dataToSave).forEach(key => dataToSave[key] === undefined && delete dataToSave[key]);
-
+      const cleanDataToSave = JSON.parse(JSON.stringify(dataToSave));
       const userRef = ref(realtimeDb, `users/${userId}/profile`);
-      await update(userRef, dataToSave);
+      await update(userRef, cleanDataToSave);
 
       const completion = 100;
       if (onStepComplete) onStepComplete(currentStep, completion);
@@ -1112,8 +1130,9 @@ export default function ProfileWizard({
       } else if (currentStep === 10) {
         await handleLockProfile();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
+      alert('Error saving application: ' + (error.message || 'Unknown error. Please check console.'));
     } finally {
       setLoading(false);
     }
@@ -3088,10 +3107,8 @@ export default function ProfileWizard({
           </div>
         );
       case 10: {
-        const isCourseLocked = Boolean(
-          (editingApplication && editingApplication.id !== 'new') ||
-          (!editingApplication && !isOtherCourseMode && userApplications.length > 0)
-        );
+        const appToCheck = editingApplication || (!isOtherCourseMode && userApplications.length > 0 ? userApplications[0] : null);
+        const isCourseLocked = false; // Forced false as per user request to remove all locks
         return (
           <div className="space-y-12 animate-in fade-in duration-500">
             <fieldset className="contents">
@@ -3104,7 +3121,9 @@ export default function ProfileWizard({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Target College Dropdown */}
                   <div className="space-y-1.5">
-                    <label className="text-sm font-normal text-slate-500">Target Institution / College <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-normal text-slate-500">
+                      Target Institution / College <span className="text-red-500">*</span> 
+                    </label>
                     <select
                       value={selectedCollege}
                       disabled={isCourseLocked}
@@ -3750,7 +3769,7 @@ export default function ProfileWizard({
         <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
           <div>
             <h3 className="text-[#ff9f1c] text-2xl font-normal italic tracking-tight">
-              {steps[currentStep - 1].label} Details
+              {steps[currentStep - 1]?.label || 'Final'} Details
             </h3>
           </div>
           <div className="bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 flex items-center gap-3">

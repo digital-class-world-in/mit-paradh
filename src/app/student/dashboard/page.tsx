@@ -2752,8 +2752,7 @@ function DashboardContent() {
               const rawApps = snap.val();
               safeSessionSet('student_applications', rawApps);
               const apps = Object.entries(rawApps)
-                .map(([id, val]: any) => ({ id, ...val }))
-                .filter((app: any) => app.courseName);
+                .map(([id, val]: any) => ({ id, ...val }));
               setUserApplications(apps);
 
               const activeApp = apps.find(a => a.status === 'Accepted' || a.status === 'Confirmed') || apps[0];
@@ -3619,7 +3618,7 @@ function DashboardContent() {
           />
         );
       case 33: {
-        const lockedApps = userApplications.filter(app => app.profileLocked === true || app.status === 'Submitted');
+        const lockedApps = userApplications; // Show all applications as requested by the user
         return (
           <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
             <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
