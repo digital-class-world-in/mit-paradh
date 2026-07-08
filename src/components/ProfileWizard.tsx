@@ -712,9 +712,9 @@ export default function ProfileWizard({
             // Preserve critical admission fields
             applicationId: applicationId || null,
             studentUid: userId,
-            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
-            studentPhone: formData.phone || userData?.phone || '',
-            studentEmail: formData.email || userData?.email || '',
+            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Unknown Student',
+            studentPhone: formData.phone || '',
+            studentEmail: formData.email || '',
             courseName: courseName || null,
             courseType: courseType || null,
             duration: duration || null,
@@ -761,9 +761,9 @@ export default function ProfileWizard({
             ...formData,
             applicationId: applicationId || null,
             studentUid: userId,
-            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
-            studentPhone: formData.phone || userData?.phone || '',
-            studentEmail: formData.email || userData?.email || '',
+            studentName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Unknown Student',
+            studentPhone: formData.phone || '',
+            studentEmail: formData.email || '',
             courseName: courseName || null,
             courseType: courseType || null,
             duration: duration || null,
@@ -1065,9 +1065,9 @@ export default function ProfileWizard({
             ...appData,
             studentUid: userId,
             source: 'Student Portal',
-            studentName: `${dataToSave.firstName || ''} ${dataToSave.lastName || ''}`.trim() || userData?.name || userData?.firstName || 'Unknown Student',
-            studentEmail: dataToSave.email || userData?.email || '',
-            studentPhone: dataToSave.phone || userData?.phone || '',
+            studentName: `${dataToSave.firstName || ''} ${dataToSave.lastName || ''}`.trim() || 'Unknown Student',
+            studentEmail: dataToSave.email || '',
+            studentPhone: dataToSave.phone || '',
           };
           
           // Deep clean inquiryData of all undefined values
