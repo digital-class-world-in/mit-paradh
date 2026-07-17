@@ -30,6 +30,9 @@ let auth: Auth;
 let db: Firestore;
 let realtimeDb: Database;
 let storage: FirebaseStorage;
+let studentStorage: FirebaseStorage;
+let staffStorage: FirebaseStorage;
+let collegeStorage: FirebaseStorage;
 
 let studentApp: FirebaseApp;
 let studentAuth: Auth;
@@ -73,6 +76,11 @@ if (isConfigured) {
     collegeApp = cApp;
     collegeAuth = cAuth;
 
+    storage = getStorage(app);
+    studentStorage = getStorage(sApp);
+    staffStorage = getStorage(fApp);
+    collegeStorage = getStorage(cApp);
+
   } catch (error) {
     console.error("Firebase initialization failed:", error);
     app = {} as any;
@@ -83,6 +91,9 @@ if (isConfigured) {
     db = {} as any;
     realtimeDb = {} as any;
     storage = {} as any;
+    studentStorage = {} as any;
+    staffStorage = {} as any;
+    collegeStorage = {} as any;
   }
 } else {
   app = {} as any;
@@ -93,6 +104,9 @@ if (isConfigured) {
   db = {} as any;
   realtimeDb = {} as any;
   storage = {} as any;
+  studentStorage = {} as any;
+  staffStorage = {} as any;
+  collegeStorage = {} as any;
 }
 
 export { 
@@ -100,5 +114,6 @@ export {
   studentApp, studentAuth, 
   collegeApp, collegeAuth, 
   staffApp, staffAuth,
-  db, realtimeDb, storage 
+  db, realtimeDb, storage,
+  studentStorage, staffStorage, collegeStorage
 };

@@ -188,9 +188,23 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
     }
   }, [collegeId, resolvedAdminUid]);
 
-  const filteredRegistrations = collegeId 
-    ? registrations 
-    : registrations.filter(reg => !selectedCollegeId || reg.appliedColleges?.includes(selectedCollegeId));
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterProfileStatus, setFilterProfileStatus] = useState('');
+
+  const filteredRegistrations = registrations.filter(reg => {
+    const matchesCollege = !selectedCollegeId || (reg.appliedColleges?.includes(selectedCollegeId) || reg.collegeId === selectedCollegeId);
+    const matchesSearch = !searchQuery || 
+      (reg.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (reg.lastName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (reg.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (reg.regNo || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (reg.phone || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesProfile = !filterProfileStatus || 
+      (filterProfileStatus === 'Locked' && reg.profileLocked) ||
+      (filterProfileStatus === 'In Progress' && !reg.profileLocked);
+
+    return matchesCollege && matchesSearch && matchesProfile;
+  });
 
   const itemsPerPage = 10;
   const totalItems = filteredRegistrations.length;
@@ -410,7 +424,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
     <div className="space-y-8 animate-in fade-in duration-700">
       {!collegeId && (
         <div className="bg-[#003366] text-white py-6 px-10 rounded-[2.5rem] shadow-2xl flex items-center justify-between border-b-4 border-black flex-wrap gap-4">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 flex-wrap">
              <select 
                value={selectedCollegeId}
                onChange={(e) => setSelectedCollegeId(e.target.value)}
@@ -421,6 +435,27 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   <option key={c.id} value={c.id} className="text-black">{c.name}</option>
                 ))}
              </select>
+
+             <select
+               value={filterProfileStatus}
+               onChange={(e) => setFilterProfileStatus(e.target.value)}
+               className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
+             >
+               <option value="" className="text-black">All Profile Statuses</option>
+               <option value="Locked" className="text-black">Profile Locked</option>
+               <option value="In Progress" className="text-black">In Progress</option>
+             </select>
+
+             <div className="relative">
+               <input
+                 type="text"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 placeholder="Search student, email, reg no..."
+                 className="bg-white/10 border border-white/20 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-white placeholder-white/60 outline-none focus:bg-white/20 transition-all w-60"
+               />
+               <User size={14} className="absolute left-3 top-2.5 text-white/60" />
+             </div>
           </div>
           <div className="flex items-center gap-4 bg-white/10 px-6 py-2 rounded-xl border border-white/20">
              <span className="text-xs font-bold text-white/80 uppercase tracking-widest">Total Students</span>

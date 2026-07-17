@@ -12,7 +12,7 @@ import StudentIDCard from '@/components/StudentIDCard';
 import ProfileWizard from '@/components/ProfileWizard';
 import StudentNavbar from '@/components/StudentNavbar';
 import { QRCodeCanvas } from 'qrcode.react';
-import html2canvas from 'html2canvas';
+import { safeHtml2Canvas as html2canvas } from '@/lib/safeHtml2Canvas';
 import jsPDF from 'jspdf';
 import { OfficialMarksheet } from '@/components/OfficialMarksheet';
 import { OfficialCertificate } from '@/components/OfficialCertificate';
@@ -57,7 +57,10 @@ import {
   History,
   Printer,
   Loader2,
-  Upload
+  Upload,
+  Filter,
+  RotateCcw,
+  Search
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -729,14 +732,171 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
   );
 };
 
-const FeeTablePortal = ({ availableCourses, availableColleges }: any) => {
+const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) => {
+  const [selectedCollege, setSelectedCollege] = useState('');
+  const [selectedCourseType, setSelectedCourseType] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Course types derived from selected college or all available courses
+  const availableCourseTypes = useMemo(() => {
+    const relevant = selectedCollege
+      ? availableCourses.filter((c: any) => c.collegeId === selectedCollege)
+      : availableCourses;
+    const types = Array.from(new Set(relevant.map((c: any) => c.course_type || c.type || 'Regular'))).filter(Boolean);
+    return types;
+  }, [availableCourses, selectedCollege]);
+
+  // Filtered courses matching selected college and course type
+  const selectableCourses = useMemo(() => {
+    return availableCourses.filter((c: any) => {
+      if (selectedCollege && c.collegeId !== selectedCollege) return false;
+      if (selectedCourseType && (c.course_type || c.type || 'Regular') !== selectedCourseType) return false;
+      return true;
+    });
+  }, [availableCourses, selectedCollege, selectedCourseType]);
+
+  // Final filtered list of courses for the table
+  const displayedCourses = useMemo(() => {
+    return availableCourses.filter((c: any) => {
+      if (selectedCollege && c.collegeId !== selectedCollege) return false;
+      if (selectedCourseType && (c.course_type || c.type || 'Regular') !== selectedCourseType) return false;
+      if (selectedCourseId && c.id !== selectedCourseId) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const collegeObj = availableColleges.find((col: any) => col.id === c.collegeId);
+        const colName = (collegeObj?.name || '').toLowerCase();
+        const courseName = (c.course_name || c.name || '').toLowerCase();
+        const slug = (c.course_slug || '').toLowerCase();
+        const cType = (c.course_type || c.type || '').toLowerCase();
+        if (!colName.includes(q) && !courseName.includes(q) && !slug.includes(q) && !cType.includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [availableCourses, availableColleges, selectedCollege, selectedCourseType, selectedCourseId, searchQuery]);
+
+  const hasActiveFilters = Boolean(selectedCollege || selectedCourseType || selectedCourseId || searchQuery);
+
+  const resetFilters = () => {
+    setSelectedCollege('');
+    setSelectedCourseType('');
+    setSelectedCourseId('');
+    setSearchQuery('');
+  };
+
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-      <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
-        <header className="mb-10">
-          <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Course Fee Structure</h3>
-          <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official registry of course fees across all colleges</p>
+      <div className="glass-effect p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-4 border-white shadow-2xl">
+        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Course Fee Structure</h3>
+            <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official registry of course fees across all colleges</p>
+          </div>
+          <div className="px-4 py-2 bg-indigo-50 rounded-2xl border border-indigo-200 text-indigo-700 text-xs font-bold uppercase flex items-center gap-2 w-fit">
+            <BookOpen size={14} /> Showing {displayedCourses.length} of {availableCourses.length} Courses
+          </div>
         </header>
+
+        {/* Compulsory Filters Bar */}
+        <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl mb-8 space-y-4 shadow-inner">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs font-black uppercase text-[#002147] tracking-wider">
+              <Filter size={16} className="text-[#00a5a5]" /> Compulsory Course Filters
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={resetFilters}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 underline flex items-center gap-1 transition-colors"
+              >
+                <RotateCcw size={12} /> Reset All Filters
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* College Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                College <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedCollege}
+                onChange={(e) => {
+                  setSelectedCollege(e.target.value);
+                  setSelectedCourseType('');
+                  setSelectedCourseId('');
+                }}
+                className="w-full border border-slate-300 rounded-xl p-3 text-sm text-slate-700 outline-none focus:border-[#00a5a5] bg-white shadow-sm"
+              >
+                <option value="">— Select Official College —</option>
+                {availableColleges.map((col: any) => (
+                  <option key={col.id} value={col.id}>{col.name} (ID: {col.collegeId || col.id})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Course Type Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                Course Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedCourseType}
+                onChange={(e) => {
+                  setSelectedCourseType(e.target.value);
+                  setSelectedCourseId('');
+                }}
+                disabled={!selectedCollege}
+                className="w-full border border-slate-300 rounded-xl p-3 text-sm text-slate-700 outline-none focus:border-[#00a5a5] bg-white disabled:bg-slate-100 disabled:text-slate-400 shadow-sm"
+              >
+                <option value="">— Select Type —</option>
+                {availableCourseTypes.map((type: string) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Course Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                Course <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                disabled={!selectedCourseType}
+                className="w-full border border-slate-300 rounded-xl p-3 text-sm text-slate-700 outline-none focus:border-[#00a5a5] bg-white disabled:bg-slate-100 disabled:text-slate-400 shadow-sm"
+              >
+                <option value="">Select Course Slug</option>
+                {selectableCourses.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.course_slug && c.course_slug !== 'NULL' ? c.course_slug : c.course_name || c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Search Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                Search Keyword
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Type course or college..."
+                  className="w-full border border-slate-300 rounded-xl p-3 pl-9 text-sm text-slate-700 outline-none focus:border-[#00a5a5] bg-white shadow-sm"
+                />
+                <Search size={16} className="absolute left-3 top-3.5 text-slate-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse border-[0.5px] border-black">
             <thead>
@@ -750,7 +910,7 @@ const FeeTablePortal = ({ availableCourses, availableColleges }: any) => {
               </tr>
             </thead>
             <tbody className="border-b-[0.5px] border-black">
-              {availableCourses.map((course: any, i: number) => {
+              {displayedCourses.map((course: any, i: number) => {
                 const college = availableColleges.find((c: any) => c.id === course.collegeId);
                 const collegeName = college ? college.name : (course.source === 'Global' ? 'Global Course' : 'N/A');
                 return (
@@ -773,9 +933,9 @@ const FeeTablePortal = ({ availableCourses, availableColleges }: any) => {
                   </tr>
                 );
               })}
-              {availableCourses.length === 0 && (
+              {displayedCourses.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">No courses available.</td>
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">No courses match the selected filters.</td>
                 </tr>
               )}
             </tbody>
@@ -857,7 +1017,7 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
             { l: 'Admission year', v: '2026-2027' },
             {
               l: 'Name',
-              v: toTitleCase(`${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
+              v: toTitleCase(userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
             { l: 'Form number', v: 'F-2026/00452' },
             { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
@@ -937,7 +1097,8 @@ const ApplicationManager = ({
   selectedCourseType, setSelectedCourseType, availableCourseTypes,
   selectedCourseId, setSelectedCourseId, filteredCourses,
   selectedDuration, selectedFees, handleAddNewApplication, isSubmittingApp,
-  userApplications, userData, handleTabChange, activeApp
+  userApplications, userData, handleTabChange, activeApp,
+  handleDownloadPDF, downloadingAppId
 }: any) => {
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
@@ -975,7 +1136,7 @@ const ApplicationManager = ({
                     </div>
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-bold uppercase">{app.regNo || userData?.regNo || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.studentName || userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
                     <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-200">{app.courseType || 'Regular'}</span>
@@ -1014,13 +1175,27 @@ const ApplicationManager = ({
                           <PenTool size={14} /> CHANGE
                         </button>
                       ) : (
-                        <button
-                          onClick={() => handleTabChange(3, 1, app.id)}
-                          title="View Profile"
-                          className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-90"
-                        >
-                          <Eye size={18} />
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleTabChange(3, 1, app.id)}
+                            title="View Profile"
+                            className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-90"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDownloadPDF(app)}
+                            disabled={downloadingAppId !== null}
+                            className="w-10 h-10 rounded-xl bg-[#002147] text-white flex items-center justify-center hover:bg-black transition-all shadow-md active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Download Application PDF"
+                          >
+                            {downloadingAppId === app.id ? (
+                              <Loader2 size={18} className="animate-spin text-white" />
+                            ) : (
+                              <Download size={18} />
+                            )}
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
@@ -1084,7 +1259,7 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                       </td>
                       <td className="px-8 py-6 border-r-[0.5px] border-black">
                         <span className="text-sm font-black text-slate-800 capitalize tracking-tight">
-                          {userData?.profile?.firstName ? `${userData.profile.firstName} ${userData.profile.lastName || ''}`.trim() : (userData?.studentName || userData?.firstName || 'N/A')}
+                          {userData?.fullName || userData?.studentName || (userData?.profile?.firstName ? `${userData.profile.firstName} ${userData.profile.middleName || ''} ${userData.profile.lastName || ''}`.trim() : (userData?.firstName || 'N/A'))}
                         </span>
                       </td>
                       <td className="px-8 py-6 border-r-[0.5px] border-black">
@@ -2081,7 +2256,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </td>
                   <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black font-bold capitalize">
                     <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Student Name</span>
-                    <span className="text-right md:text-left">{app.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</span>
+                    <span className="text-right md:text-left">{app.studentName || userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</span>
                   </td>
                   <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black capitalize">
                     <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">College</span>
@@ -2191,7 +2366,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </div>
                 </div>
 
-                <DataRow label="Full Name" value={`${userData.profile?.firstName} ${userData.profile?.middleName || ''} ${userData.profile?.lastName}`} />
+                <DataRow label="Full Name" value={userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()} />
                 <DataRow label="Gender" value={toTitleCase(userData.profile?.gender || userData.gender || '')} />
                 <DataRow label="Date of Birth" value={userData.profile?.dateOfBirth || userData.dateOfBirth} />
                 <DataRow label="Manual Reg No." value={userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'} />
@@ -2590,7 +2765,7 @@ function DashboardContent() {
     return res.trim() + ' Rupees Only';
   };
 
-  const handleDownloadReceiptPDF = async () => {
+  const handleDownloadReceiptPNG = async () => {
     const printContent = document.getElementById('receipt-print');
     if (!printContent) return;
     setIsDownloadingReceipt(true);
@@ -2603,15 +2778,15 @@ function DashboardContent() {
         allowTaint: true
       });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-      const fileName = `Receipt_${lastReceipt?.receiptNo || 'N/A'}_${(lastReceipt?.studentName || 'Student').replace(/\s+/g, '_')}.pdf`;
-      pdf.save(fileName);
+      const link = document.createElement('a');
+      link.href = imgData;
+      const fileName = `Receipt_${lastReceipt?.receiptNo || 'N/A'}_${(lastReceipt?.studentName || 'Student').replace(/\s+/g, '_')}.png`;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error: any) {
-      console.error('PDF Download Error:', error);
+      console.error('PNG Download Error:', error);
       alert(`Failed to download receipt: ${error?.message || 'Unknown error'}`);
     } finally {
       setIsDownloadingReceipt(false);
@@ -3615,6 +3790,8 @@ function DashboardContent() {
             userData={userData}
             handleTabChange={handleTabChange}
             activeApp={activeApp}
+            handleDownloadPDF={handleDownloadPDF}
+            downloadingAppId={downloadingAppId}
           />
         );
       case 33: {
@@ -4245,7 +4422,7 @@ function DashboardContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Student Name</p>
-                  <p className="text-sm font-bold text-slate-800 capitalize">{(userData.profile?.firstName || userData.firstName || 'Student')} {(userData.profile?.lastName || userData.lastName || '')}</p>
+                  <p className="text-sm font-bold text-slate-800 capitalize">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || userData.firstName || 'Student'} ${userData.profile?.middleName || userData.middleName || ''} ${userData.profile?.lastName || userData.lastName || ''}`.trim()}</p>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
@@ -4443,7 +4620,7 @@ function DashboardContent() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Student Name</label>
                     <input
                       type="text"
-                      defaultValue={`${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`}
+                      defaultValue={userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}
                       onChange={(e) => setExamForm({ ...examForm, studentName: e.target.value })}
                       placeholder="Full Name"
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
@@ -4738,7 +4915,7 @@ function DashboardContent() {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={handleDownloadReceiptPDF}
+                  onClick={handleDownloadReceiptPNG}
                   disabled={isDownloadingReceipt}
                   className={cn(
                     "px-8 py-3 rounded-2xl bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-2 text-[12px] font-black shadow-xl active:scale-95",
@@ -4747,11 +4924,11 @@ function DashboardContent() {
                 >
                   {isDownloadingReceipt ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> GENERATING PDF...
+                      <Loader2 size={16} className="animate-spin" /> GENERATING PNG...
                     </>
                   ) : (
                     <>
-                      <Download size={16} /> DOWNLOAD RECEIPT (A4)
+                      <Download size={16} /> DOWNLOAD RECEIPT (PNG)
                     </>
                   )}
                 </button>

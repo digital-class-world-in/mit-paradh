@@ -1174,13 +1174,14 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
 
   // Client-side filtering on all fetched courses
   const filteredCourses = courses.filter((c: any) => {
+    const matchesCollege = !filterCollegeId || (c.collegeId || '') === filterCollegeId;
     const matchesName = !filterName || (c.course_name || '').toLowerCase().includes(filterName.toLowerCase());
     const matchesType = !filterType || (c.course_type || c.type || '') === filterType;
     const matchesDuration = !filterDuration || (c.duration || '') === filterDuration;
     const matchesSemester = !filterSemester || (c.semester || '') === filterSemester;
     const matchesStream = !filterStream || (c.subcategory || c.stream || c.branch || '') === filterStream;
 
-    return matchesName && matchesType && matchesDuration && matchesSemester && matchesStream;
+    return matchesCollege && matchesName && matchesType && matchesDuration && matchesSemester && matchesStream;
   });
 
   const ITEMS_PER_PAGE = 25;

@@ -5,7 +5,7 @@ import { ref, onValue, get, set, push, remove, update } from 'firebase/database'
 import { realtimeDb } from '@/lib/firebase';
 import { CreditCard, Search, IndianRupee, User, BookOpen, Clock, X, Save, Eye, Check, Receipt, Trash2, Building2, Calendar, History, Download, Mail, Phone, Hash, Tag, Landmark, ShieldCheck, Camera, Copy, Edit, Loader2 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
-import html2canvas from 'html2canvas';
+import { safeHtml2Canvas as html2canvas } from '@/lib/safeHtml2Canvas';
 import jsPDF from 'jspdf';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -229,6 +229,19 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
 
     fetchAllData();
   }, [collegeId, resolvedAdminUid]);
+
+  const [filterCourseType, setFilterCourseType] = useState('');
+
+  const filteredStudents = students.filter(s => {
+    const matchesName = !filterName || 
+      (s.studentName || `${s.firstName || ''} ${s.lastName || ''}`).toLowerCase().includes(filterName.toLowerCase()) ||
+      (s.applicationId || '').toLowerCase().includes(filterName.toLowerCase()) ||
+      (s.courseName || '').toLowerCase().includes(filterName.toLowerCase());
+    const matchesCollege = !selectedCollegeId || s.collegeId === selectedCollegeId;
+    const matchesCourseType = !filterCourseType || (s.courseType || s.type || 'Regular') === filterCourseType;
+
+    return matchesName && matchesCollege && matchesCourseType;
+  });
 
   const handleCollectOpen = (student: any) => {
     setSelectedStudent(student);
@@ -636,12 +649,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
     }
   };
 
-  const filteredStudents = students.filter(s => {
-    const name = (s.studentName || `${s.firstName || ''} ${s.lastName || ''}`).toLowerCase();
-    const matchesName = name.includes(filterName.toLowerCase());
-    const matchesCollege = !selectedCollegeId || s.collegeId === selectedCollegeId;
-    return matchesName && matchesCollege;
-  });
+  // filteredStudents is defined above with CourseType and College filters
 
   const handleHistoryOpen = (student: any) => {
     setSelectedStudent(student);
@@ -886,6 +894,16 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                     {availableColleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                  </select>
                )}
+               <select
+                 value={filterCourseType}
+                 onChange={(e) => setFilterCourseType(e.target.value)}
+                 className="bg-slate-50 border-[0.5px] border-black rounded-2xl px-6 py-4 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#00a5a5] transition-all"
+               >
+                 <option value="">All Course Types</option>
+                 <option value="Regular">Regular</option>
+                 <option value="Distance">Distance</option>
+                 <option value="Professional">Professional</option>
+               </select>
             </div>
             <div className="flex items-center gap-3">
                <div className="text-[13px] font-normal text-black capitalize tracking-tight bg-[#00a5a5]/10 px-4 py-2 rounded-full whitespace-nowrap">

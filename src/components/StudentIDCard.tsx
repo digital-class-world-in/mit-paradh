@@ -60,7 +60,7 @@ export default function StudentIDCard({ userData, activeApp }: { userData: any, 
           {/* Details */}
           <div className="w-full px-3 pt-3 flex-1 flex flex-col items-center">
             <h4 className="text-[11px] font-black text-black uppercase text-center mb-1 leading-tight w-full truncate">
-              {userData.firstName} {userData.lastName}
+              {userData.fullName || userData.studentName || `${userData.firstName || ''} ${userData.middleName || ''} ${userData.lastName || ''}`.trim() || 'Student'}
             </h4>
             
             <div className="w-full space-y-1 mt-1">

@@ -167,16 +167,23 @@ function StudentLayoutContent({
           unsubUser = onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.val();
-              const firstName = data.profile?.firstName || data.firstName || data.name || 'Student';
-              const displayFirstName = firstName.trim().split(' ')[0];
-              const middleName = data.profile?.middleName || data.middleName || '';
-              const lastName = data.profile?.lastName || data.lastName || '';
-              const fullName = `${firstName} ${middleName} ${lastName}`.replace(/\s+/g, ' ').trim();
-              const updatedUser = { ...data, firstName: fullName, displayFirstName, uid: currentUid };
+              const fn = data.profile?.firstName || data.firstName || data.name || 'Student';
+              const mn = data.profile?.middleName || data.middleName || '';
+              const ln = data.profile?.lastName || data.lastName || '';
+              const rawParts = [fn, mn, ln].map(s => (s || '').trim()).filter(Boolean);
+              const uniqueWords: string[] = [];
+              rawParts.join(' ').split(/\s+/).forEach(w => {
+                if (w && !uniqueWords.some(u => u.toLowerCase() === w.toLowerCase())) {
+                  uniqueWords.push(w);
+                }
+              });
+              const fullName = uniqueWords.join(' ').trim() || 'Student';
+              const displayFirstName = fn.trim().split(/\s+/)[0] || 'Student';
+              const updatedUser = { ...data, firstName: fn, middleName: mn, lastName: ln, fullName, studentName: fullName, displayFirstName, uid: currentUid };
               setUserData(updatedUser);
               safeSessionSet('student_user_data', updatedUser);
             } else {
-              const updatedUser = { firstName: 'Student', uid: currentUid };
+              const updatedUser = { firstName: 'Student', fullName: 'Student', uid: currentUid };
               setUserData(updatedUser);
               safeSessionSet('student_user_data', updatedUser);
             }
@@ -242,17 +249,28 @@ function StudentLayoutContent({
             unsubUser = onValue(manualStudentRef, (snapshot) => {
               if (snapshot.exists()) {
                 const sData = snapshot.val();
-                const firstName = sData.firstName || 'Student';
-                const displayFirstName = firstName.trim().split(' ')[0];
-                const middleName = sData.middleName || '';
-                const lastName = sData.lastName || '';
-                const fullName = `${firstName} ${middleName} ${lastName}`.replace(/\s+/g, ' ').trim();
+                const fn = sData.firstName || 'Student';
+                const mn = sData.middleName || '';
+                const ln = sData.lastName || '';
+                const rawParts = [fn, mn, ln].map(s => (s || '').trim()).filter(Boolean);
+                const uniqueWords: string[] = [];
+                rawParts.join(' ').split(/\s+/).forEach(w => {
+                  if (w && !uniqueWords.some(u => u.toLowerCase() === w.toLowerCase())) {
+                    uniqueWords.push(w);
+                  }
+                });
+                const fullName = uniqueWords.join(' ').trim() || 'Student';
+                const displayFirstName = fn.trim().split(/\s+/)[0] || 'Student';
                 
                 const updatedUser = {
                   ...sData,
                   uid: currentUid,
                   role: 'student',
-                  firstName: fullName,
+                  firstName: fn,
+                  middleName: mn,
+                  lastName: ln,
+                  fullName,
+                  studentName: fullName,
                   displayFirstName,
                   collegeId: foundCollegeId,
                   profile: {
@@ -283,20 +301,25 @@ function StudentLayoutContent({
                     "courseName": sData.courseType || 'General',
                     "courseType": sData.courseType || 'Regular',
                     "fees": sData.fees || '0',
-                    "status": 'Accepted',
-                    "appliedAt": sData.createdAt || sData.updatedAt || new Date().toISOString(),
-                    "profileLocked": true
+                    "registrationFeeStatus": "Paid",
+                    "status": "Accepted",
+                    "studentName": fullName
                   }
                 };
                 setHasApplied(true);
                 safeSessionSet('student_applications', simulatedApps);
                 
                 setupCourseAndConfigListeners(simulatedApps.manual_app);
+              } else {
+                const updatedUser = { firstName: 'Student', fullName: 'Student', uid: currentUid };
+                setUserData(updatedUser);
+                safeSessionSet('student_user_data', updatedUser);
               }
               setLoading(false);
             });
           } else {
-            const updatedUser = { firstName: 'Student', uid: currentUid };
+            console.log("[student/layout] Manual student NOT found in any college.");
+            const updatedUser = { firstName: 'Student', fullName: 'Student', uid: currentUid };
             setUserData(updatedUser);
             safeSessionSet('student_user_data', updatedUser);
             setLoading(false);
@@ -306,6 +329,7 @@ function StudentLayoutContent({
         router.push('/login/student');
       }
     });
+
     return () => {
       unsubscribe();
       cleanupLayoutListeners();
@@ -348,15 +372,13 @@ function StudentLayoutContent({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
+      <div className="h-screen flex flex-col items-center justify-center gap-6 bg-[#f8fafc]">
         <div className="relative">
           <div className="w-20 h-20 border-4 border-slate-200 rounded-full" />
-          <div className="w-20 h-20 border-4 border-t-[#5D5fb1] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin absolute top-0 left-0" />
+          <div className="w-20 h-20 border-4 border-t-[#00a5a5] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin absolute top-0 left-0" />
         </div>
-        <div className="flex flex-col items-center gap-2">
-          <div className="text-[#5D5fb1] font-black capitalize tracking-normal text-[13px]">
-            Initializing Student Portal
-          </div>
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-[13px] font-black text-[#003366] uppercase tracking-[0.3em]">Institutional Student Portal</p>
           <div className="flex gap-1">
             <div className="w-1 h-1 bg-[#00a5a5] rounded-full animate-bounce [animation-delay:-0.3s]" />
             <div className="w-1 h-1 bg-[#00a5a5] rounded-full animate-bounce [animation-delay:-0.15s]" />
@@ -372,7 +394,7 @@ function StudentLayoutContent({
       <StudentNavbar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
-        studentName={userData?.firstName || 'Student'}
+        studentName={userData?.fullName || userData?.studentName || userData?.firstName || 'Student'}
         onLogout={handleLogout}
         hasApplied={hasApplied}
         isExamConfigured={isExamConfigured}

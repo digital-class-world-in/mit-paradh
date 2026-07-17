@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { ref, get, set, push, onValue, update, remove } from 'firebase/database';
 
-import { realtimeDb, storage } from '@/lib/firebase';
+import { realtimeDb, storage, studentStorage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import ApplicationPreviewModal from './ApplicationPreviewModal';
 import {
@@ -380,7 +380,7 @@ export default function ProfileWizard({
       return;
     }
 
-    const fileRef = storageRef(storage, `students/${userId}/documents/${fieldName}_${Date.now()}_${file.name}`);
+    const fileRef = storageRef(studentStorage || storage, `students/${userId}/documents/${fieldName}_${Date.now()}_${file.name}`);
     const uploadTask = uploadBytesResumable(fileRef, file);
 
     uploadTask.on(

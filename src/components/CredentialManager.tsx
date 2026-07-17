@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { ref, onValue, set, push } from 'firebase/database';
 import { realtimeDb } from '@/lib/firebase';
-import html2canvas from 'html2canvas';
+import { safeHtml2Canvas as html2canvas } from '@/lib/safeHtml2Canvas';
 import jsPDF from 'jspdf';
 import { OfficialMarksheet } from './OfficialMarksheet';
 import { OfficialCertificate } from './OfficialCertificate';
