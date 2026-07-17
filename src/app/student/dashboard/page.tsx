@@ -743,7 +743,7 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
     const relevant = selectedCollege
       ? availableCourses.filter((c: any) => c.collegeId === selectedCollege)
       : availableCourses;
-    const types = Array.from(new Set(relevant.map((c: any) => c.course_type || c.type || 'Regular'))).filter(Boolean);
+    const types = Array.from<string>(new Set(relevant.map((c: any) => c.course_type || c.type || 'Regular'))).filter(Boolean);
     return types;
   }, [availableCourses, selectedCollege]);
 
@@ -852,7 +852,7 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
                 className="w-full border border-slate-300 rounded-xl p-3 text-sm text-slate-700 outline-none focus:border-[#00a5a5] bg-white disabled:bg-slate-100 disabled:text-slate-400 shadow-sm"
               >
                 <option value="">— Select Type —</option>
-                {availableCourseTypes.map((type: string) => (
+                {availableCourseTypes.map((type: any) => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
@@ -2763,6 +2763,16 @@ function DashboardContent() {
     if (n > 0) res += h(n);
 
     return res.trim() + ' Rupees Only';
+  };
+
+  const [downloadingAppId, setDownloadingAppId] = useState<string | null>(null);
+
+  const handleDownloadPDF = async (app: any) => {
+    setDownloadingAppId(app?.id || 'app');
+    handleTabChange(22);
+    setTimeout(() => {
+      setDownloadingAppId(null);
+    }, 1000);
   };
 
   const handleDownloadReceiptPNG = async () => {
