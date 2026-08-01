@@ -151,7 +151,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                 collegeStudentMap.set(mergeKey, {
                   id: aId,
                   ...aData,
-                  studentName: aData?.studentName || `${aData?.firstName || ''} ${aData?.lastName || ''}`,
+                  studentName: `${aData?.firstName || ''} ${aData?.middleName || ''} ${aData?.lastName || ''}`.trim() || aData?.studentName || '',
                   collegeId: cId,
                   collegeName: cData.name,
                   collegeLogo: cData.logoUrl || cData.logo || '',
@@ -170,7 +170,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                    collegeStudentMap.set(mergeKey, {
                      id: sId,
                      ...sData,
-                     studentName: sData?.studentName || `${sData?.firstName || ''} ${sData?.lastName || ''}`,
+                     studentName: `${sData?.firstName || ''} ${sData?.middleName || ''} ${sData?.lastName || ''}`.trim() || sData?.studentName || '',
                      collegeId: cId,
                      collegeName: cData.name,
                      collegeLogo: cData.logoUrl || cData.logo || '',
@@ -189,7 +189,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
            setAllTransactions(transactions);
           
           const validStudents = allStudents.filter(s => {
-             const name = s.studentName || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+             const name = `${s.firstName || ''} ${s.middleName || ''} ${s.lastName || ''}`.trim() || s.studentName || '';
              return name && name.length > 0 && s.collegeId !== "undefined";
           });
           
@@ -234,7 +234,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
 
   const filteredStudents = students.filter(s => {
     const matchesName = !filterName || 
-      (s.studentName || `${s.firstName || ''} ${s.lastName || ''}`).toLowerCase().includes(filterName.toLowerCase()) ||
+      (`${s.firstName || ''} ${s.middleName || ''} ${s.lastName || ''}`.trim() || s.studentName || '').toLowerCase().includes(filterName.toLowerCase()) ||
       (s.applicationId || '').toLowerCase().includes(filterName.toLowerCase()) ||
       (s.courseName || '').toLowerCase().includes(filterName.toLowerCase());
     const matchesCollege = !selectedCollegeId || s.collegeId === selectedCollegeId;

@@ -38,8 +38,6 @@ import LiveQuotes from '@/components/LiveQuotes';
 
 export default function Home() {
 
-
-
   const notices = [
     { text: 'APRIL-2026 (2 YEAR) DETAIL TIME TABLE', isNew: true },
     { text: 'REGULAR FINAL DETAIL TIME TABLE-2026', isNew: true },

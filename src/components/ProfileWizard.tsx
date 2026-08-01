@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Save,
   Upload,
+  Download,
   Camera,
   PenTool,
   Edit2,
@@ -374,8 +375,9 @@ export default function ProfileWizard({
     if (!file) return;
 
     const sizeInKB = file.size / 1024;
-    if (sizeInKB < 1 || sizeInKB > 1024) {
-      alert('File size must be between 1 KB and 1 MB');
+    const maxKb = (fieldName === 'sscMarksheetUrl' || fieldName === 'hscMarksheetUrl' || fieldName === 'marksheetUrl') ? 5120 : 1024;
+    if (sizeInKB < 1 || sizeInKB > maxKb) {
+      alert(`File size must be between 1 KB and ${maxKb / 1024} MB`);
       e.target.value = '';
       return;
     }
@@ -402,8 +404,14 @@ export default function ProfileWizard({
             [`${fieldName}FileName`]: file.name
           }));
 
+          if (fieldName === 'sscMarksheetUrl') {
+            alert('SSC Marksheet uploaded successfully.');
+          } else if (fieldName === 'hscMarksheetUrl') {
+            alert('HSC Marksheet uploaded successfully.');
+          }
+
           // Immediately save critical documents to Firebase
-          const criticalFields = ['photoUrl', 'signUrl', 'aadhaarFrontUrl', 'aadhaarBackUrl', 'casteCertificateUrl', 'domicileUrl', 'transferCertificateUrl', 'bonafideCertificateUrl'];
+          const criticalFields = ['photoUrl', 'signUrl', 'aadhaarFrontUrl', 'aadhaarBackUrl', 'casteCertificateUrl', 'domicileUrl', 'transferCertificateUrl', 'bonafideCertificateUrl', 'sscMarksheetUrl', 'hscMarksheetUrl'];
           if (userId && criticalFields.includes(fieldName)) {
             try {
               const userRef = ref(realtimeDb, `users/${userId}/profile`);
@@ -2220,6 +2228,8 @@ export default function ProfileWizard({
                 <h4 className="text-base font-normal text-slate-800 italic">Qualification Details (SSC & Above)</h4>
                 <p className="text-xs font-normal text-slate-400 capitalize tracking-tight">Academic Records & Marksheets</p>
               </div>
+
+
 
               {/* Qualification Form */}
               <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-200 space-y-6">

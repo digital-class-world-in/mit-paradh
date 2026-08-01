@@ -1562,7 +1562,38 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
                   </td>
                   <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
                     <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
-                    {fileUrl ? <button onClick={() => setModalPreview({ url: fileUrl, label: doc.label })} className="px-5 py-2.5 bg-[#00a5a5] text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 md:mx-auto"><Eye size={14} /> Preview</button> : <button onClick={() => handleDocumentUpload(doc)} className="px-5 py-2.5 bg-amber-500 text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 md:mx-auto"><Plus size={14} /> Upload</button>}
+                    {fileUrl ? (
+                      <div className="flex items-center justify-center gap-2 flex-wrap md:mx-auto w-fit">
+                        <button
+                          onClick={() => setModalPreview({ url: fileUrl, label: doc.label })}
+                          className="px-3 py-1.5 bg-[#00a5a5] text-white rounded-lg text-[10px] font-black uppercase flex items-center gap-1 hover:bg-[#008a8a] transition-all"
+                        >
+                          <Eye size={12} /> View
+                        </button>
+                        <a
+                          href={fileUrl}
+                          download={`${userData.profile?.firstName || userData.studentName || 'Student'}_${doc.label.replace(/\s+/g, '_')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                        >
+                          <Download size={12} /> Download
+                        </a>
+                        <button
+                          onClick={() => handleDocumentUpload(doc)}
+                          className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                        >
+                          <RotateCcw size={12} /> Replace
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleDocumentUpload(doc)}
+                        className="px-5 py-2.5 bg-amber-500 text-white rounded-lg text-[11px] font-black uppercase flex items-center gap-2 md:mx-auto hover:bg-amber-600 transition-all"
+                      >
+                        <Plus size={14} /> Upload
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
@@ -1597,10 +1628,19 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
   </div>
 );
 
-const PrintApplicationRegistry = ({ userApplications, userData, availableColleges }: any) => {
+const PrintApplicationRegistry = ({ userApplications, userData, availableColleges, hiddenMode = false, registerPrintHandlers }: any) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [downloadingAppId, setDownloadingAppId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (registerPrintHandlers) {
+      registerPrintHandlers({
+        downloadPDF: handleDownloadPDF,
+        printPreview: handlePreview
+      });
+    }
+  }, [registerPrintHandlers]);
 
   const handlePreview = (app: any) => {
     setSelectedApp(app);
@@ -1690,7 +1730,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
   );
 
   return (
-    <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8 p-8">
+    <div className={hiddenMode ? "" : "animate-in slide-in-from-bottom-8 duration-500 space-y-8 p-8"}>
       {/* Off-screen PDF content container */}
       {downloadingAppId && (() => {
         const app = userApplications.find((a: any) => a.id === downloadingAppId);
@@ -1757,7 +1797,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                       <span style={{ fontWeight: '700', color: '#0f172a' }}>{app.applicationId}</span>
                     </div>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Registration No</span>
+                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Auto Registration No</span>
                       <span style={{ fontWeight: '700', color: '#0f172a' }}>{userData.profile?.regNo || 'PENDING'}</span>
                     </div>
                     <div style={{ padding: '6px 8px' }}>
@@ -2210,6 +2250,8 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
         );
       })()}
 
+      {!hiddenMode && (
+        <>
       <header className="bg-[#003366] text-white py-6 px-10 rounded-2xl shadow-xl flex items-center justify-between print:hidden">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 bg-[#ff9f1c] rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20"><Printer size={28} /></div>
@@ -2304,6 +2346,8 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
           </table>
         </div>
       </div>
+        </>
+      )}
 
       {showPreview && selectedApp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300 print:relative print:inset-0 print:p-0 print:z-0">
@@ -2530,6 +2574,31 @@ function DashboardContent() {
   });
   const [loading, setLoading] = useState(false);
 
+  const [receiptPhoto, setReceiptPhoto] = useState<string | null>(null);
+  const [receiptSignature, setReceiptSignature] = useState<string | null>(null);
+
+  useEffect(() => {
+    const preloadImage = async (url: string, setter: (val: string) => void) => {
+      try {
+        if (!url || url.length < 10) return;
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => setter(reader.result as string);
+        reader.readAsDataURL(blob);
+      } catch (e) {
+        console.error("Failed to preload image:", url, e);
+        setter(url); // Fallback
+      }
+    };
+    
+    const pUrl = userData?.profile?.photoUrl || userData?.profile?.photo || userData?.photo;
+    const sUrl = userData?.profile?.signatureUrl || userData?.profile?.signUrl;
+    
+    if (pUrl) preloadImage(pUrl, setReceiptPhoto);
+    if (sUrl) preloadImage(sUrl, setReceiptSignature);
+  }, [userData]);
+
   const configUnsubRef = useRef<(() => void) | null>(null);
   const submissionsUnsubRef = useRef<(() => void) | null>(null);
   const onlineExamsUnsubRef = useRef<(() => void) | null>(null);
@@ -2541,6 +2610,8 @@ function DashboardContent() {
   const [pendingDocStep, setPendingDocStep] = useState<number | null>(null);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedCollege, setSelectedCollege] = useState('');
+
+  const [printHandlers, setPrintHandlers] = useState<any>(null);
 
   // Dynamic Admission States
   const [collegeCourses, setCollegeCourses] = useState<any[]>([]);
@@ -2767,19 +2838,22 @@ function DashboardContent() {
 
   const [downloadingAppId, setDownloadingAppId] = useState<string | null>(null);
 
-  const handleDownloadPDF = async (app: any) => {
-    setDownloadingAppId(app?.id || 'app');
-    handleTabChange(22);
-    setTimeout(() => {
-      setDownloadingAppId(null);
-    }, 1000);
-  };
-
-  const handleDownloadReceiptPNG = async () => {
+  const handleDownloadReceiptPDF = async () => {
     const printContent = document.getElementById('receipt-print');
     if (!printContent) return;
     setIsDownloadingReceipt(true);
     try {
+      await new Promise(resolve => setTimeout(resolve, 100)); // Allow UI to update to loading state
+      const imgs = printContent.querySelectorAll('img');
+      const promises = Array.from(imgs).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+      await Promise.all(promises);
+
       const canvas = await html2canvas(printContent, {
         scale: 2,
         useCORS: true,
@@ -2788,15 +2862,17 @@ function DashboardContent() {
         allowTaint: true
       });
       const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = imgData;
-      const fileName = `Receipt_${lastReceipt?.receiptNo || 'N/A'}_${(lastReceipt?.studentName || 'Student').replace(/\s+/g, '_')}.png`;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      
+      const fileName = `Receipt_${lastReceipt?.receiptNo || 'N/A'}_${(lastReceipt?.studentName || 'Student').replace(/\s+/g, '_')}.pdf`;
+      pdf.save(fileName);
     } catch (error: any) {
-      console.error('PNG Download Error:', error);
+      console.error('PDF Download Error:', error);
       alert(`Failed to download receipt: ${error?.message || 'Unknown error'}`);
     } finally {
       setIsDownloadingReceipt(false);
@@ -3313,8 +3389,9 @@ function DashboardContent() {
     if (!file || !uploadingDoc || !userData?.uid) return;
 
     const sizeInKB = file.size / 1024;
-    if (sizeInKB < 1 || sizeInKB > 1024) {
-      alert('File size must be between 1 KB and 1 MB');
+    const maxKb = (uploadingDoc.key === 'sscMarksheetUrl' || uploadingDoc.key === 'hscMarksheetUrl' || uploadingDoc.isQualification) ? 5120 : 1024;
+    if (sizeInKB < 1 || sizeInKB > maxKb) {
+      alert(`File size must be between 1 KB and ${maxKb / 1024} MB`);
       e.target.value = '';
       return;
     }
@@ -3346,6 +3423,14 @@ function DashboardContent() {
               [uploadingDoc.key]: downloadUrl,
               [`${uploadingDoc.key}FileName`]: file.name
             });
+          }
+
+          if (uploadingDoc.key === 'sscMarksheetUrl') {
+            alert('SSC Marksheet uploaded successfully.');
+          } else if (uploadingDoc.key === 'hscMarksheetUrl') {
+            alert('HSC Marksheet uploaded successfully.');
+          } else {
+            alert(`${uploadingDoc.label || 'Document'} uploaded successfully.`);
           }
 
           // Sync with inquiries
@@ -3597,12 +3682,9 @@ function DashboardContent() {
     if (!selectedAppForPayment || !userData?.uid) return;
 
     const errors: Record<string, string> = {};
-    if (!paymentForm.upiId) errors.upiId = "UPI ID is required";
-    if (!paymentForm.relationship) errors.relationship = "Please select a relationship";
     if (!paymentForm.amount || parseFloat(paymentForm.amount) <= 0) errors.amount = "Valid payment amount is required";
     if (!paymentForm.email) errors.email = "Payer email is required";
     if (!paymentForm.phone) errors.phone = "Mobile number is required";
-    if (!paymentForm.screenshot) errors.screenshot = "Please upload a payment screenshot";
 
     const outstanding = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
     const inputAmount = parseFloat(paymentForm.amount || '0');
@@ -3613,15 +3695,22 @@ function DashboardContent() {
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      alert("Please fill in all mandatory fields and upload a screenshot.");
+      alert("Please fill in all mandatory fields.");
       return;
     }
 
     setFormErrors({});
     setIsSubmittingPayment(true);
+    
+    // Simulate Gateway Delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     try {
+      const generatedUtr = `MOCK-TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      
       const paymentData = {
         ...paymentForm,
+        utrId: generatedUtr,
         studentUid: userData.uid,
         studentName: (userData.profile?.firstName || userData.firstName || 'Unknown') + ' ' + (userData.profile?.lastName || userData.lastName || ''),
         applicationId: selectedAppForPayment.applicationId,
@@ -3629,22 +3718,40 @@ function DashboardContent() {
         courseName: selectedAppForPayment.courseName,
         courseType: selectedAppForPayment.courseType,
         submittedAt: new Date().toISOString(),
-        status: 'Pending'
+        status: 'Accepted',
+        receiptNo: `REC-${Date.now().toString().slice(-6)}`
       };
 
+      // 1. Record payment in college's online payments
       const paymentRef = push(ref(realtimeDb, `colleges/${selectedAppForPayment.collegeId}/payments/online`));
-      await set(paymentRef, paymentData);
+      await set(paymentRef, { ...paymentData, id: paymentRef.key });
 
-      // Also record in student's personal record
+      // 2. Record payment in student's personal record
       const studentPaymentRef = push(ref(realtimeDb, `users/${userData.uid}/payments`));
-      await set(studentPaymentRef, paymentData);
+      await set(studentPaymentRef, { ...paymentData, id: studentPaymentRef.key });
+      
+      // 3. Update application's paidFees in Firebase
+      const newPaidFees = parseFloat(selectedAppForPayment.paidFees || '0') + inputAmount;
+      
+      // Update in user's profile applications
+      const userAppRef = ref(realtimeDb, `users/${userData.uid}/applications/${selectedAppForPayment.id}`);
+      await update(userAppRef, { paidFees: newPaidFees.toString() });
+      
+      // Update in college's applications
+      const collegeAppRef = ref(realtimeDb, `colleges/${selectedAppForPayment.collegeId}/applications/${selectedAppForPayment.applicationId}`);
+      await update(collegeAppRef, { paidFees: newPaidFees.toString() });
 
-      alert("Payment details submitted successfully! The institution will verify your UTR and update your balance soon.");
+      alert("Payment processed successfully! Your payment slip will now be generated.");
+      
+      // Automatically open the receipt modal
+      setLastReceipt({ ...paymentData, id: paymentRef.key });
+      setShowReceipt(true);
+      
       setIsPaymentModalOpen(false);
       setPaymentForm({ upiId: '', utrId: '', email: '', relationship: 'Father', phone: '', amount: '', screenshot: '' });
     } catch (err) {
       console.error(err);
-      alert("Failed to submit payment details.");
+      alert("Payment processing failed. Please try again.");
     } finally {
       setIsSubmittingPayment(false);
     }
@@ -3918,6 +4025,16 @@ function DashboardContent() {
                   </button>
                 </header>
 
+                <div className="hidden">
+                  <PrintApplicationRegistry 
+                    userApplications={userApplications} 
+                    userData={userData} 
+                    availableColleges={availableColleges} 
+                    hiddenMode={true} 
+                    registerPrintHandlers={setPrintHandlers} 
+                  />
+                </div>
+
                 <div className="overflow-x-auto no-scrollbar">
                   <table className="w-full text-left border-collapse border border-black block md:table">
                     <thead className="hidden md:table-header-group">
@@ -3967,12 +4084,30 @@ function DashboardContent() {
                           </td>
                           <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-6 text-center">
                             <span className="md:hidden font-black text-[10px] text-[#002147] uppercase tracking-widest">Action</span>
-                            <button
-                              onClick={() => handleTabChange(3, 1, app.id)}
-                              className="px-6 py-2 bg-[#002147] text-white rounded-xl text-[11px] font-black uppercase tracking-tight shadow-md hover:bg-[#00a5a5] transition-all active:scale-95"
-                            >
-                              View Profile
-                            </button>
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                              <button
+                                onClick={() => handleTabChange(3, 1, app.id)}
+                                className="px-4 py-2 bg-[#002147] text-white rounded-xl text-[11px] font-black uppercase tracking-tight shadow-md hover:bg-[#00a5a5] transition-all active:scale-95 flex items-center gap-1"
+                              >
+                                <Eye size={14} /> View Profile
+                              </button>
+                              <button
+                                onClick={() => printHandlers?.printPreview(app)}
+                                disabled={!printHandlers}
+                                className="px-4 py-2 bg-[#ff9f1c] text-black rounded-xl text-[11px] font-black uppercase tracking-tight shadow-md hover:bg-white hover:text-black border border-black/10 transition-all active:scale-95 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Print Application Form"
+                              >
+                                <Printer size={14} /> Print
+                              </button>
+                              <button
+                                onClick={() => printHandlers?.downloadPDF(app)}
+                                disabled={!printHandlers}
+                                className="px-4 py-2 bg-[#00a5a5] text-white rounded-xl text-[11px] font-black uppercase tracking-tight shadow-md hover:bg-[#003366] transition-all active:scale-95 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Download PDF"
+                              >
+                                <Download size={14} /> Download PDF
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -4092,13 +4227,17 @@ function DashboardContent() {
           { label: 'Training Certificate', key: 'trainingCertificateUrl', stepId: 6 },
           { label: 'PAN Card', key: 'panCardUrl', stepId: 8 },
           { label: 'Bank Passbook / Cheque', key: 'bankPassbookUrl', stepId: 8 },
-          ...(userData?.profile?.qualifications || []).map((q: any, idx: number) => ({
-            label: `${q.examination} Marksheet`,
-            url: q.marksheetUrl,
-            stepId: 5,
-            isQualification: true,
-            qualIndex: idx
-          }))
+          { label: 'SSC Marksheet (10th Standard)', key: 'sscMarksheetUrl', stepId: 5 },
+          { label: 'HSC Marksheet (12th Standard)', key: 'hscMarksheetUrl', stepId: 5 },
+          ...(userData?.profile?.qualifications || [])
+            .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
+            .map((q: any, idx: number) => ({
+              label: `${q.examination} Marksheet`,
+              url: q.marksheetUrl,
+              stepId: 5,
+              isQualification: true,
+              qualIndex: idx
+            }))
         ];
 
         return (
@@ -4377,58 +4516,7 @@ function DashboardContent() {
             </div>
 
             <form onSubmit={handlePaymentSubmit} className="p-10 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
-              {/* Scan & Pay Section */}
-              {collegePaymentSettings?.isActive && collegePaymentSettings?.upiId && (
-                <div className="bg-indigo-50/50 rounded-3xl p-8 border-2 border-dashed border-[#5D5fb1]/20 flex flex-col md:flex-row items-center gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                  <div className="p-4 bg-white rounded-2xl shadow-xl border border-indigo-100 shrink-0">
-                    <QRCodeCanvas
-                      value={`upi://pay?pa=${collegePaymentSettings.upiId}&pn=${encodeURIComponent(collegePaymentSettings.merchantName || 'College')}&cu=INR`}
-                      size={140}
-                      level="H"
-                    />
-                  </div>
-                  <div className="text-center md:text-left space-y-3">
-                    <p className="text-[10px] font-black text-[#5D5fb1] uppercase tracking-widest">Scan to pay directly</p>
-                    <h4 className="text-xl font-black text-slate-800 tracking-tighter capitalize leading-tight">
-                      {collegePaymentSettings.merchantName || selectedAppForPayment?.collegeName || 'Official College Account'}
-                    </h4>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl border border-indigo-100 shadow-sm">
-                        <CreditCard size={14} className="text-[#5D5fb1]" />
-                        <span className="text-[13px] font-bold text-slate-600">{collegePaymentSettings.upiId}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(collegePaymentSettings.upiId);
-                          alert("UPI ID copied to clipboard!");
-                        }}
-                        className="p-2 rounded-xl bg-white text-[#5D5fb1] hover:bg-[#5D5fb1] hover:text-white transition-all border border-indigo-100 shadow-sm active:scale-95"
-                        title="Copy UPI ID"
-                      >
-                        <Copy size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const canvas = document.querySelector('canvas');
-                          if (canvas) {
-                            const url = canvas.toDataURL("image/png");
-                            const link = document.createElement("a");
-                            link.href = url;
-                            link.download = `QR_${collegePaymentSettings.merchantName || 'Payment'}.png`;
-                            link.click();
-                          }
-                        }}
-                        className="p-2 rounded-xl bg-white text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm active:scale-95"
-                        title="Download QR Code"
-                      >
-                        <Download size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Payment Details Header */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Student Name</p>
@@ -4448,139 +4536,58 @@ function DashboardContent() {
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">UPI ID</label>
-                    <input
-                      required
-                      type="text"
-                      placeholder="e.g. name@upi"
-                      className="w-full bg-slate-50 border border-black rounded-2xl p-4 text-sm font-medium outline-none focus:bg-white focus:border-[#5D5fb1] transition-all"
-                      value={paymentForm.upiId}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, upiId: e.target.value })}
-                    />
-                    {formErrors.upiId && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.upiId}</span>}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">UTR / Transaction ID</label>
-                    <input
-                      type="text"
-                      placeholder="12-digit transaction number (Optional)"
-                      className="w-full bg-slate-50 border border-black rounded-2xl p-4 text-sm font-medium outline-none focus:bg-white focus:border-[#5D5fb1] transition-all"
-                      value={paymentForm.utrId}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, utrId: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Payer Relationship</label>
-                    <select
-                      required
-                      className="w-full bg-slate-50 border border-black rounded-2xl p-4 text-sm font-medium outline-none focus:bg-white focus:border-[#5D5fb1] transition-all cursor-pointer"
-                      value={paymentForm.relationship}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, relationship: e.target.value })}
-                    >
-                      <option value="Self">Self (Student)</option>
-                      <option value="Father">Father</option>
-                      <option value="Mother">Mother</option>
-                      <option value="Uncle">Uncle</option>
-                      <option value="Brother">Brother</option>
-                      <option value="Sister">Sister</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    {formErrors.relationship && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.relationship}</span>}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center pl-1">
-                      <label className="text-[13px] font-normal text-black capitalize tracking-tight">Amount Paid (₹)</label>
-                      <span className="text-[10px] font-bold text-[#ff9f1c]">Max: ₹{(parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0')).toLocaleString()}</span>
-                    </div>
-                    <input
-                      required
-                      type="number"
-                      className="w-full bg-emerald-50 border border-emerald-500 rounded-2xl p-4 text-lg font-black text-emerald-700 outline-none"
-                      value={paymentForm.amount}
-                      onChange={(e) => {
-                        const maxVal = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
-                        const inputVal = parseFloat(e.target.value);
-                        setPaymentForm({ ...paymentForm, amount: inputVal > maxVal ? maxVal.toString() : e.target.value });
-                      }}
-                      onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                    />
-                    {formErrors.amount && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.amount}</span>}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Email ID</label>
-                    <input
-                      required
-                      type="email"
-                      placeholder="Contact email for payment"
-                      className="w-full bg-slate-50 border border-black rounded-2xl p-4 text-sm font-medium outline-none focus:bg-white focus:border-[#5D5fb1] transition-all"
-                      value={paymentForm.email}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, email: e.target.value })}
-                    />
-                    {formErrors.email && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.email}</span>}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Mobile Number</label>
-                    <input
-                      required
-                      type="tel"
-                      placeholder="10-digit mobile number"
-                      className="w-full bg-slate-50 border border-black rounded-2xl p-4 text-sm font-medium outline-none focus:bg-white focus:border-[#5D5fb1] transition-all"
-                      value={paymentForm.phone}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, phone: e.target.value })}
-                    />
-                    {formErrors.phone && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.phone}</span>}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:col-span-2">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Upload Payment Screenshot / Photo</label>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          id="payment-screenshot"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                            const fileRef = storageRef(storage, `users/${userData.uid}/feePayments/${Date.now()}_${file.name}`);
-                            const uploadTask = uploadBytesResumable(fileRef, file);
-                            uploadTask.on('state_changed', null, 
-                              (error) => { console.error('Upload failed', error); alert('Failed to upload image'); },
-                              async () => {
-                                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                                setPaymentForm({ ...paymentForm, screenshot: url });
-                              }
-                            );
-                          }
-                          }}
-                        />
-                        <label
-                          htmlFor="payment-screenshot"
-                          className="w-full flex items-center justify-center gap-2 bg-slate-50 border-2 border-dashed border-black rounded-2xl p-6 cursor-pointer hover:bg-slate-100 transition-all group"
-                        >
-                          <Camera size={20} className="text-slate-400 group-hover:text-[#5D5fb1]" />
-                          <span className="text-[13px] font-medium text-slate-500 group-hover:text-black">
-                            {paymentForm.screenshot ? 'Change Photo' : 'Click to Upload Receipt Photo'}
-                          </span>
-                        </label>
-                        {formErrors.screenshot && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize block mt-2">{formErrors.screenshot}</span>}
+              {/* Secure Payment Mock Gateway UI */}
+              <div className="bg-[#f8fafc] border border-emerald-200 rounded-3xl p-8 relative overflow-hidden shadow-inner">
+                <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-bl-xl shadow-sm">Secure Environment</div>
+                <h4 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><CreditCard size={20} className="text-emerald-500" /> Secure Payment Gateway Simulator</h4>
+                
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center pl-1">
+                        <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight">Amount to Pay (₹)</label>
+                        <span className="text-[10px] font-bold text-slate-400">Balance: ₹{(parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0')).toLocaleString()}</span>
                       </div>
-                      {paymentForm.screenshot && (
-                        <div className="w-20 h-20 rounded-2xl border-2 border-emerald-500 overflow-hidden shrink-0 shadow-lg cursor-pointer" onClick={() => setModalPreview({ url: paymentForm.screenshot, label: 'Payment Receipt Preview' })}>
-                          <img src={paymentForm.screenshot} className="w-full h-full object-cover" alt="Preview" />
-                        </div>
-                      )}
+                      <input
+                        required
+                        type="number"
+                        className="w-full bg-white border-2 border-emerald-500 shadow-sm rounded-2xl p-5 text-xl font-black text-emerald-700 outline-none transition-all focus:ring-4 focus:ring-emerald-500/20"
+                        value={paymentForm.amount}
+                        onChange={(e) => {
+                          const maxVal = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
+                          const inputVal = parseFloat(e.target.value);
+                          setPaymentForm({ ...paymentForm, amount: inputVal > maxVal ? maxVal.toString() : e.target.value });
+                        }}
+                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                      />
+                      {formErrors.amount && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.amount}</span>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Email ID</label>
+                      <input
+                        required
+                        type="email"
+                        placeholder="Contact email for payment"
+                        className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
+                        value={paymentForm.email}
+                        onChange={(e) => setPaymentForm({ ...paymentForm, email: e.target.value })}
+                      />
+                      {formErrors.email && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.email}</span>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Mobile Number</label>
+                      <input
+                        required
+                        type="tel"
+                        placeholder="10-digit mobile number"
+                        className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
+                        value={paymentForm.phone}
+                        onChange={(e) => setPaymentForm({ ...paymentForm, phone: e.target.value })}
+                      />
+                      {formErrors.phone && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.phone}</span>}
                     </div>
                   </div>
                 </div>
@@ -4589,9 +4596,13 @@ function DashboardContent() {
               <button
                 type="submit"
                 disabled={isSubmittingPayment}
-                className="w-full bg-[#002147] text-white py-5 rounded-[2rem] text-sm font-black capitalize tracking-widest shadow-2xl hover:bg-[#5D5fb1] transition-all active:scale-95 disabled:opacity-50"
+                className="w-full bg-emerald-600 text-white py-5 rounded-[2rem] text-sm font-black capitalize tracking-widest shadow-xl hover:bg-emerald-700 hover:shadow-2xl hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-3"
               >
-                {isSubmittingPayment ? 'Verifying Transaction...' : 'SUBMIT PAYMENT DETAILS'}
+                {isSubmittingPayment ? (
+                  <><Loader2 className="animate-spin" size={20} /> Processing Secure Payment...</>
+                ) : (
+                  <><CheckCircle2 size={20} /> Pay Online Securely</>
+                )}
               </button>
             </form>
           </div>
@@ -4925,7 +4936,7 @@ function DashboardContent() {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={handleDownloadReceiptPNG}
+                  onClick={handleDownloadReceiptPDF}
                   disabled={isDownloadingReceipt}
                   className={cn(
                     "px-8 py-3 rounded-2xl bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-2 text-[12px] font-black shadow-xl active:scale-95",
@@ -4934,11 +4945,11 @@ function DashboardContent() {
                 >
                   {isDownloadingReceipt ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> GENERATING PNG...
+                      <Loader2 size={16} className="animate-spin" /> GENERATING PDF...
                     </>
                   ) : (
                     <>
-                      <Download size={16} /> DOWNLOAD RECEIPT (PNG)
+                      <Download size={16} /> DOWNLOAD RECEIPT (PDF)
                     </>
                   )}
                 </button>
@@ -4980,9 +4991,20 @@ function DashboardContent() {
 
                 {/* Meta */}
                 <div className="flex items-end justify-between mt-4 shrink-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[13px] font-bold uppercase italic">Receipt No :</span>
-                    <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">{lastReceipt.receiptNo}</span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[13px] font-bold uppercase italic">Receipt No :</span>
+                      <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">{lastReceipt.receiptNo}</span>
+                    </div>
+                    {(userData?.manualRegNo || userData?.regNo) && (
+                      <div className="flex items-baseline gap-2 mt-2">
+                        <span className="text-[13px] font-bold uppercase italic">Auto Registration No :</span>
+                        <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">
+                          {userData?.manualRegNo ? userData.manualRegNo : userData?.regNo}
+                          {userData?.manualRegNo && userData?.regNo ? ` (Auto: ${userData.regNo})` : ''}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-[13px] font-bold uppercase italic">Date :</span>
@@ -4993,33 +5015,49 @@ function DashboardContent() {
                 {/* Particulars */}
                 <div className="mt-4 space-y-4 shrink-0">
                   <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-1">
+                    <div className="flex items-baseline gap-4 flex-[1.5]">
                       <span className="text-[13px] font-bold uppercase shrink-0">Name of Student :</span>
                       <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.studentName}</div>
                     </div>
                     <div className="flex items-baseline gap-4 flex-1">
+                      <span className="text-[13px] font-bold uppercase shrink-0">Gender :</span>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.gender || 'N/A'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-10">
+                    <div className="flex items-baseline gap-4 flex-[1.5]">
+                      <span className="text-[13px] font-bold uppercase shrink-0">Father's Name :</span>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{`${userData?.profile?.fatherFirstName || ''} ${userData?.profile?.fatherLastName || ''}`.trim() || 'N/A'}</div>
+                    </div>
+                    <div className="flex items-baseline gap-4 flex-1">
+                      <span className="text-[13px] font-bold uppercase shrink-0">Mobile No :</span>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.phone || userData?.phone || lastReceipt.studentPhone || 'N/A'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-10">
+                    <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">College Name :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.collegeName}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase truncate max-w-full overflow-hidden">{lastReceipt.collegeName}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo}</div>
-                    </div>
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-1">
+                    <div className="flex items-baseline gap-4 flex-[1.5]">
                       <span className="text-[13px] font-bold uppercase shrink-0">Course :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.courseName}</div>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4 truncate">{lastReceipt.courseName}</div>
                     </div>
                     <div className="flex items-baseline gap-4 flex-1">
                       <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
                       <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.courseType || 'Reg'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-10">
+                    <div className="flex items-baseline gap-4 flex-[1.5]">
+                      <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo || 'Pending'}</div>
+                    </div>
+                    <div className="flex items-baseline gap-4 flex-1">
+                      <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
+                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear || '2026-27'}</div>
                     </div>
                   </div>
                 </div>
@@ -5062,7 +5100,39 @@ function DashboardContent() {
                     <div className="flex items-baseline gap-4"><span className="shrink-0">Cash/D.D. No :</span><div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 pl-4">{lastReceipt.utrId || 'Online Payment'}</div></div>
                     <div className="flex items-baseline gap-4"><span className="shrink-0">Bank :</span><div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 pl-4">N/A</div></div>
                   </div>
-                  <div className="pt-6 flex justify-end">
+                  <div className="pt-6 flex justify-between items-end">
+                    <div className="flex gap-6 items-end">
+                      {/* Photo */}
+                      <div className="w-20 h-24 border border-[#fee2e2] rounded p-1 shadow-sm bg-white flex items-center justify-center">
+                        {receiptPhoto ? (
+                          <img 
+                            src={receiptPhoto} 
+                            alt="Student Photo" 
+                            className="w-full h-full object-cover rounded-sm"
+                            crossOrigin="anonymous" 
+                          />
+                        ) : (
+                          <span className="text-[9px] font-bold text-[#fca5a5] uppercase italic text-center">No Photo</span>
+                        )}
+                      </div>
+                      {/* Signature */}
+                      <div className="text-center space-y-2">
+                        <div className="w-40 h-12 border-b-[1.5px] border-dotted border-[#f87171] flex items-end justify-center pb-1">
+                          {receiptSignature ? (
+                            <img 
+                              src={receiptSignature} 
+                              alt="Student Signature" 
+                              className="max-w-full max-h-full object-contain mix-blend-multiply"
+                              crossOrigin="anonymous" 
+                            />
+                          ) : (
+                            <span className="text-[9px] font-bold text-[#fca5a5] uppercase italic">No Signature</span>
+                          )}
+                        </div>
+                        <p className="text-[13px] font-black text-[#b91c1c] uppercase">Student Signature</p>
+                      </div>
+                    </div>
+
                     <div className="text-center space-y-2">
                       <div className="w-56 h-16 border border-[#fee2e2] rounded bg-[#fef2f2] flex items-center justify-center"><span className="text-[9px] font-bold text-[#fee2e2] uppercase italic">Institutional Stamp</span></div>
                       <p className="text-[13px] font-black text-[#b91c1c] uppercase">(Accountant / Authorized Sign.)</p>

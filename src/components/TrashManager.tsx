@@ -228,7 +228,7 @@ export default function TrashManager({ collegeId }: { collegeId: string | undefi
                         <td className="px-6 py-6 border-r border-black">
                            <div className="space-y-1">
                               <p className="text-[16px] font-medium text-black capitalize">
-                                 {item.data?.studentName || item.data?.firstName + ' ' + (item.data?.lastName || '') || 'Unknown Record'}
+                                 {item.data?.studentName || `${item.data?.firstName || ''} ${item.data?.middleName || ''} ${item.data?.lastName || ''}`.trim() || 'Unknown Record'}
                               </p>
                               <p className="text-[13px] font-normal text-slate-500 capitalize tracking-tight">
                                  {item.data?.courseName || item.data?.department || 'Institutional Data'}

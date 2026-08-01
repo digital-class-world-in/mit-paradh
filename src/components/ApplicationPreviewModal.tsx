@@ -33,9 +33,14 @@ export default function ApplicationPreviewModal({
     { label: 'Domicile Certificate', name: formData.domicileUrlFileName },
     { label: 'Caste Certificate', name: formData.casteCertificateUrlFileName },
     { label: 'PWD Certificate', name: formData.pwdCertificateUrlFileName },
-    ...(formData.qualifications || []).filter((q: any) => q.marksheetName).map((q: any) => ({
-      label: `${q.examination} Marksheet`, name: q.marksheetName
-    })),
+    { label: 'SSC Marksheet (10th Standard)', name: formData.sscMarksheetUrlFileName || (formData.sscMarksheetUrl ? 'ssc_marksheet.pdf' : '') },
+    { label: 'HSC Marksheet (12th Standard)', name: formData.hscMarksheetUrlFileName || (formData.hscMarksheetUrl ? 'hsc_marksheet.pdf' : '') },
+    ...(formData.qualifications || [])
+      .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
+      .filter((q: any) => q.marksheetName)
+      .map((q: any) => ({
+        label: `${q.examination} Marksheet`, name: q.marksheetName
+      })),
     { label: 'Training Certificate', name: formData.trainingCertificateUrlFileName },
     { label: 'Bank Passbook / Cheque', name: formData.bankPassbookUrlFileName },
     { label: 'PAN Card', name: formData.panCardUrlFileName },
@@ -73,7 +78,7 @@ export default function ApplicationPreviewModal({
                 </th>
               </tr>
               <tr>
-                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Registration No</td>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Auto Registration No</td>
                 <td className="border border-slate-800 p-2.5 w-1/4 font-bold text-indigo-700">{formData.regNo || formData.registrationNo || 'PENDING'}</td>
                 <td rowSpan={6} colSpan={2} className="border border-slate-800 p-4 w-1/2 align-middle text-center print:table-cell">
                   <div className="flex justify-center items-center h-full">

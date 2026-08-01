@@ -323,7 +323,7 @@ export default function CredentialManager({ collegeId, type, adminUid }: Credent
     if (student) {
       setSelectedStudent(student);
       setMarksheetForm({
-        studentName: student.studentName || '',
+        studentName: `${student.profileData?.firstName || ''} ${student.profileData?.middleName || ''} ${student.profileData?.lastName || ''}`.trim() || student.studentName || '',
         fatherName: student.profileData?.fatherFirstName ? `${student.profileData.fatherFirstName} ${student.profileData.fatherLastName || ''}` : '',
         motherName: student.profileData?.motherFirstName ? `${student.profileData.motherFirstName} ${student.profileData.motherLastName || ''}` : '',
         dob: student.profileData?.dateOfBirth || '',
@@ -373,7 +373,7 @@ export default function CredentialManager({ collegeId, type, adminUid }: Credent
     if (student) {
       setSelectedStudent(student);
       setMarksheetForm({
-        studentName: student.studentName || '',
+        studentName: `${student.profileData?.firstName || ''} ${student.profileData?.middleName || ''} ${student.profileData?.lastName || ''}`.trim() || student.studentName || '',
         fatherName: student.profileData?.fatherFirstName ? `${student.profileData.fatherFirstName} ${student.profileData.fatherLastName || ''}` : '',
         motherName: student.profileData?.motherFirstName ? `${student.profileData.motherFirstName} ${student.profileData.motherLastName || ''}` : '',
         dob: student.profileData?.dateOfBirth || '',
@@ -1014,7 +1014,7 @@ export default function CredentialManager({ collegeId, type, adminUid }: Credent
                              { label: 'Course Type', value: marksheetForm.courseType, field: 'courseType', readOnly: true },
                              { label: 'Course', value: marksheetForm.course, field: 'course', readOnly: true },
                              { label: 'Duration', value: marksheetForm.duration, field: 'duration' },
-                             { label: 'Registration No.', value: marksheetForm.regNo, field: 'regNo' },
+                             { label: 'Auto Registration No.', value: marksheetForm.regNo, field: 'regNo' },
                              { label: 'Roll Number', value: marksheetForm.rollNumber, field: 'rollNumber' },
                              { label: type === 'marksheet' ? 'Marksheet No.' : 'Certificate Number', value: marksheetForm.marksheetNo, field: 'marksheetNo' },
                              ...(type === 'marksheet' ? [{ label: 'Grade', value: marksheetForm.grade, field: 'grade' }] : []),

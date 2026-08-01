@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LogOut,
   ChevronDown,
@@ -28,11 +28,23 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.student-nav-dropdown-container')) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   const navigation = [
     { label: 'Dashboard', id: 1, type: 'single' },
     { label: 'Notice Board', id: 10, type: 'single' },
     { label: 'ID Card', id: 12, type: 'single' },
     { label: 'Apply for Admission', id: 3, type: 'single' },
+    { label: 'Payment', id: 15, type: 'single' },
     {
       label: 'My Applications',
       type: 'dropdown',
@@ -58,102 +70,115 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
       items: [
         { name: 'Marksheet', id: 6 },
         { name: 'Course Certificate', id: 13 },
+        { name: 'Bonafide Certificate', id: 16 },
       ]
     },
     { label: 'Document', id: 11, type: 'single' },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#003366] text-white shadow-md border-b border-white/10 print:hidden">
-      <div className="max-w-full mx-auto px-6 min-h-[6rem] py-2 flex items-center justify-between">
-        {/* Branding/Logo */}
-        <div className="flex items-center gap-4 shrink-0 cursor-pointer" onClick={() => setActiveTab(1)}>
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 hover:scale-105 transition-transform overflow-hidden">
-            <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-full h-full object-contain" />
+    <nav className="sticky top-0 z-40 bg-[#003366] text-white shadow-md border-b border-white/10 print:hidden">
+      <div className="max-w-full mx-auto px-3 md:px-6 h-12 flex items-center gap-2">
+        
+        {/* Branding/Logo Badge */}
+        <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-85 transition-opacity" onClick={() => setActiveTab(1)}>
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-white flex items-center justify-center p-0.5">
+            <img
+              src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg"
+              alt="MIT Paradh Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
-          <div className="hidden lg:block">
-            <p className="text-[18px] font-black text-white tracking-tighter uppercase">MIT PARADH</p>
-          </div>
+          <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider hidden xl:inline whitespace-nowrap">
+            Student Portal
+          </span>
         </div>
 
-        {/* Desktop Menu - Hidden on small screens */}
-        <div className="hidden lg:flex flex-1 items-center justify-center flex-wrap gap-1 mx-2 lg:mx-4">
-          {navigation.map((group, idx) => (
-            <div
-              key={idx}
-              className="relative"
-            >
-              <button
-                onClick={() => {
-                  if (group.type === 'dropdown') {
-                    setOpenDropdown(openDropdown === group.label ? null : group.label);
-                  } else {
-                    setActiveTab(group.id!, group.label);
-                    setOpenDropdown(null);
-                  }
-                }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 lg:px-4 lg:py-3 rounded-md font-normal text-[13px] lg:text-[15px] tracking-tight transition-all duration-300 whitespace-nowrap",
-                  (activeTab === group.id || (group.type === 'dropdown' && group.items?.some(i => i.id === activeTab)))
-                    ? "text-white bg-[#00a5a5]"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
-                )}
-              >
-                <span>{group.label}</span>
-                {group.type === 'dropdown' && <ChevronDown size={14} className={cn("transition-transform duration-300 opacity-50 text-white", openDropdown === group.label && "rotate-180")} />}
-              </button>
+        {/* Divider */}
+        <div className="w-px h-6 bg-white/20 shrink-0 hidden lg:block" />
 
-              {/* NSSC Style Dropdown */}
-              {group.type === 'dropdown' && openDropdown === group.label && (
-                <div className="absolute top-full left-0 mt-1 min-w-[220px] bg-white text-black rounded-md shadow-2xl py-2 border border-slate-200 z-[60] animate-in fade-in slide-in-from-top-2 duration-200">
-                  {group.items?.map((item, iIdx) => (
-                    <button
-                      key={iIdx}
-                      onClick={() => {
-                        setActiveTab(item.id, item.name);
-                        setOpenDropdown(null);
-                      }}
-                      className={cn(
-                        "w-full text-left px-6 py-3 text-[16px] font-normal transition-all hover:bg-slate-50",
-                        activeTab === item.id ? "bg-[#00a5a5] text-white" : "text-black hover:text-[#00a5a5]"
-                      )}
-                    >
-                      {item.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+        {/* Desktop Menu */}
+        <div className="hidden lg:flex items-center h-full gap-0 flex-1">
+          {navigation.map((group, idx) => {
+            const isActive = activeTab === group.id || (group.type === 'dropdown' && group.items?.some(i => i.id === activeTab));
+            return (
+              <div
+                key={idx}
+                className="relative h-12 shrink-0 student-nav-dropdown-container"
+              >
+                <button
+                  onClick={() => {
+                    if (group.type === 'dropdown') {
+                      setOpenDropdown(openDropdown === group.label ? null : group.label);
+                    } else {
+                      setActiveTab(group.id!, group.label);
+                      setOpenDropdown(null);
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-0.5 px-2.5 h-full text-[10.5px] font-bold transition-all border-b-[2px] whitespace-nowrap cursor-pointer uppercase tracking-tight",
+                    isActive
+                      ? "text-white bg-white/5 border-amber-400 font-extrabold"
+                      : "text-white/75 hover:bg-white/10 hover:text-white border-transparent"
+                  )}
+                >
+                  <span>{group.label}</span>
+                  {group.type === 'dropdown' && <ChevronDown size={10} className={cn("transition-transform duration-300 opacity-60", openDropdown === group.label && "rotate-180")} />}
+                </button>
+
+                {/* Dropdown Menu */}
+                {group.type === 'dropdown' && openDropdown === group.label && (
+                  <div className="absolute top-full left-0 mt-0 min-w-[180px] bg-[#002244] text-white rounded-b-md shadow-2xl py-1.5 border border-white/10 z-[60] animate-in fade-in slide-in-from-top-1 duration-150">
+                    {group.items?.map((item, iIdx) => (
+                      <button
+                        key={iIdx}
+                        onClick={() => {
+                          setActiveTab(item.id, item.name);
+                          setOpenDropdown(null);
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-2 text-[10.5px] font-bold transition-all hover:bg-white/10 text-white/80 hover:text-white uppercase tracking-tight",
+                          activeTab === item.id ? "bg-white/10 text-amber-400 font-black" : ""
+                        )}
+                      >
+                        {item.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* User Hub */}
-        <div className="flex items-center gap-6 shrink-0">
-          <button onClick={() => setActiveTab(10, 'Notice Board')} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-[#00a5a5] hover:text-white transition-all border border-white/10 relative group">
-            <Bell size={20} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-[#003366]" />
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <button onClick={() => setActiveTab(10, 'Notice Board')} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-[#00a5a5] hover:text-white transition-all border border-white/10 relative">
+            <Bell size={15} />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border border-[#003366]" />
           </button>
-          <div className="text-right">
-            <p className="text-[11px] font-black text-[#00a5a5] uppercase tracking-widest leading-none">Student Portal</p>
-            <p className="text-[15px] font-bold text-white tracking-tight mt-1 capitalize">{studentName || 'Student Name'}</p>
+          <div className="text-right hidden xl:block">
+            <p className="text-[8px] font-black text-amber-400 uppercase tracking-widest leading-none">Student</p>
+            <p className="text-[11px] font-bold text-white tracking-tight mt-0.5 capitalize">{studentName || 'Student'}</p>
           </div>
 
           <button
             onClick={onLogout}
-            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md font-normal text-[16px] tracking-tight transition-all items-center gap-2 shadow-lg active:scale-95"
+            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-[10.5px] font-bold tracking-tight transition-all items-center gap-1.5 shadow-lg active:scale-95"
           >
-            <LogOut size={16} /> Logout
+            <LogOut size={13} /> Logout
           </button>
 
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-all border border-white/10"
+            className="lg:hidden w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-all border border-white/10"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
         </div>
       </div>
+
 
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (

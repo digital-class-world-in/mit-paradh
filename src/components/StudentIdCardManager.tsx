@@ -96,7 +96,7 @@ export default function StudentIdCardManager({ studentList }: { studentList: Stu
                       </div>
                       <div>
                          <h4 className={`text-sm font-black capitalize tracking-tight ${selectedStudent?.id === student.id ? 'text-white' : 'text-slate-800'}`}>
-                           {student.firstName} {student.lastName}
+                           {`${student.firstName || ''} ${student.middleName || ''} ${student.lastName || ''}`.trim()}
                          </h4>
                          <p className={`text-[13px] font-bold capitalize tracking-tight ${selectedStudent?.id === student.id ? 'text-white/50' : 'text-slate-400'}`}>
                            ID: {student.id} • {student.courseName || 'Curriculum Pending'}
@@ -166,7 +166,7 @@ export default function StudentIdCardManager({ studentList }: { studentList: Stu
                            </div>
                            <div className="flex-1 space-y-4 pt-1">
                               <div>
-                                 <h4 className="text-xl font-black capitalize tracking-tight leading-none italic">{selectedStudent.firstName} {selectedStudent.lastName}</h4>
+                                 <h4 className="text-xl font-black capitalize tracking-tight leading-none italic">{`${selectedStudent.firstName || ''} ${selectedStudent.middleName || ''} ${selectedStudent.lastName || ''}`.trim()}</h4>
                                  <p className="text-[13px] font-bold text-black capitalize tracking-normal mt-1.5">{selectedStudent.courseName || 'Standard Enrolled'}</p>
                               </div>
 

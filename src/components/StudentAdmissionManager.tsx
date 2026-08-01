@@ -164,7 +164,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
              data.push({
                id: child.key,
                source: 'Admission',
-               studentName: val.studentName || `${val.firstName || ''} ${val.lastName || ''}`.trim(),
+               studentName: val.studentName || `${val.firstName || ''} ${val.middleName || ''} ${val.lastName || ''}`.trim(),
                studentEmail: val.studentEmail || val.email,
                studentPhone: val.studentPhone || val.phone,
                admissionDate: val.admissionDate || val.createdAt || val.date,
@@ -186,7 +186,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                  collegeId: col.id,
                  collegeName: col.name,
                  source: 'Admission',
-                 studentName: val.studentName || `${val.firstName || ''} ${val.lastName || ''}`.trim(),
+                 studentName: val.studentName || `${val.firstName || ''} ${val.middleName || ''} ${val.lastName || ''}`.trim(),
                  studentEmail: val.studentEmail || val.email,
                  studentPhone: val.studentPhone || val.phone,
                  admissionDate: val.admissionDate || val.createdAt || val.date,
@@ -486,7 +486,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
     setIsSubmitting(true);
     try {
       const admissionRef = getDbRef(`colleges/${editingStudent.collegeId}/studentAdmissions/${editingStudent.id}`);
-      const fullName = `${studentForm.firstName} ${studentForm.lastName}`;
+      const fullName = `${studentForm.firstName || ''} ${studentForm.middleName || ''} ${studentForm.lastName || ''}`.trim();
       const cleanData = (obj: any) => JSON.parse(JSON.stringify(obj));
       
       const profileUpdates = cleanData({
@@ -783,7 +783,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                 <tbody className="border-b border-black">
                     {paginatedAdmissions.map((adm, i) => {
                       const p = adm.profileData || {};
-                      const studentName = adm.studentName || `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'No Name';
+                      const studentName = adm.studentName || `${p.firstName || ''} ${p.middleName || ''} ${p.lastName || ''}`.trim() || 'No Name';
                       const studentEmail = adm.studentEmail || p.email || 'No Email';
                       const studentPhone = adm.studentPhone || p.phone || adm.phone || 'No Phone';
                       
@@ -974,7 +974,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                    <EditField label="Course Name" value={studentForm.courseName} onChange={() => {}} readOnly />
                    <EditField label="Course Type" value={studentForm.courseType} onChange={() => {}} readOnly />
                    <EditField label="Admission Date" type="datetime-local" value={studentForm.admissionDate} onChange={(v: any) => setStudentForm({...studentForm, admissionDate: v})} />
-                   <EditField label="Registration No." value={studentForm.regNo} onChange={(v: any) => setStudentForm({...studentForm, regNo: v})} />
+                   <EditField label="Auto Registration No." value={studentForm.regNo} onChange={(v: any) => setStudentForm({...studentForm, regNo: v})} />
                    <EditField label="Manual Reg No." value={studentForm.manualRegNo} onChange={(v: any) => setStudentForm({...studentForm, manualRegNo: v})} />
                    <EditField label="Roll Number" value={studentForm.rollNumber} onChange={(v: any) => setStudentForm({...studentForm, rollNumber: v})} />
                    <EditField label="Course Fees (₹)" type="number" value={studentForm.fees} onChange={(v: any) => setStudentForm({...studentForm, fees: v})} />
@@ -1229,6 +1229,12 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                   {(processingStudent.profileData?.panCardUrl || processingStudent.panCardUrl) && (
                     <PreviewButton label="PAN Card" onClick={() => openImagePreview(processingStudent.profileData?.panCardUrl || processingStudent.panCardUrl, "PAN Card")} />
                   )}
+                  {(processingStudent.profileData?.sscMarksheetUrl || processingStudent.sscMarksheetUrl) && (
+                    <PreviewButton label="SSC Marksheet" onClick={() => openImagePreview(processingStudent.profileData?.sscMarksheetUrl || processingStudent.sscMarksheetUrl, "SSC Marksheet")} />
+                  )}
+                  {(processingStudent.profileData?.hscMarksheetUrl || processingStudent.hscMarksheetUrl) && (
+                    <PreviewButton label="HSC Marksheet" onClick={() => openImagePreview(processingStudent.profileData?.hscMarksheetUrl || processingStudent.hscMarksheetUrl, "HSC Marksheet")} />
+                  )}
                 </div>
               </section>
 
@@ -1334,6 +1340,12 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                   )}
                   {processingStudent.profileData?.trainingCertificateUrl && (
                     <PreviewButton label="Other Documents" onClick={() => openImagePreview(processingStudent.profileData.trainingCertificateUrl, "Other Documents")} />
+                  )}
+                  {processingStudent.profileData?.sscMarksheetUrl && (
+                    <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(processingStudent.profileData.sscMarksheetUrl, "SSC Marksheet")} />
+                  )}
+                  {processingStudent.profileData?.hscMarksheetUrl && (
+                    <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(processingStudent.profileData.hscMarksheetUrl, "HSC Marksheet")} />
                   )}
                 </div>
               </section>

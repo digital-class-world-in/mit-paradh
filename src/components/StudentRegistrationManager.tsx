@@ -365,7 +365,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
     const headers = [
       "Sr No",
-      "Registration No",
+      "Auto Registration No",
       "First Name",
       "Middle Name",
       "Last Name",
@@ -521,7 +521,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-normal text-black tracking-tight">{reg.firstName} {reg.lastName}</p>
+                        <p className="text-sm font-normal text-black tracking-tight">{`${reg.firstName || ''} ${reg.middleName || ''} ${reg.lastName || ''}`.trim()}</p>
                         <p className="text-[11px] font-bold text-[#003366] mt-0.5">REG ID: {reg.regNo}</p>
                       </div>
                     </div>
@@ -705,7 +705,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-3xl font-black tracking-tighter capitalize leading-none">
-                        {fullUserData.profile?.firstName} {fullUserData.profile?.lastName}
+                        {`${fullUserData.profile?.firstName || ''} ${fullUserData.profile?.middleName || ''} ${fullUserData.profile?.lastName || ''}`.trim()}
                       </h3>
                       <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[9px] font-black capitalize tracking-tight border border-emerald-500/30">
                         Profile Locked
@@ -752,7 +752,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       </div>
 
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Registration No</span>
+                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Auto Registration No</span>
                         <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
                           <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.regNo}
                         </p>
@@ -1024,11 +1024,19 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   {fullUserData.profile?.panCardUrl && (
                     <PreviewButton label="PAN Card" onClick={() => openImagePreview(fullUserData.profile.panCardUrl, "PAN Card")} />
                   )}
-                  {(fullUserData.qualifications || []).map((q: any, i: number) => 
-                    q.marksheetUrl ? (
-                      <PreviewButton key={i} label={`${q.examination} Marksheet`} onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />
-                    ) : null
+                  {fullUserData.profile?.sscMarksheetUrl && (
+                    <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(fullUserData.profile.sscMarksheetUrl, "SSC Marksheet")} />
                   )}
+                  {fullUserData.profile?.hscMarksheetUrl && (
+                    <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(fullUserData.profile.hscMarksheetUrl, "HSC Marksheet")} />
+                  )}
+                  {(fullUserData.qualifications || [])
+                    .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
+                    .map((q: any, i: number) => 
+                      q.marksheetUrl ? (
+                        <PreviewButton key={i} label={`${q.examination} Marksheet`} onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />
+                      ) : null
+                    )}
                 </div>
                 {(!fullUserData.profile?.photoUrl && !fullUserData.profile?.signUrl && !fullUserData.profile?.aadhaarFrontUrl && !fullUserData.profile?.aadhaarBackUrl && !fullUserData.profile?.bankPassbookUrl && !fullUserData.profile?.transferCertificateUrl && !fullUserData.profile?.bonafideCertificateUrl) && (
                    <p className="text-[13px] font-normal text-black capitalize tracking-tight text-center w-full py-4">No Documents Uploaded</p>
@@ -1230,12 +1238,12 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     </select>
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Registration No.</label>
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Auto Registration No.</label>
                     <input
                       type="text"
                       value={editForm.regNo}
                       onChange={e => setEditForm({...editForm, regNo: e.target.value})}
-                      placeholder="Enter Custom Registration No."
+                      placeholder="Enter Custom Auto Registration No."
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
                   </div>

@@ -6,6 +6,7 @@ import { studentAuth, realtimeDb } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, get, onValue } from 'firebase/database';
 import StudentNavbar from '@/components/StudentNavbar';
+import { Header } from '@/components/MSBSVET/Header';
 
 const cleanDataForCache = (data: any): any => {
   if (!data || typeof data !== 'object') return data;
@@ -390,16 +391,17 @@ function StudentLayoutContent({
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      <Header />
       <StudentNavbar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
-        studentName={userData?.fullName || userData?.studentName || userData?.firstName || 'Student'}
+        studentName={userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || ''} ${userData?.profile?.middleName || ''} ${userData?.profile?.lastName || ''}`.trim() || userData?.firstName || 'Student'}
         onLogout={handleLogout}
         hasApplied={hasApplied}
         isExamConfigured={isExamConfigured}
       />
-      <main className="max-w-[1600px] mx-auto px-4 md:px-12 pb-20 pt-32 transition-all">
+      <main className="max-w-[1600px] w-full mx-auto px-4 md:px-12 pb-20 pt-6 transition-all">
         {children}
       </main>
       <footer className="text-center py-12 opacity-30 mt-auto">

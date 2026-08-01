@@ -8,7 +8,7 @@ import { ArrowLeft, CheckCircle, ChevronRight, UserCircle, X, UserPlus, HelpCirc
 import Script from 'next/script';
 import { studentAuth, realtimeDb } from '@/lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { ref, set, get, query, orderByChild, equalTo } from 'firebase/database';
+import { ref, set, get, query, orderByChild, equalTo, runTransaction } from 'firebase/database';
 
 declare global {
   interface Window {
@@ -110,10 +110,30 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const generateRegNo = () => {
+    const generateRegNo = async () => {
       const year = new Date().getFullYear();
-      const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-      return `MIT-${year}-${random}`;
+      let sequence = 1;
+      
+      try {
+        const counterRef = ref(realtimeDb, `counters/registration_${year}`);
+        const result = await runTransaction(counterRef, (currentData) => {
+          if (currentData === null) {
+            return 1;
+          }
+          return currentData + 1;
+        });
+        
+        if (result.committed) {
+          sequence = result.snapshot.val();
+        }
+      } catch (e) {
+        console.error("Counter transaction failed", e);
+        const random = Math.floor(Math.random() * 10000);
+        return `MIT-${year}-${random.toString().padStart(5, '0')}`;
+      }
+      
+      const paddedSequence = sequence.toString().padStart(5, '0');
+      return `MIT-${year}-${paddedSequence}`;
     };
 
     try {
@@ -128,7 +148,7 @@ export default function RegisterPage() {
       // 2. Save Profile in Realtime Database
       if (realtimeDb) {
         console.log("Saving profile to Realtime DB...");
-        const regNo = generateRegNo();
+        const regNo = await generateRegNo();
         await set(ref(realtimeDb, `users/${user.uid}`), {
           uid: user.uid,
           email: trimmedEmail,

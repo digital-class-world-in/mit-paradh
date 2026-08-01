@@ -534,7 +534,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                 ...val.profile,
                 collegeId: val.collegeId || val.profile?.collegeId || '',
                 collegeName: val.collegeName || val.profile?.collegeName || 'Online Registration',
-                studentName: `${val.profile?.firstName || ''} ${val.profile?.lastName || ''}`.trim(),
+                studentName: `${val.profile?.firstName || ''} ${val.profile?.middleName || ''} ${val.profile?.lastName || ''}`.trim(),
                 studentEmail: val.email || val.profile?.email,
                 studentPhone: val.phone || val.profile?.phone,
                 appliedAt: val.createdAt || val.profile?.createdAt || new Date().toISOString(),
@@ -710,7 +710,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           // Overwrite key admission fields
           id: undefined, // Remove the inquiry ID
           studentUid: selectedInquiry.studentUid,
-          studentName: selectedInquiry.studentName || `${selectedInquiry.firstName || ''} ${selectedInquiry.lastName || ''}`.trim(),
+          studentName: selectedInquiry.studentName || `${selectedInquiry.firstName || ''} ${selectedInquiry.middleName || ''} ${selectedInquiry.lastName || ''}`.trim(),
           studentEmail: selectedInquiry.studentEmail || selectedInquiry.email,
           studentPhone: selectedInquiry.studentPhone || selectedInquiry.phone,
           courseName: selectedInquiry.courseName,
@@ -876,7 +876,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         const transRef = push(ref(realtimeDb, `colleges/${targetCollegeId}/fees/transactions`));
         await set(transRef, {
           studentId: newAdmissionRef.key,
-          studentName: selectedInquiry.studentName || `${selectedInquiry.firstName || ''} ${selectedInquiry.lastName || ''}`.trim(),
+          studentName: selectedInquiry.studentName || `${selectedInquiry.firstName || ''} ${selectedInquiry.middleName || ''} ${selectedInquiry.lastName || ''}`.trim(),
           amount: parseFloat(paidAmount),
           date: new Date().toISOString(),
           timestamp: Date.now(),
@@ -889,7 +889,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         });
       }
 
-      alert(`SUCCESS: Admission Confirmed!\nRegistration No: ${regNo}\nDate: ${formattedDate}`);
+      alert(`SUCCESS: Admission Confirmed!\nAuto Registration No: ${regNo}\nDate: ${formattedDate}`);
       setIsAcceptModalOpen(false);
       setIsProcessModalOpen(false);
     } catch (error) {
@@ -1071,7 +1071,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         const casteUrl = inq.casteCertificateUrl || sp.casteCertificateUrl || '';
         const pwdUrl = inq.pwdCertificateUrl || sp.pwdCertificateUrl || '';
 
-        const name = inq.studentName || `${inq.firstName || ''} ${inq.lastName || ''}`.trim() || '';
+        const name = inq.studentName || `${inq.firstName || ''} ${inq.middleName || ''} ${inq.lastName || ''}`.trim() || '';
         const gender = inq.gender || sp.gender || '';
         const dob = inq.dateOfBirth || sp.dateOfBirth || '';
 
