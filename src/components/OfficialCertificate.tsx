@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatAutoRegNo } from '@/lib/formatUtils';
 
 interface OfficialCertificateProps {
   data: {
@@ -74,7 +75,7 @@ export const OfficialCertificate = React.forwardRef<HTMLDivElement, OfficialCert
          <div style={{ position: 'absolute', top: '12px', right: '24px', textAlign: 'right' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '6px', whiteSpace: 'nowrap' }}>
                <p style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#000000', margin: 0 }}>Reg. No. :</p>
-               <p style={{ fontSize: '13px', fontWeight: '900', color: '#002147', margin: 0 }}>{data.regNo}</p>
+               <p style={{ fontSize: '13px', fontWeight: '900', color: '#002147', margin: 0 }}>{formatAutoRegNo(data.regNo)}</p>
             </div>
          </div>
          

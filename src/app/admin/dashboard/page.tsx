@@ -531,80 +531,14 @@ function DashboardContent() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
-                  <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="text-lg font-black text-slate-800 tracking-tighter">All Institutional Gateways</h4>
-                      <p className="text-[13px] font-medium text-slate-400">Overview of payment status across all registered colleges</p>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-[#5D5fb1]/10 text-[#5D5fb1] rounded-xl text-[11px] font-black uppercase tracking-widest">
-                      <Zap size={14} /> Total Colleges: {colleges.length}
+                      <h4 className="text-lg font-black text-slate-800 tracking-tighter">Global Payment Requests</h4>
+                      <p className="text-[13px] font-medium text-slate-400">View and verify incoming payments across all registered colleges</p>
                     </div>
                   </div>
-                  <div className="overflow-x-auto p-4">
-                    <table className="w-full text-left border-collapse border border-black shadow-2xl">
-                      <thead>
-                        <tr className="bg-[#002147] text-[14px] font-black text-white uppercase tracking-widest border-b border-black">
-                          <th className="px-8 py-5 border-r border-black text-center">Sr. No</th>
-                          <th className="px-8 py-5 border-r border-black">Institution Name</th>
-                          <th className="px-8 py-5 border-r border-black">UPI Configuration</th>
-                          <th className="px-8 py-5 border-r border-black text-center">Gateway Status</th>
-                          <th className="px-8 py-5 text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-black text-slate-800">
-                        {colleges.map((c: any, idx: number) => (
-                          <tr key={c.id} className="hover:bg-slate-50 transition-colors group">
-                            <td className="px-8 py-6 text-[14px] font-medium text-black text-center border-r border-black">{idx + 1}.</td>
-                            <td className="px-8 py-6 border-r border-black">
-                              <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#5D5fb1] group-hover:text-white transition-all shadow-inner border border-slate-200">
-                                  <Building2 size={18} />
-                                </div>
-                                <div>
-                                  <p className="text-[14px] font-medium text-black tracking-tight leading-none mb-1">{c.name}</p>
-                                  <p className="text-[12px] font-normal text-slate-400 uppercase tracking-tight">ID: {c.collegeId || 'N/A'}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-8 py-6 border-r border-black">
-                              {c.paymentSettings?.upiId ? (
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                  <span className="text-[14px] font-medium text-black tracking-tight">{c.paymentSettings.upiId}</span>
-                                </div>
-                              ) : (
-                                <span className="text-[13px] font-normal text-slate-300 italic">Not Configured</span>
-                              )}
-                            </td>
-                            <td className="px-8 py-6 text-center border-r border-black">
-                              <div className={cn(
-                                "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-widest border",
-                                c.paymentSettings?.isActive
-                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                  : "bg-rose-50 text-rose-600 border-rose-100"
-                              )}>
-                                {c.paymentSettings?.isActive ? 'Active' : 'Disabled'}
-                              </div>
-                            </td>
-                            <td className="px-8 py-6 text-center">
-                              <button
-                                onClick={() => setSelectedCollegeId(c.id)}
-                                className="px-6 py-2 rounded-xl bg-white border border-slate-200 text-[11px] font-black text-[#5D5fb1] uppercase tracking-widest hover:bg-[#5D5fb1] hover:text-white hover:border-[#5D5fb1] transition-all shadow-sm active:scale-95"
-                              >
-                                <Eye size={18} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                        {colleges.length === 0 && (
-                          <tr>
-                            <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-medium italic">No institutions found.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                  <PaymentHistoryManager collegeId="" adminUid={resolvedAdminUid} />
                 </div>
               )}
             </div>

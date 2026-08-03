@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { formatAutoRegNo } from '@/lib/formatUtils';
 
 interface Subject {
   name: string;
@@ -145,7 +146,7 @@ export const OfficialMarksheet = React.forwardRef<HTMLDivElement, OfficialMarksh
               <td style={{ padding: '6px', fontWeight: '700', textTransform: 'uppercase', border: '1px solid #000000' }}>Examination</td>
               <td style={{ padding: '6px', fontWeight: '700', border: '1px solid #000000' }}>{data.examDate || 'March 2026'}</td>
               <td style={{ padding: '6px', fontWeight: '700', textTransform: 'uppercase', border: '1px solid #000000' }}>Registration Number</td>
-              <td style={{ padding: '6px', fontWeight: '700', border: '1px solid #000000' }}>{data.regNo}</td>
+              <td style={{ padding: '6px', fontWeight: '700', border: '1px solid #000000' }}>{formatAutoRegNo(data.regNo)}</td>
             </tr>
             <tr>
               <td style={{ padding: '6px', fontWeight: '700', textTransform: 'uppercase', border: '1px solid #000000' }}>Institute</td>

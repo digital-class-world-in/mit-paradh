@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { realtimeDb } from '@/lib/firebase';
-import { ref, onValue, set, push } from 'firebase/database';
+import { ref, onValue, set, push, get, update } from 'firebase/database';
 import { Search, Eye, CheckCircle2, XCircle, Clock, Download, ExternalLink, Calendar, User, CreditCard, Building2 } from 'lucide-react';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -75,7 +76,11 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
     }
   }, [collegeId]);
 
-  const filteredPayments = payments.filter(p => {
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+
+  const baseFilteredPayments = payments.filter(p => {
     const matchesSearch = 
       p.studentName?.toLowerCase().includes(filter.toLowerCase()) ||
       p.utrId?.toLowerCase().includes(filter.toLowerCase()) ||
@@ -86,10 +91,62 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
     return matchesSearch && matchesStatus;
   });
 
-  const handleUpdateStatus = async (paymentId: string, newStatus: string) => {
+  const filteredPayments = applyGlobalFilters(baseFilteredPayments, globalFilters);
+  const handleUpdateStatus = async (payment: any, newStatus: string) => {
     try {
-      await set(ref(realtimeDb, `colleges/${collegeId}/payments/online/${paymentId}/status`), newStatus);
-      // In a real app, you'd also update the student's ledger here
+      const paymentId = payment.id;
+      const cId = payment.collegeId || collegeId;
+      
+      // Update online payments registry
+      await set(ref(realtimeDb, `colleges/${cId}/payments/online/${paymentId}/status`), newStatus);
+      
+      // Update student's personal history
+      if (payment.studentUid) {
+        await set(ref(realtimeDb, `users/${payment.studentUid}/payments/${paymentId}/status`), newStatus);
+      }
+
+      // If Approved, deduct the amount by incrementing paidFees
+      if (newStatus === 'Approved' && payment.studentUid) {
+        const allAppsRef = ref(realtimeDb, `users/${payment.studentUid}/applications`);
+        const allAppsSnap = await get(allAppsRef);
+        let foundAppKey = null;
+        let appData = null;
+
+        if (allAppsSnap.exists()) {
+          const apps = allAppsSnap.val();
+          foundAppKey = Object.keys(apps).find(k => k === payment.appKey || k === payment.applicationId || apps[k].applicationId === payment.applicationId);
+          if (foundAppKey) appData = apps[foundAppKey];
+        }
+
+        if (foundAppKey && appData) {
+          const currentPaid = parseFloat(appData.paidFees || '0');
+          const amountPaid = parseFloat(payment.amount || '0');
+          const newPaid = currentPaid + amountPaid;
+          
+          await update(ref(realtimeDb, `users/${payment.studentUid}/applications/${foundAppKey}`), { paidFees: newPaid.toString() });
+          
+          // Also update college application copy (try both keys just in case)
+          if (payment.applicationId) {
+             await update(ref(realtimeDb, `colleges/${cId}/applications/${payment.applicationId}`), { paidFees: newPaid.toString() }).catch(()=>console.log('no col app1'));
+          }
+          if (payment.appKey) {
+             await update(ref(realtimeDb, `colleges/${cId}/applications/${payment.appKey}`), { paidFees: newPaid.toString() }).catch(()=>console.log('no col app2'));
+          }
+          await update(ref(realtimeDb, `colleges/${cId}/applications/${foundAppKey}`), { paidFees: newPaid.toString() }).catch(()=>console.log('no col app3'));
+
+          // Also update in admission inquiries if needed
+          const inqRef = ref(realtimeDb, `colleges/${cId}/frontOffice/admissionInquiries`);
+          const inqSnap = await get(inqRef);
+          if (inqSnap.exists()) {
+            const inqs = inqSnap.val();
+            const inqKey = Object.keys(inqs).find(k => inqs[k].applicationId === payment.applicationId || inqs[k].studentUid === payment.studentUid);
+            if (inqKey) {
+              await update(ref(realtimeDb, `colleges/${cId}/frontOffice/admissionInquiries/${inqKey}`), { paidFees: newPaid.toString() });
+            }
+          }
+        }
+      }
+
       alert(`Payment status updated to ${newStatus}`);
     } catch (err) {
       console.error(err);
@@ -135,6 +192,12 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
             ))}
          </div>
       </div>
+
+        <GlobalDataFilter 
+          data={payments} 
+          filters={globalFilters} 
+          setFilters={setGlobalFilters} 
+        />
 
       {/* Transactions Table */}
       <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden p-4">
@@ -206,22 +269,24 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
                               {p.status === 'Pending Verification' ? 'Pending' : p.status}
                            </div>
                         </td>
-                        <td className="px-8 py-6 text-center border-r border-black">
-                           {p.screenshot && (
+                         <td className="px-8 py-6 text-center border-r border-black">
+                           {(p.screenshotUrl || p.screenshot) ? (
                               <button 
-                                onClick={() => window.open(p.screenshot, '_blank')}
-                                className="p-2 rounded-lg bg-slate-100 text-slate-400 hover:bg-[#5D5fb1] hover:text-white transition-all active:scale-95 shadow-sm"
+                                onClick={() => window.open(p.screenshotUrl || p.screenshot, '_blank')}
+                                className="p-2 rounded-lg bg-slate-100 text-[#002147] hover:bg-[#5D5fb1] hover:text-white transition-all active:scale-95 shadow-sm inline-flex items-center gap-2 text-[10px] font-black uppercase"
                                 title="View Screenshot"
                               >
-                                 <Eye size={16} />
+                                 <Eye size={14} /> View
                               </button>
+                           ) : (
+                              <span className="text-[10px] font-medium text-slate-400">N/A</span>
                            )}
                         </td>
                         <td className="px-8 py-6 text-center">
                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                               {p.status !== 'Approved' && (
                                  <button 
-                                   onClick={() => handleUpdateStatus(p.id, 'Approved')}
+                                   onClick={() => handleUpdateStatus(p, 'Approved')}
                                    className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
                                    title="Approve Payment"
                                  >
@@ -230,7 +295,7 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
                               )}
                               {p.status !== 'Rejected' && (
                                  <button 
-                                   onClick={() => handleUpdateStatus(p.id, 'Rejected')}
+                                   onClick={() => handleUpdateStatus(p, 'Rejected')}
                                    className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                                    title="Reject Payment"
                                  >

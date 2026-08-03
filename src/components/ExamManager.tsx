@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,6 +67,12 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
   const [publishedExams, setPublishedExams] = useState<any[]>([]);
   const [viewingSubmissions, setViewingSubmissions] = useState<any[] | null>(null);
   const [selectedExamForResults, setSelectedExamForResults] = useState<any | null>(null);
+  
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const filteredExams = applyGlobalFilters(publishedExams, globalFilters);
 
   useEffect(() => {
     // Fetch all colleges if no collegeId (Admin Mode)
@@ -276,7 +283,17 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
       </div>
 
       {/* Exams List Table */}
-      {publishedExams.length > 0 ? (
+      {publishedExams.length > 0 && (
+        <div className="mb-4">
+          <GlobalDataFilter 
+            data={publishedExams} 
+            filters={globalFilters} 
+            setFilters={setGlobalFilters} 
+          />
+        </div>
+      )}
+      
+      {filteredExams.length > 0 ? (
         <div className="bg-white rounded-[3rem] border border-black shadow-sm overflow-hidden p-8">
            <div className="overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse border border-black">
@@ -294,7 +311,7 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-black">
-                   {publishedExams.map((exam, idx) => (
+                   {filteredExams.map((exam, idx) => (
                       <tr key={exam.id} className="hover:bg-slate-50/50 transition-colors border-b border-black">
                          <td className="px-6 py-6 border-r border-black text-center font-medium">{idx + 1}</td>
                          <td className="px-6 py-6 border-r border-black font-bold text-slate-800">{exam.examName || exam.examTitle || 'N/A'}</td>

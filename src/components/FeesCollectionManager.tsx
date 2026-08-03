@@ -14,6 +14,8 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
+
 import { getDefaultAdminUid } from '@/lib/adminUtils';
 
 export default function FeesCollectionManager({ collegeId, adminUid }: { collegeId?: string; adminUid?: string }) {
@@ -242,6 +244,12 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
 
     return matchesName && matchesCollege && matchesCourseType;
   });
+
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const finalFilteredStudents = applyGlobalFilters(filteredStudents, globalFilters);
 
   const handleCollectOpen = (student: any) => {
     setSelectedStudent(student);
@@ -909,10 +917,16 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                <div className="text-[13px] font-normal text-black capitalize tracking-tight bg-[#00a5a5]/10 px-4 py-2 rounded-full whitespace-nowrap">
                  {filteredStudents.length} Records Found
                </div>
-            </div>
-         </div>
+             </div>
+          </div>
 
-         <div className="overflow-x-auto no-scrollbar">
+          <GlobalDataFilter 
+            data={filteredStudents} 
+            filters={globalFilters} 
+            setFilters={setGlobalFilters} 
+          />
+
+          <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border-[0.5px] border-black">
                <thead>
                   <tr className="bg-slate-50/50 border-b border-r border-black">
@@ -931,7 +945,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                   </tr>
                </thead>
                <tbody className="border-b border-black">
-                  {filteredStudents.map((s, i) => {
+                  {finalFilteredStudents.map((s, i) => {
                     const total = parseFloat(s.fees?.toString().replace(/,/g, '') || '0');
                     const basePaid = parseFloat(s.paidFees?.toString().replace(/,/g, '') || '0');
                     

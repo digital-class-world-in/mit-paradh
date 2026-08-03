@@ -5,6 +5,7 @@ import { ref, onValue, set, remove, get, push, update, query, orderByKey, limitT
 import { realtimeDb, storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Users, Edit2, Trash2, X, Save, Clock, User, Mail, Lock, Phone, Unlock, ShieldCheck, Eye, CheckCircle2, XCircle, MapPin, Tag, GraduationCap, Briefcase, Landmark, Calendar, Image as ImageIcon, Download, Loader2, FileText } from 'lucide-react';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
 
 const EditField = ({ label, value, onChange, type = "text", placeholder = "", readOnly = false }: any) => (
   <div className="space-y-2">
@@ -685,7 +686,20 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
     }
   };
 
-  const paginatedAdmissions = admissions;
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+
+  const baseFilteredAdmissions = admissions.filter(app => {
+    const matchesSearch = !searchQuery || 
+      (app.studentName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.studentEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.studentPhone || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const paginatedAdmissions = applyGlobalFilters(baseFilteredAdmissions, globalFilters);
 
   if (loading) {
     return (
@@ -766,6 +780,13 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
              )}
            </div>
          </div>
+          
+          <GlobalDataFilter 
+            data={admissions} 
+            filters={globalFilters} 
+            setFilters={setGlobalFilters} 
+          />
+          
          <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border border-black">
                 <thead>

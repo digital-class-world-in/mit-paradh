@@ -11,6 +11,7 @@ import StudentNoticeBoard from '@/components/StudentNoticeBoard';
 import StudentIDCard from '@/components/StudentIDCard';
 import ProfileWizard from '@/components/ProfileWizard';
 import StudentNavbar from '@/components/StudentNavbar';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from '@/components/GlobalDataFilter';
 import { QRCodeCanvas } from 'qrcode.react';
 import { safeHtml2Canvas as html2canvas } from '@/lib/safeHtml2Canvas';
 import jsPDF from 'jspdf';
@@ -76,6 +77,8 @@ const toTitleCase = (str: string) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');
 };
+
+import { formatAutoRegNo } from '@/lib/formatUtils';
 
 // --- Reusable ERP Components ---
 
@@ -168,6 +171,12 @@ const CredentialDownloader = ({ credential }: { credential: any }) => {
 const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
   const marksheetRecords = credentials.filter(c => c.type === 'marksheet');
 
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const filteredRecords = applyGlobalFilters(marksheetRecords, globalFilters);
+
   if (marksheetRecords.length > 0) {
     return (
       <div className="bg-white rounded-[2rem] border-2 border-black overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
@@ -177,6 +186,15 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
             Issued Marksheets
           </h3>
         </div>
+
+        <div className="p-4 bg-slate-50 border-b border-black">
+          <GlobalDataFilter 
+            data={marksheetRecords} 
+            filters={globalFilters} 
+            setFilters={setGlobalFilters} 
+          />
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
@@ -191,7 +209,7 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
               </tr>
             </thead>
             <tbody>
-              {marksheetRecords.map((record, index) => (
+              {filteredRecords.map((record, index) => (
                 <tr key={record.id} className="border-b-2 border-black hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-5 border-r-2 border-black text-[14px] font-bold text-slate-800">{index + 1}</td>
                   <td className="px-6 py-5 border-r-2 border-black text-[14px] font-black text-indigo-700">{record.marksheetNo}</td>
@@ -235,6 +253,12 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
 const QuestionPaperModule = ({ exams, activeApp, userData }: any) => {
   const [activeExam, setActiveExam] = useState<any | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const filteredExams = applyGlobalFilters(exams || [], globalFilters);
   const [startTime, setStartTime] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviewExam, setReviewExam] = useState<any | null>(null);
@@ -583,6 +607,15 @@ const QuestionPaperModule = ({ exams, activeApp, userData }: any) => {
           Academic Registry 2026
         </div>
       </div>
+      
+      <div className="p-4 bg-slate-50 border-b-2 border-black">
+        <GlobalDataFilter 
+          data={exams || []} 
+          filters={globalFilters} 
+          setFilters={setGlobalFilters} 
+        />
+      </div>
+
       <div className="overflow-x-auto no-scrollbar">
         <table className="w-full border-collapse">
           <thead>
@@ -597,7 +630,7 @@ const QuestionPaperModule = ({ exams, activeApp, userData }: any) => {
             </tr>
           </thead>
           <tbody>
-            {exams.map((exam: any, index: number) => {
+            {filteredExams.map((exam: any, index: number) => {
               const hasSubmitted = exam.submissions && exam.submissions[userData.uid];
               return (
                 <tr key={exam.id} className="border-b-2 border-black hover:bg-indigo-50/30 transition-colors">
@@ -668,6 +701,12 @@ const QuestionPaperModule = ({ exams, activeApp, userData }: any) => {
 const CertificateModule = ({ credentials }: { credentials: any[] }) => {
   const certificateRecords = credentials.filter(c => c.type === 'certificate');
 
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const filteredRecords = applyGlobalFilters(certificateRecords, globalFilters);
+
   if (certificateRecords.length > 0) {
     return (
       <div className="bg-white rounded-[2rem] border-2 border-black overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
@@ -677,6 +716,15 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
             Issued Certificates
           </h3>
         </div>
+
+        <div className="p-4 bg-slate-50 border-b border-black">
+          <GlobalDataFilter 
+            data={certificateRecords} 
+            filters={globalFilters} 
+            setFilters={setGlobalFilters} 
+          />
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
@@ -691,7 +739,7 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
               </tr>
             </thead>
             <tbody>
-              {certificateRecords.map((record, index) => (
+              {filteredRecords.map((record, index) => (
                 <tr key={record.id} className="border-b-2 border-black hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-5 border-r-2 border-black text-[14px] font-bold text-slate-800">{index + 1}</td>
                   <td className="px-6 py-5 border-r-2 border-black text-[14px] font-black text-indigo-700">{record.marksheetNo}</td>
@@ -1019,13 +1067,13 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
               l: 'Name',
               v: toTitleCase(userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
-            { l: 'Form number', v: 'F-2026/00452' },
+            { l: 'Auto Reg No.', v: formatAutoRegNo(activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo) },
             { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
             { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
             { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
-            (activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo) 
-              ? { l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo }
-              : { l: 'Auto Reg No.', v: activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo || 'N/A' },
+            ...(activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo 
+              ? [{ l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo }] 
+              : []),
             { l: 'Email ID', v: userData?.email || userData?.studentEmail || 'N/A' },
           ].map((item, i) => (
             <div key={i} className="flex border-2 border-slate-200 rounded-md overflow-hidden bg-white h-12">
@@ -1100,69 +1148,77 @@ const ApplicationManager = ({
   userApplications, userData, handleTabChange, activeApp,
   handleDownloadPDF, downloadingAppId
 }: any) => {
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
+  
+  const filteredApps = applyGlobalFilters([...userApplications].sort((a, b) => new Date(b.appliedAt || b.date || 0).getTime() - new Date(a.appliedAt || a.date || 0).getTime()), globalFilters);
+
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
+
+      <GlobalDataFilter 
+        data={userApplications} 
+        filters={globalFilters} 
+        setFilters={setGlobalFilters} 
+      />
 
       <div className="bg-white border border-black rounded-xl shadow-sm overflow-hidden text-[#343a40]">
         <div className="bg-[#343a40] text-white py-3 px-6 font-normal text-sm tracking-wide uppercase">Your Applications</div>
         <div className="p-0 overflow-x-auto">
           <table className="w-full text-left border-collapse border-[0.5px] border-black">
             <thead>
-              <tr className="text-[12px] font-black text-black border-b-[0.5px] border-black bg-slate-100 whitespace-nowrap">
-                <th className="px-4 py-5 border-r-[0.5px] border-black text-center w-16 uppercase">Sr. No.</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase">Date and Time</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase">Register Number</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase">Student Name</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase">College</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black text-center uppercase">Course Type</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase">Course</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black text-center uppercase">Fee</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black text-center uppercase">Status</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black text-center uppercase">Remarks</th>
-                <th className="px-4 py-5 text-center uppercase">Action</th>
+              <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
+                <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">DATE AND TIME</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REGISTER NUMBER</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Manual REGISTER NUMBER</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">STUDENT NAME</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">Course Name</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Stream/Branch</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Duration</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Fee</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Paid</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">STATUS</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REMARKS</th>
+                <th className="px-4 py-5 uppercase text-center">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black text-[13px] font-medium text-black">
-              {[...userApplications].sort((a, b) => new Date(b.appliedAt || b.date || 0).getTime() - new Date(a.appliedAt || a.date || 0).getTime()).map((app: any, i: number) => (
+              {filteredApps.map((app: any, i: number) => (
                 <tr key={`${app.id}-${i}`} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black whitespace-nowrap">
-                  <td className="px-4 py-6 text-center border-r-[0.5px] border-black font-bold">{i + 1}.</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black">
-                    <div className="flex items-center gap-2">
-                      <Clock size={14} className="text-[#00a5a5]" />
-                      {(() => {
-                        const d = new Date(app.appliedAt || app.date || Date.now());
-                        return `${d.toLocaleDateString()} | ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
-                      })()}
-                    </div>
+                  <td className="px-4 py-6 text-center border-r-[0.5px] border-black text-slate-500 font-medium">{i + 1}.</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
+                    {(() => {
+                      const d = new Date(app.admissionDate || app.appliedAt || app.date || Date.now());
+                      return `${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+                    })()}
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold uppercase">{app.regNo || userData?.regNo || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.studentName || userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black capitalize">{app.collegeName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.regNo || userData?.profile?.regNo || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
-                    <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-200">{app.courseType || 'Regular'}</span>
+                    <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || 'Regular'}</span>
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold capitalize">{app.courseName}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">₹{parseFloat(app.fees || '0').toLocaleString()}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
-                    <span className={cn(
-                      "px-3 py-1 rounded-full text-[10px] font-black uppercase border",
-                      app.status === 'Accepted' || app.status === 'Confirmed' || app.status === 'Updated' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                        app.status === 'Rejected' ? "bg-rose-50 text-rose-600 border-rose-200" :
-                          app.status === 'Unlocked' ? "bg-blue-50 text-blue-600 border-blue-200" :
-                            "bg-amber-50 text-amber-600 border-amber-200"
-                    )}>
-                      {app.status || 'Pending'}
-                    </span>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">
+                    ₹{parseFloat(app.processTotalFees || app.fees || '0').toLocaleString()}
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center whitespace-normal max-w-[200px]">
-                    {app.status === 'Rejected' && app.rejectReason && (
-                      <div className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100 p-2 rounded text-left leading-tight">
-                        <span className="block uppercase text-[9px] text-rose-400 mb-0.5">Reason:</span>
-                        {app.rejectReason}
-                        {app.rejectRemark && <div className="mt-1 border-t border-rose-100 pt-1 font-normal text-slate-600">{app.rejectRemark}</div>}
-                      </div>
-                    )}
-                    {app.status !== 'Rejected' && <span className="text-slate-300">-</span>}
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-indigo-600">
+                    ₹{parseFloat(app.paidFees || '0').toLocaleString()}
+                  </td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
+                    {app.status || 'Pending'}
+                  </td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 max-w-[150px] truncate">
+                    {app.remarks || 'N/A'}
                   </td>
                   <td className="px-4 py-6 text-center">
                     <div className="flex items-center justify-center gap-3">
@@ -1328,31 +1384,78 @@ const FeePaymentPortal = ({ acceptedApps, totalFees, totalPaid, balanceDue, user
       <div className="p-0 overflow-x-auto">
         <table className="w-full text-left border-collapse border-[0.5px] border-black">
           <thead>
-            <tr className="text-[14px] font-normal text-[#00a5a5] border-b-[0.5px] border-black bg-slate-50">
-              <th className="px-6 py-4 border-r-[0.5px] border-black text-center">Sr. No.</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black">College</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black">Course Name</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black text-center">Type</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black text-center">Date</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black text-right">Total Fees</th>
-              <th className="px-6 py-4 border-r-[0.5px] border-black text-right">Paid Fees</th>
-              <th className="px-6 py-4 text-right">Outstanding</th>
+            <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
+              <th className="px-4 py-5 border-r-[0.5px] border-black w-16">Sr No</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black text-left">College Name</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black text-left">Student Full Name</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Course Type</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black text-left">Course Name</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Semester</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Stream/Branch</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Duration</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Admission Date</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Total Fee</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Total Paid</th>
+              <th className="px-4 py-5 border-r-[0.5px] border-black">Outstanding</th>
+              <th className="px-4 py-5 text-center">Pay Now</th>
             </tr>
           </thead>
           <tbody className="border-b-[0.5px] border-black text-[14px] font-normal text-slate-600">
             {acceptedApps.map((app: any, idx: number) => {
               const t = parseFloat(app.fees || '0');
               const p = parseFloat(app.paidFees || '0');
+              const outstanding = t - p;
+              const pendingSum = (userPayments || []).filter((pay: any) => pay.appKey === app.id && (!pay.status || pay.status === 'Pending')).reduce((sum: number, pay: any) => sum + parseFloat(pay.amount || '0'), 0);
+              const effectiveOutstanding = outstanding - pendingSum;
+              
               return (
-                <tr key={idx} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black">
-                  <td className="px-6 py-4 text-center border-r-[0.5px] border-black font-medium text-slate-600">{idx + 1}.</td>
-                  <td className="px-6 py-4 font-medium text-slate-800 border-r-[0.5px] border-black">{app.collegeName || 'MIT College'}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800 capitalize border-r-[0.5px] border-black">{app.courseName || 'Course Not Assigned'}</td>
-                  <td className="px-6 py-4 text-center border-r-[0.5px] border-black"><span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[11px] font-bold uppercase">{app.courseType || 'Reg'}</span></td>
-                  <td className="px-6 py-4 text-center border-r-[0.5px] border-black font-medium text-slate-600">{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : 'N/A'}</td>
-                  <td className="px-6 py-4 text-right font-bold text-slate-700 border-r-[0.5px] border-black">₹{t.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right font-bold text-emerald-600 border-r-[0.5px] border-black">₹{p.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right font-bold text-red-500">₹{(t - p).toLocaleString()}</td>
+                <tr key={idx} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black whitespace-nowrap bg-white text-[13px]">
+                  <td className="px-4 py-6 text-center border-r-[0.5px] border-black text-slate-500 font-medium">{idx + 1}.</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                    <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || 'Regular'}</span>
+                  </td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
+                    {app.admissionDate || (app.appliedAt ? new Date(app.appliedAt).toLocaleDateString('en-GB') : 'N/A')}
+                  </td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">₹{t.toLocaleString()}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-indigo-600">₹{p.toLocaleString()}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                    <div className="flex flex-col items-center">
+                      <span className="font-bold text-rose-500">₹{outstanding > 0 ? outstanding.toLocaleString() : '0'}</span>
+                      {pendingSum > 0 && <span className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-1">(₹{pendingSum.toLocaleString()} Pending)</span>}
+                    </div>
+                  </td>
+                  <td className="px-4 py-6 text-center">
+                    {effectiveOutstanding > 0 ? (
+                      <div className="flex flex-col items-center gap-1.5">
+                        {p > 0 && <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">Partially Paid</span>}
+                        <button
+                          onClick={() => {
+                            setSelectedAppForPayment(app);
+                            setPaymentForm((prev: any) => ({ ...prev, amount: effectiveOutstanding.toString(), utrId: '', screenshot: '' }));
+                            setIsPaymentModalOpen(true);
+                          }}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm active:scale-95 transition-all w-full max-w-[120px]"
+                        >
+                          {p > 0 || pendingSum > 0 ? 'Pay Balance' : 'Pay Now'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1.5">
+                        {pendingSum > 0 ? (
+                           <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full border border-amber-100">Verification Pending</span>
+                        ) : (
+                           <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">Cleared</span>
+                        )}
+                      </div>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -1362,11 +1465,11 @@ const FeePaymentPortal = ({ acceptedApps, totalFees, totalPaid, balanceDue, user
     </div>
 
     {/* Ledger Transaction History */}
-    <TransactionHistory userPayments={userPayments} setLastReceipt={setLastReceipt} setShowReceipt={setShowReceipt} />
+    <TransactionHistory userPayments={userPayments} acceptedApps={acceptedApps} setLastReceipt={setLastReceipt} setShowReceipt={setShowReceipt} />
   </div>
 );
 
-const TransactionHistory = ({ userPayments, setLastReceipt, setShowReceipt }: any) => (
+const TransactionHistory = ({ userPayments, acceptedApps, setLastReceipt, setShowReceipt }: any) => (
   <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8 mt-12">
     <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
       <header className="mb-10">
@@ -1376,51 +1479,76 @@ const TransactionHistory = ({ userPayments, setLastReceipt, setShowReceipt }: an
       <div className="overflow-x-auto no-scrollbar">
         <table className="w-full text-left border-collapse border-[0.5px] border-black">
           <thead>
-            <tr className="bg-slate-50/50 border-b-[0.5px] border-black">
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black w-16">Sr.</th>
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black">Reference ID</th>
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black">Course & College</th>
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black text-center">Date</th>
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black text-right">Amount</th>
-              <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest text-center">Status</th>
+            <tr className="bg-slate-50 border-b-[0.5px] border-black text-center whitespace-nowrap">
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black w-16">Sr No</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Reference ID</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-left">College Name</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Course Type</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-left">Course Name</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Semester</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Stream/Branch</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Duration</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-left">Student Full Name</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black">Date</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-right">Amount</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-center">Status</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black text-right">Pending Amount</th>
+              <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase text-center">Download Receipt</th>
             </tr>
           </thead>
           <tbody className="border-b-[0.5px] border-black">
-            {(userPayments || []).sort((a: any, b: any) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime()).map((p: any, i: number) => (
-              <tr key={i} className="hover:bg-slate-50/50 transition-colors border-b-[0.5px] border-black">
-                <td className="px-6 py-5 border-r-[0.5px] border-black text-center font-bold text-black">{i + 1}.</td>
-                <td className="px-6 py-5 border-r-[0.5px] border-black"><span className="text-[11px] font-black text-[#00a5a5] uppercase tracking-widest bg-[#e6f7f7] px-3 py-1 rounded-md">REF-{p.id?.slice(-8).toUpperCase()}</span></td>
-                <td className="px-6 py-5 border-r-[0.5px] border-black"><p className="text-sm font-bold text-slate-800 tracking-tight leading-none mb-1">{p.courseName}</p><p className="text-[10px] font-medium text-slate-400 capitalize">{p.collegeName}</p></td>
-                <td className="px-6 py-5 border-r-[0.5px] border-black text-center text-sm font-medium text-slate-500">{new Date(p.submittedAt).toLocaleDateString()}</td>
-                <td className="px-6 py-5 border-r-[0.5px] border-black text-right text-[15px] font-black text-emerald-600">₹{parseFloat(p.amount || '0').toLocaleString()}</td>
-                <td className="px-6 py-5 text-center">
-                  <div className="flex flex-col items-center justify-center gap-1.5">
-                    <div className={cn(
-                      "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border shadow-sm inline-flex items-center gap-2",
-                      p.status === 'Accepted' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                        p.status === 'Rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
-                          "bg-amber-50 text-amber-600 border-amber-100"
-                    )}>
-                      {p.status === 'Accepted' ? <CheckCircle2 size={12} /> : p.status === 'Rejected' ? <XCircle size={12} /> : <Clock size={12} />}
-                      {p.status || 'Pending'}
-                    </div>
-                    {p.status === 'Accepted' && (
-                      <button
-                        onClick={() => { setLastReceipt(p); setShowReceipt(true); }}
-                        className="px-3 py-1 rounded bg-[#00a5a5] text-black hover:bg-[#5D5fb1] text-[10px] font-black uppercase transition-all shadow-sm flex items-center gap-1 justify-center active:scale-95 mt-1"
-                      >
-                        <Download size={10} /> View Receipt
-                      </button>
-                    )}
-                    {p.status === 'Rejected' && (
-                      <div className="text-[9px] font-bold text-rose-500 bg-rose-50 border border-rose-100 rounded px-2 py-1 max-w-[150px] mx-auto break-words italic leading-tight mt-1">
-                        Remark: {p.remarks || 'No reason specified'}
-                      </div>
-                    )}
+            {(userPayments || []).sort((a: any, b: any) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime()).map((p: any, i: number) => {
+              const app = acceptedApps?.find((a: any) => a.id === p.appKey || a.id === p.applicationId) || {};
+              const t = parseFloat(app.fees || '0');
+              const paid = parseFloat(app.paidFees || '0');
+              const pendingAmt = t > 0 ? (t - paid) : 0;
+              return (
+              <tr key={i} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black whitespace-nowrap text-[13px] bg-white">
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-500">{i + 1}.</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center"><span className="text-[11px] font-black text-[#00a5a5] uppercase tracking-widest bg-[#e6f7f7] px-3 py-1 rounded-md">REF-{p.id?.slice(-8).toUpperCase()}</span></td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || p.collegeName || 'N/A'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                  <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || p.courseType || 'Regular'}</span>
+                </td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || p.courseName || 'N/A'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || p.semester || 'N/A'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || p.stream || 'N/A'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || p.duration || 'N/A'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || p.studentName || 'Student'}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{new Date(p.submittedAt).toLocaleDateString('en-GB')}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-right font-black text-emerald-600">₹{parseFloat(p.amount || '0').toLocaleString()}</td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                  <div className={cn(
+                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border shadow-sm inline-flex items-center gap-2",
+                    p.status === 'Approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                      p.status === 'Rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                        "bg-amber-50 text-amber-600 border-amber-100"
+                  )}>
+                    {p.status === 'Approved' ? <CheckCircle2 size={12} /> : p.status === 'Rejected' ? <XCircle size={12} /> : <Clock size={12} />}
+                    {p.status || 'Pending'}
                   </div>
+                  {p.status === 'Rejected' && p.remarks && (
+                    <div className="text-[9px] font-bold text-rose-500 mt-1 max-w-[150px] whitespace-normal mx-auto leading-tight">
+                      Remark: {p.remarks}
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-6 border-r-[0.5px] border-black text-right font-black text-rose-500">₹{pendingAmt.toLocaleString()}</td>
+                <td className="px-4 py-6 text-center">
+                  {p.status === 'Approved' ? (
+                    <button
+                      onClick={() => { setLastReceipt(p); setShowReceipt(true); }}
+                      className="px-4 py-2 mx-auto rounded bg-[#00a5a5] text-white hover:bg-[#007f7f] text-[10px] font-black uppercase transition-all shadow-sm flex items-center gap-1 justify-center active:scale-95"
+                    >
+                      <Download size={12} /> Print Receipt
+                    </button>
+                  ) : (
+                    <span className="text-slate-300 text-xs italic">-</span>
+                  )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -1628,7 +1756,7 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
   </div>
 );
 
-const PrintApplicationRegistry = ({ userApplications, userData, availableColleges, hiddenMode = false, registerPrintHandlers }: any) => {
+const PrintApplicationRegistry = ({ userApplications, userData, availableColleges, hiddenMode = false, registerPrintHandlers, preloadedPhoto, preloadedSignature }: any) => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [downloadingAppId, setDownloadingAppId] = useState<string | null>(null);
@@ -1685,7 +1813,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
-          allowTaint: true
+          allowTaint: false
         });
         const imgData1 = canvas1.toDataURL('image/png');
         pdf.addImage(imgData1, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
@@ -1697,7 +1825,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
-          allowTaint: true
+          allowTaint: false
         });
         const imgData2 = canvas2.toDataURL('image/png');
         pdf.addImage(imgData2, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
@@ -1738,8 +1866,11 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
         const college = availableColleges?.find((c: any) => c.id === app.collegeId);
         const collegeName = college?.name || app.collegeName || 'Official Institution Registry';
         const collegeAddress = college?.address || 'At. Post Paradh, Bk. Tq. Bhokardan, Dist. Jalna';
-        const studentPhoto = userData.profile?.photoUrl || userData.profile?.photo || userData?.photo || '';
-        const studentSignature = userData.profile?.signatureUrl || userData.profile?.signUrl || '';
+        const proxyUrl = (url: string) => (url && url.startsWith('http') && !url.includes('/api/proxy-image')) ? `/api/proxy-image?url=${encodeURIComponent(url)}` : url;
+        const rawPhoto = app.photoUrl || app.photo || preloadedPhoto || userData.profile?.photoUrl || userData.profile?.photo || userData?.photo || '';
+        const rawSign = app.signatureUrl || app.signUrl || preloadedSignature || userData.profile?.signatureUrl || userData.profile?.signUrl || '';
+        const studentPhoto = proxyUrl(rawPhoto);
+        const studentSignature = proxyUrl(rawSign);
 
         return (
           <div className="fixed -left-[9999px] top-0 pointer-events-none overflow-hidden opacity-0" style={{ zIndex: -100 }}>
@@ -1764,7 +1895,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                     {college?.logo && (
                       <img
-                        src={college.logo}
+                        src={proxyUrl(college.logo)}
                         alt="College Logo"
                         style={{ width: '80px', height: '80px', objectFit: 'contain' }}
                         crossOrigin="anonymous"
@@ -1772,51 +1903,55 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                     )}
                   </div>
 
-                  {/* Center Column (Centered Institute Name & Address) */}
+                  {/* Center Column (Centered Institute Name) */}
                   <div style={{ flex: 1, textAlign: 'center', padding: '0 10px' }}>
-                    <h1 style={{ fontSize: '18px', fontWeight: '800', color: '#002147', textTransform: 'uppercase', margin: 0, lineHeight: 1.2 }}>
-                      {collegeName}
+                    <p style={{ fontSize: '14px', fontWeight: '800', color: '#000000', textTransform: 'uppercase', margin: 0 }}>
+                      !! श्री बालाजी प्रसन्न !!
+                    </p>
+                    <h1 style={{ fontSize: '16px', fontWeight: '800', color: '#000000', textTransform: 'uppercase', margin: '4px 0 0 0', lineHeight: 1.2 }}>
+                      Mahavishnu Gramin Vikas V Shaikshanik B. Sanstha Dhamangaon (Dhad)
                     </h1>
-                    <p style={{ fontSize: '10px', color: '#475569', margin: '4px 0 0 0', fontWeight: '600' }}>
-                      {collegeAddress}
-                    </p>
-                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#d97706', margin: '6px 0 0 0', letterSpacing: '0.5px' }}>
-                      ADMISSION APPLICATION FORM (A.Y. 2026-27)
-                    </p>
                   </div>
 
                   {/* Right Column (Spacer matching logo width for perfect centering) */}
                   <div style={{ width: '80px' }} />
                 </div>
 
-                {/* Application Registry Info Bar */}
-                <div style={{ border: '1px solid #000000', borderRadius: '6px', marginBottom: '15px', overflow: 'hidden', fontSize: '10px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderBottom: '1px solid #000000' }}>
-                    <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Application ID</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a' }}>{app.applicationId}</span>
+                {/* Requested Application Info Grid */}
+                <div style={{ border: '2px solid #000000', marginBottom: '15px', fontSize: '10px', backgroundColor: '#ffffff' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                    <div style={{ padding: '6px 8px', borderRight: '1px solid #000000', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Student Full Name:</span> <span style={{ fontWeight: '600' }}>{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span>
                     </div>
-                    <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Auto Registration No</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a' }}>{userData.profile?.regNo || 'PENDING'}</span>
-                    </div>
-                    <div style={{ padding: '6px 8px' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Course Type</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a', textTransform: 'capitalize' }}>{app.courseType || 'Regular'}</span>
+                    <div style={{ padding: '6px 8px', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Auto Generated Roll Number:</span> <span style={{ fontWeight: '600' }}>{formatAutoRegNo(userData.regNo || userData.profile?.regNo)}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', backgroundColor: '#f8fafc' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                    <div style={{ padding: '6px 8px', borderRight: '1px solid #000000', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Academic Year (Session):</span> <span style={{ fontWeight: '600' }}>{app.academicYear || '2026-27'}</span>
+                    </div>
+                    <div style={{ padding: '6px 8px', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>College Name:</span> <span style={{ fontWeight: '600' }}>{app.collegeName || collegeName}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                    <div style={{ padding: '6px 8px', borderRight: '1px solid #000000', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Course Type:</span> <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{app.courseType || 'Regular'}</span>
+                    </div>
+                    <div style={{ padding: '6px 8px', borderBottom: '1px solid #000000' }}>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Course Name:</span> <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{app.courseName}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Course / Stream</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a', textTransform: 'capitalize' }}>{app.courseName}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Semester:</span> <span style={{ fontWeight: '600' }}>{app.semester || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Apply Date</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a' }}>{(() => { const d = new Date(app.appliedAt || app.date || Date.now()); return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`; })()}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Stream/Branch:</span> <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{app.stream || app.streamBranch || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '6px 8px' }}>
-                      <span style={{ color: '#64748b', fontWeight: '600', display: 'block', fontSize: '8px', textTransform: 'uppercase' }}>Last Modified On</span>
-                      <span style={{ fontWeight: '700', color: '#0f172a' }}>{app.updatedAt ? (() => { const d = new Date(app.updatedAt); return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`; })() : 'N/A'}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Duration:</span> <span style={{ fontWeight: '600' }}>{app.duration || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
@@ -1833,7 +1968,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                         <tr>
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Full Name:</td>
                           <td colSpan={3} style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', textTransform: 'uppercase', border: '1px solid #000000' }}>
-                            {`${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || 'N/A'}
+                            {[userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || 'N/A'}
                           </td>
                         </tr>
                         <tr>
@@ -1842,10 +1977,12 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Date of Birth:</td>
                           <td style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.profile?.dateOfBirth || 'N/A'}</td>
                         </tr>
-                        <tr>
-                          <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Manual Reg No:</td>
-                          <td colSpan={3} style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'}</td>
-                        </tr>
+                        {(userData.manualRegNo || userData.profile?.manualRegNo) && (
+                          <tr>
+                            <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Manual Reg No:</td>
+                            <td colSpan={3} style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.manualRegNo || userData.profile?.manualRegNo}</td>
+                          </tr>
+                        )}
                         <tr>
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Blood Group:</td>
                           <td style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', border: '1px solid #000000' }}>{userData.profile?.bloodGroup || 'N/A'}</td>
@@ -2266,65 +2403,61 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
         <div className="bg-slate-800 text-white py-4 px-8 font-bold text-sm tracking-wide">YOUR ADMISSION APPLICATIONS</div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse md:border-[0.5px] border-black block md:table">
-            <thead className="hidden md:table-header-group">
-              <tr className="bg-slate-50 border-b-[0.5px] border-black">
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center w-16">Sr No.</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">Admission Date & Time</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">Student Name</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">College</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center">Course Type</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase">Course</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-right">Fees</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center">Status</th>
-                <th className="px-4 py-5 border-[0.5px] border-black text-[14px] font-black text-black uppercase text-center">Action</th>
+            <thead>
+              <tr className="bg-slate-50 border-b-[0.5px] border-black text-[12px] font-black text-[#00a5a5] whitespace-nowrap text-center">
+                <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">DATE AND TIME</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REGISTER NUMBER</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Manual REGISTER NUMBER</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">STUDENT NAME</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">Course Name</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Stream/Branch</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Duration</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Fee</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Paid</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">STATUS</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REMARKS</th>
+                <th className="px-4 py-5 uppercase text-center">ACTION</th>
               </tr>
             </thead>
-            <tbody className="block md:table-row-group text-[15px] font-medium text-black">
+            <tbody className="divide-y divide-black text-[13px] font-medium text-black">
               {userApplications.filter((app: any) => app.profileLocked === true).map((app: any, i: number) => (
-                <tr key={`${app.id}-${i}`} className="block md:table-row bg-white border md:border-none border-slate-200 rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors md:border-b-[0.5px] border-black">
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center font-bold">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Sr No.</span>
-                    <span>{i + 1}</span>
+                <tr key={`${app.id}-${i}`} className="hover:bg-slate-50 transition-colors border-b-[0.5px] border-black whitespace-nowrap">
+                  <td className="px-4 py-6 text-center border-r-[0.5px] border-black text-slate-500 font-medium">{i + 1}.</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
+                    {(() => {
+                      const d = new Date(app.admissionDate || app.appliedAt || app.date || Date.now());
+                      return `${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+                    })()}
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Date & Time</span>
-                    <div className="flex items-center justify-end md:justify-start gap-2">
-                      <Clock size={14} className="text-[#00a5a5]" />
-                      {(() => {
-                        const d = new Date(app.appliedAt || app.date || Date.now());
-                        return `${d.toLocaleDateString()} | ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
-                      })()}
-                    </div>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.regNo || userData?.profile?.regNo || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
+                    <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || 'Regular'}</span>
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black font-bold capitalize">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Student Name</span>
-                    <span className="text-right md:text-left">{app.studentName || userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || 'Student'}</span>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">
+                    ₹{parseFloat(app.processTotalFees || app.fees || '0').toLocaleString()}
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black capitalize">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">College</span>
-                    <span className="text-right md:text-left">{app.collegeName || 'N/A'}</span>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-indigo-600">
+                    ₹{parseFloat(app.paidFees || '0').toLocaleString()}
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Course Type</span>
-                    <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-200">{app.courseType || 'Regular'}</span>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
+                    {app.status || 'Pending'}
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black font-bold capitalize">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Course</span>
-                    <span>{app.courseName}</span>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 max-w-[150px] truncate">
+                    {app.remarks || 'N/A'}
                   </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-right font-bold text-emerald-600">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Fees</span>
-                    <span>₹{parseFloat(app.fees || '0').toLocaleString()}</span>
-                  </td>
-                  <td className="flex items-center justify-between md:table-cell px-2 md:px-4 py-3 md:py-6 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Status</span>
-                    <span className={cn("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 shadow-sm", app.status === 'Accepted' || app.status === 'Confirmed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-500 border-amber-100")}>
-                      {app.status || 'Pending'}
-                    </span>
-                  </td>
-                  <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-4 py-4 md:py-6 text-center">
-                    <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
-                    <div className="flex items-center justify-end md:justify-center gap-3">
+                  <td className="px-4 py-6 text-center">
+                    <div className="flex items-center justify-center gap-3">
                       <button onClick={() => handlePreview(app)} className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-90" title="Preview Application"><Eye size={18} /></button>
                       <button
                         onClick={() => handleDownloadPDF(app)}
@@ -2377,13 +2510,27 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
             {/* Application Content */}
             <div className="flex-1 overflow-y-auto p-12 custom-scrollbar print:overflow-visible print:p-0 print:block">
               {/* Institutional Header (For Print) */}
-              <div className="hidden print:flex items-center gap-6 mb-8 border-b-4 border-black pb-6">
-                <div className="shrink-0">
-                  <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-24 h-24 object-contain" />
+              <div className="hidden print:block mb-8 border-b-4 border-black pb-6">
+                <div className="flex items-center gap-6">
+                  <div className="shrink-0">
+                    <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-24 h-24 object-contain" />
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="text-xl font-bold text-black uppercase tracking-tight">!! श्री बालाजी प्रसन्न !!</p>
+                    <h1 className="text-2xl font-black text-black uppercase tracking-tight mt-1">Mahavishnu Gramin Vikas V Shaikshanik B. Sanstha Dhamangaon (Dhad)</h1>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h1 className="text-3xl font-black text-black uppercase tracking-tight">MAHALAXMI NURSING AND TECHNICAL INSTITUTE PARADH</h1>
-                  <p className="text-sm font-bold text-black uppercase mt-1">Paradh, Maharashtra</p>
+                
+                <div className="grid grid-cols-2 gap-x-12 gap-y-3 mt-8 text-[13px] font-bold text-black border-t-2 border-black pt-6">
+                  <div>Student Full Name: <span className="font-medium text-slate-800">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span></div>
+                  <div>Auto Generated Roll Number: <span className="font-medium text-slate-800">{formatAutoRegNo(userData.regNo || userData.profile?.regNo)}</span></div>
+                  <div>Academic Year (Session): <span className="font-medium text-slate-800">{selectedApp.academicYear || '2026-27'}</span></div>
+                  <div>College Name: <span className="font-medium text-slate-800">{selectedApp.collegeName}</span></div>
+                  <div>Course Type: <span className="font-medium text-slate-800">{selectedApp.courseType || 'Regular'}</span></div>
+                  <div>Course Name: <span className="font-medium text-slate-800">{selectedApp.courseName}</span></div>
+                  <div>Semester: <span className="font-medium text-slate-800">{selectedApp.semester || 'N/A'}</span></div>
+                  <div>Stream/Branch: <span className="font-medium text-slate-800">{selectedApp.stream || selectedApp.streamBranch || 'N/A'}</span></div>
+                  <div>Duration: <span className="font-medium text-slate-800">{selectedApp.duration || 'N/A'}</span></div>
                 </div>
               </div>
 
@@ -2396,16 +2543,22 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <div className="md:col-span-2 flex justify-end mb-4 print:flex">
                   <div className="flex gap-4">
                     <div className="w-[120px] h-[150px] border-2 border-slate-800 p-1 bg-white flex items-center justify-center overflow-hidden">
-                      {(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo) && String(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo).length > 10 ? (
-                        <img src={userData.profile?.photoUrl || userData.profile?.photo || userData?.photo} alt="Photo" className="w-full h-full object-cover print:block" />
-                      ) : null}
-                      <span className="text-xs text-slate-400 font-bold text-center" style={{ display: (userData.profile?.photoUrl || userData.profile?.photo || userData?.photo) && String(userData.profile?.photoUrl || userData.profile?.photo || userData?.photo).length > 10 ? 'none' : 'block' }}>Passport Photo</span>
+                      {(() => {
+                        const photoToDisplay = selectedApp?.photoUrl || selectedApp?.photo || preloadedPhoto || userData?.profile?.photoUrl || userData?.profile?.photo || userData?.photo;
+                        if (photoToDisplay && String(photoToDisplay).length > 10) {
+                          return <img src={photoToDisplay} alt="Photo" className="w-full h-full object-cover print:block" />;
+                        }
+                        return <span className="text-xs text-slate-400 font-bold text-center">Passport Photo</span>;
+                      })()}
                     </div>
                     <div className="w-[150px] h-[60px] border border-slate-800 p-1 bg-white flex items-center justify-center overflow-hidden mt-auto">
-                      {(userData.profile?.signatureUrl || userData.profile?.signUrl) && String(userData.profile?.signatureUrl || userData.profile?.signUrl).length > 10 ? (
-                        <img src={userData.profile?.signatureUrl || userData.profile?.signUrl} alt="Signature" className="max-h-full object-contain print:block" />
-                      ) : null}
-                      <span className="text-xs text-slate-400 font-bold text-center" style={{ display: (userData.profile?.signatureUrl || userData.profile?.signUrl) && String(userData.profile?.signatureUrl || userData.profile?.signUrl).length > 10 ? 'none' : 'block' }}>Signature</span>
+                      {(() => {
+                        const signToDisplay = selectedApp?.signatureUrl || selectedApp?.signUrl || preloadedSignature || userData?.profile?.signatureUrl || userData?.profile?.signUrl;
+                        if (signToDisplay && String(signToDisplay).length > 10) {
+                          return <img src={signToDisplay} alt="Signature" className="max-h-full object-contain print:block" />;
+                        }
+                        return <span className="text-xs text-slate-400 font-bold text-center">Signature</span>;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -2413,7 +2566,10 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <DataRow label="Full Name" value={userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()} />
                 <DataRow label="Gender" value={toTitleCase(userData.profile?.gender || userData.gender || '')} />
                 <DataRow label="Date of Birth" value={userData.profile?.dateOfBirth || userData.dateOfBirth} />
-                <DataRow label="Manual Reg No." value={userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'} />
+                <DataRow label="Auto Reg No." value={formatAutoRegNo(userData.regNo || userData.profile?.regNo)} />
+                {(userData.manualRegNo || userData.profile?.manualRegNo) && (
+                  <DataRow label="Manual Reg No." value={userData.manualRegNo || userData.profile?.manualRegNo} />
+                )}
                 <DataRow label="Blood Group" value={userData.profile?.bloodGroup} />
                 <DataRow label="Nationality" value={userData.profile?.nationality || 'Indian'} />
                 <DataRow label="Mother Tongue" value={userData.profile?.motherTongue} />
@@ -2502,9 +2658,54 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </table>
                 </div>
 
-                {/* Section 8: Bank Details */}
+                {/* Section: Course Fee Table */}
                 <div className="md:col-span-2">
-                  <SectionHeader title="Step 8: Bank Account Information" icon={Landmark} />
+                  <SectionHeader title="Step 8: Course Fee Table" icon={CreditCard} />
+                </div>
+                <div className="md:col-span-2 overflow-x-auto">
+                  <table className="w-full text-left border-collapse border border-black mb-6">
+                    <thead className="bg-slate-50 print:bg-transparent">
+                      <tr className="border-b border-black text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <th className="p-2 border-r border-black">Sr No</th>
+                        <th className="p-2 border-r border-black">College Name</th>
+                        <th className="p-2 border-r border-black">Student Full Name</th>
+                        <th className="p-2 border-r border-black">Course Type</th>
+                        <th className="p-2 border-r border-black">Course Name</th>
+                        <th className="p-2 border-r border-black">Semester</th>
+                        <th className="p-2 border-r border-black">Stream/Branch</th>
+                        <th className="p-2 border-r border-black">Duration</th>
+                        <th className="p-2 border-r border-black">Admission Date</th>
+                        <th className="p-2 border-r border-black">Total Fee</th>
+                        <th className="p-2 border-r border-black">Total Paid</th>
+                        <th className="p-2 text-center">Outstanding</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-black text-[12px]">
+                        <td className="p-2 border-r border-black font-bold">1</td>
+                        <td className="p-2 border-r border-black capitalize max-w-[120px] truncate">{selectedApp.collegeName || 'N/A'}</td>
+                        <td className="p-2 border-r border-black capitalize max-w-[120px] truncate">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</td>
+                        <td className="p-2 border-r border-black capitalize">{selectedApp.courseType || 'Regular'}</td>
+                        <td className="p-2 border-r border-black font-bold capitalize max-w-[120px] truncate">{selectedApp.courseName || 'N/A'}</td>
+                        <td className="p-2 border-r border-black">{selectedApp.semester || 'N/A'}</td>
+                        <td className="p-2 border-r border-black">{selectedApp.stream || 'N/A'}</td>
+                        <td className="p-2 border-r border-black uppercase">{selectedApp.duration || 'N/A'}</td>
+                        <td className="p-2 border-r border-black">
+                          {selectedApp.admissionDate || (selectedApp.appliedAt ? new Date(selectedApp.appliedAt).toLocaleDateString() : 'N/A')}
+                        </td>
+                        <td className="p-2 border-r border-black font-bold text-emerald-600">₹{parseFloat(selectedApp.processTotalFees || selectedApp.fees || '0').toLocaleString()}</td>
+                        <td className="p-2 border-r border-black font-bold text-indigo-600">₹{parseFloat(selectedApp.processAmountPaid || '0').toLocaleString()}</td>
+                        <td className="p-2 text-center font-bold text-red-600">
+                          ₹{(parseFloat(selectedApp.processTotalFees || selectedApp.fees || '0') - parseFloat(selectedApp.processAmountPaid || '0')).toLocaleString()}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Section 9: Bank Details */}
+                <div className="md:col-span-2">
+                  <SectionHeader title="Step 9: Bank Account Information" icon={Landmark} />
                 </div>
                 <DataRow label="Bank Name" value={userData.bankDetails?.bankName || userData.profile?.bankName} />
                 <DataRow label="Account Number" value={userData.bankDetails?.accountNumber || userData.profile?.accountNumber} />
@@ -2578,14 +2779,26 @@ function DashboardContent() {
   const [receiptSignature, setReceiptSignature] = useState<string | null>(null);
 
   useEffect(() => {
-    const preloadImage = async (url: string, setter: (val: string) => void) => {
+    const preloadImage = (url: string, setter: (val: string) => void) => {
       try {
         if (!url || url.length < 10) return;
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => setter(reader.result as string);
-        reader.readAsDataURL(blob);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0);
+          setter(canvas.toDataURL("image/png"));
+        };
+        img.onerror = () => {
+          console.warn("Failed to load image via proxy, falling back to raw url:", url);
+          setter(url); // Fallback to raw url if CORS fails
+        };
+        // Use a CORS proxy to ensure the image can be loaded into a canvas and converted to base64
+        const proxiedUrl = url.startsWith('http') ? `/api/proxy-image?url=${encodeURIComponent(url)}` : url;
+        img.src = proxiedUrl;
       } catch (e) {
         console.error("Failed to preload image:", url, e);
         setter(url); // Fallback
@@ -2628,11 +2841,12 @@ function DashboardContent() {
     upiId: '',
     utrId: '',
     email: '',
-    relationship: 'Father',
+    relationship: 'Self',
     phone: '',
     amount: '',
     screenshot: ''
   });
+  const [paymentScreenshotFile, setPaymentScreenshotFile] = useState<File | null>(null);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -3685,6 +3899,8 @@ function DashboardContent() {
     if (!paymentForm.amount || parseFloat(paymentForm.amount) <= 0) errors.amount = "Valid payment amount is required";
     if (!paymentForm.email) errors.email = "Payer email is required";
     if (!paymentForm.phone) errors.phone = "Mobile number is required";
+    if (!paymentForm.utrId) errors.utrId = "UTR or Transaction ID is required";
+    if (!paymentScreenshotFile) errors.screenshot = "Payment screenshot is required";
 
     const outstanding = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
     const inputAmount = parseFloat(paymentForm.amount || '0');
@@ -3695,60 +3911,48 @@ function DashboardContent() {
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      alert("Please fill in all mandatory fields.");
+      alert("Please fill in all mandatory fields correctly.");
       return;
     }
 
     setFormErrors({});
     setIsSubmittingPayment(true);
     
-    // Simulate Gateway Delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     try {
-      const generatedUtr = `MOCK-TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      // 1. Upload Screenshot
+      const screenshotRef = storageRef(storage, `payments/${userData.uid}/${Date.now()}_${paymentScreenshotFile?.name}`);
+      const uploadTask = await uploadBytesResumable(screenshotRef, paymentScreenshotFile as File);
+      const screenshotUrl = await getDownloadURL(uploadTask.ref);
+
+      const paymentId = push(ref(realtimeDb, 'colleges')).key || Date.now().toString();
       
       const paymentData = {
+        id: paymentId,
         ...paymentForm,
-        utrId: generatedUtr,
+        screenshotUrl: screenshotUrl || '',
         studentUid: userData.uid,
         studentName: (userData.profile?.firstName || userData.firstName || 'Unknown') + ' ' + (userData.profile?.lastName || userData.lastName || ''),
-        applicationId: selectedAppForPayment.applicationId,
-        collegeId: selectedAppForPayment.collegeId,
-        courseName: selectedAppForPayment.courseName,
-        courseType: selectedAppForPayment.courseType,
+        applicationId: selectedAppForPayment.applicationId || null,
+        appKey: selectedAppForPayment.id || null,
+        collegeId: selectedAppForPayment.collegeId || null,
+        collegeName: selectedAppForPayment.collegeName || '',
+        courseName: selectedAppForPayment.courseName || '',
+        courseType: selectedAppForPayment.courseType || '',
         submittedAt: new Date().toISOString(),
-        status: 'Accepted',
-        receiptNo: `REC-${Date.now().toString().slice(-6)}`
+        status: 'Pending', // Awaiting Admin Approval
+        receiptNo: `REC-${paymentId.slice(-6).toUpperCase()}`
       };
 
       // 1. Record payment in college's online payments
-      const paymentRef = push(ref(realtimeDb, `colleges/${selectedAppForPayment.collegeId}/payments/online`));
-      await set(paymentRef, { ...paymentData, id: paymentRef.key });
+      await set(ref(realtimeDb, `colleges/${selectedAppForPayment.collegeId}/payments/online/${paymentId}`), paymentData);
 
-      // 2. Record payment in student's personal record
-      const studentPaymentRef = push(ref(realtimeDb, `users/${userData.uid}/payments`));
-      await set(studentPaymentRef, { ...paymentData, id: studentPaymentRef.key });
-      
-      // 3. Update application's paidFees in Firebase
-      const newPaidFees = parseFloat(selectedAppForPayment.paidFees || '0') + inputAmount;
-      
-      // Update in user's profile applications
-      const userAppRef = ref(realtimeDb, `users/${userData.uid}/applications/${selectedAppForPayment.id}`);
-      await update(userAppRef, { paidFees: newPaidFees.toString() });
-      
-      // Update in college's applications
-      const collegeAppRef = ref(realtimeDb, `colleges/${selectedAppForPayment.collegeId}/applications/${selectedAppForPayment.applicationId}`);
-      await update(collegeAppRef, { paidFees: newPaidFees.toString() });
+      // 2. Record payment in user's profile
+      await set(ref(realtimeDb, `users/${userData.uid}/payments/${paymentId}`), paymentData);
 
-      alert("Payment processed successfully! Your payment slip will now be generated.");
-      
-      // Automatically open the receipt modal
-      setLastReceipt({ ...paymentData, id: paymentRef.key });
-      setShowReceipt(true);
-      
+      alert("Payment details submitted successfully! Awaiting admin verification.");
       setIsPaymentModalOpen(false);
-      setPaymentForm({ upiId: '', utrId: '', email: '', relationship: 'Father', phone: '', amount: '', screenshot: '' });
+      setPaymentScreenshotFile(null);
+      setPaymentForm(prev => ({ ...prev, utrId: '', amount: '', screenshot: '' }));
     } catch (err) {
       console.error(err);
       alert("Payment processing failed. Please try again.");
@@ -3907,7 +4111,7 @@ function DashboardContent() {
             userData={userData}
             handleTabChange={handleTabChange}
             activeApp={activeApp}
-            handleDownloadPDF={handleDownloadPDF}
+            handleDownloadPDF={printHandlers?.downloadPDF}
             downloadingAppId={downloadingAppId}
           />
         );
@@ -4032,6 +4236,8 @@ function DashboardContent() {
                     availableColleges={availableColleges} 
                     hiddenMode={true} 
                     registerPrintHandlers={setPrintHandlers} 
+                    preloadedPhoto={receiptPhoto}
+                    preloadedSignature={receiptSignature}
                   />
                 </div>
 
@@ -4312,6 +4518,19 @@ function DashboardContent() {
         {renderTabContent()}
       </main>
 
+      {/* Hidden Print Registry for PDF Generation */}
+      {activeTab !== 22 && (
+        <PrintApplicationRegistry
+          userApplications={userApplications}
+          userData={userData}
+          availableColleges={availableColleges}
+          hiddenMode={true}
+          registerPrintHandlers={setPrintHandlers}
+          preloadedPhoto={receiptPhoto}
+          preloadedSignature={receiptSignature}
+        />
+      )}
+
       {/* Course Selection Modal */}
       {isCourseModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -4504,7 +4723,7 @@ function DashboardContent() {
       {isPaymentModalOpen && selectedAppForPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => !isSubmittingPayment && setIsPaymentModalOpen(false)} />
-          <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
             <div className="bg-[#5D5fb1] p-10 text-white relative shrink-0">
               <button onClick={() => setIsPaymentModalOpen(false)} className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors">
                 <X size={24} />
@@ -4516,94 +4735,146 @@ function DashboardContent() {
             </div>
 
             <form onSubmit={handlePaymentSubmit} className="p-10 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
-              {/* Payment Details Header */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Student Name</p>
-                  <p className="text-sm font-bold text-slate-800 capitalize">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || userData.firstName || 'Student'} ${userData.profile?.middleName || userData.middleName || ''} ${userData.profile?.lastName || userData.lastName || ''}`.trim()}</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
-                  <p className="text-sm font-bold text-slate-800">{new Date().toLocaleDateString()}</p>
-                </div>
-                <div className="bg-[#5D5fb1]/5 p-4 rounded-2xl border border-[#5D5fb1]/20">
-                  <p className="text-[10px] font-bold text-[#5D5fb1] uppercase tracking-widest mb-1">College</p>
-                  <p className="text-sm font-bold text-[#002147] capitalize">{selectedAppForPayment.collegeName}</p>
-                </div>
-                <div className="bg-[#00a5a5]/5 p-4 rounded-2xl border border-[#00a5a5]/20 md:col-span-1">
-                  <p className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mb-1">Course</p>
-                  <p className="text-sm font-bold text-[#002147] capitalize">{selectedAppForPayment.courseName}</p>
-                </div>
-              </div>
-
-              {/* Secure Payment Mock Gateway UI */}
-              <div className="bg-[#f8fafc] border border-emerald-200 rounded-3xl p-8 relative overflow-hidden shadow-inner">
-                <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-bl-xl shadow-sm">Secure Environment</div>
-                <h4 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><CreditCard size={20} className="text-emerald-500" /> Secure Payment Gateway Simulator</h4>
-                
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center pl-1">
-                        <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight">Amount to Pay (₹)</label>
-                        <span className="text-[10px] font-bold text-slate-400">Balance: ₹{(parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0')).toLocaleString()}</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Left Column: QR Code & Institute Details */}
+                <div className="md:col-span-1 space-y-6">
+                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 text-center flex flex-col items-center">
+                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-4">Scan to Pay</h4>
+                    <div className="w-48 h-48 bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center mb-4 overflow-hidden">
+                      {collegePaymentSettings?.qrCodeUrl ? (
+                        <img src={collegePaymentSettings.qrCodeUrl} alt="College QR Code" className="w-full h-full object-contain" />
+                      ) : (
+                        <div className="text-center text-slate-400">
+                          <CreditCard size={48} className="mx-auto mb-2 opacity-50" />
+                          <span className="text-xs font-medium">QR Code<br/>Not Available</span>
+                        </div>
+                      )}
+                    </div>
+                    {collegePaymentSettings?.upiId && (
+                      <div className="bg-white px-4 py-2 rounded-xl border border-slate-200 w-full mb-2">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">UPI ID</p>
+                        <p className="text-sm font-bold text-[#5D5fb1] truncate select-all">{collegePaymentSettings.upiId}</p>
                       </div>
-                      <input
-                        required
-                        type="number"
-                        className="w-full bg-white border-2 border-emerald-500 shadow-sm rounded-2xl p-5 text-xl font-black text-emerald-700 outline-none transition-all focus:ring-4 focus:ring-emerald-500/20"
-                        value={paymentForm.amount}
-                        onChange={(e) => {
-                          const maxVal = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
-                          const inputVal = parseFloat(e.target.value);
-                          setPaymentForm({ ...paymentForm, amount: inputVal > maxVal ? maxVal.toString() : e.target.value });
-                        }}
-                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                      />
-                      {formErrors.amount && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.amount}</span>}
-                    </div>
+                    )}
+                    {collegePaymentSettings?.merchantName && (
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-tight truncate w-full">{collegePaymentSettings.merchantName}</p>
+                    )}
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Email ID</label>
-                      <input
-                        required
-                        type="email"
-                        placeholder="Contact email for payment"
-                        className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
-                        value={paymentForm.email}
-                        onChange={(e) => setPaymentForm({ ...paymentForm, email: e.target.value })}
-                      />
-                      {formErrors.email && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.email}</span>}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Mobile Number</label>
-                      <input
-                        required
-                        type="tel"
-                        placeholder="10-digit mobile number"
-                        className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
-                        value={paymentForm.phone}
-                        onChange={(e) => setPaymentForm({ ...paymentForm, phone: e.target.value })}
-                      />
-                      {formErrors.phone && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.phone}</span>}
-                    </div>
+                  
+                  <div className="bg-[#5D5fb1]/5 p-4 rounded-2xl border border-[#5D5fb1]/20">
+                    <p className="text-[10px] font-bold text-[#5D5fb1] uppercase tracking-widest mb-1">Paying To College</p>
+                    <p className="text-sm font-bold text-[#002147] capitalize">{selectedAppForPayment.collegeName}</p>
+                  </div>
+                  <div className="bg-[#00a5a5]/5 p-4 rounded-2xl border border-[#00a5a5]/20">
+                    <p className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mb-1">For Course</p>
+                    <p className="text-sm font-bold text-[#002147] capitalize">{selectedAppForPayment.courseName}</p>
                   </div>
                 </div>
-              </div>
 
-              <button
-                type="submit"
-                disabled={isSubmittingPayment}
-                className="w-full bg-emerald-600 text-white py-5 rounded-[2rem] text-sm font-black capitalize tracking-widest shadow-xl hover:bg-emerald-700 hover:shadow-2xl hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-3"
-              >
-                {isSubmittingPayment ? (
-                  <><Loader2 className="animate-spin" size={20} /> Processing Secure Payment...</>
-                ) : (
-                  <><CheckCircle2 size={20} /> Pay Online Securely</>
-                )}
-              </button>
+                {/* Right Column: Payment Details Form */}
+                <div className="md:col-span-2 space-y-6">
+                  <div className="bg-[#f8fafc] border border-slate-200 rounded-3xl p-8 relative overflow-hidden shadow-inner">
+                    <h4 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+                      <CreditCard size={20} className="text-[#5D5fb1]" /> Payment Details
+                    </h4>
+                    
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center pl-1">
+                            <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight">Amount Paid (₹)</label>
+                            <span className="text-[10px] font-bold text-slate-400">Balance: ₹{(parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0')).toLocaleString()}</span>
+                          </div>
+                          <input
+                            required
+                            type="number"
+                            className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-lg font-black text-[#002147] outline-none transition-all focus:ring-2 focus:ring-[#5D5fb1]/20 focus:border-[#5D5fb1]"
+                            value={paymentForm.amount}
+                            onChange={(e) => {
+                              const maxVal = parseFloat(selectedAppForPayment.fees || '0') - parseFloat(selectedAppForPayment.paidFees || '0');
+                              const inputVal = parseFloat(e.target.value);
+                              setPaymentForm({ ...paymentForm, amount: inputVal > maxVal ? maxVal.toString() : e.target.value });
+                            }}
+                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                            placeholder="Enter amount paid"
+                          />
+                          {formErrors.amount && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.amount}</span>}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">UTR / Transaction ID</label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="Enter 12-digit UTR or Transaction ID"
+                            className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-[#5D5fb1] focus:ring-2 focus:ring-[#5D5fb1]/20 transition-all shadow-sm uppercase placeholder:normal-case"
+                            value={paymentForm.utrId}
+                            onChange={(e) => setPaymentForm({ ...paymentForm, utrId: e.target.value.toUpperCase() })}
+                          />
+                          {formErrors.utrId && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.utrId}</span>}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Upload Payment Screenshot</label>
+                          <input
+                            required
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setPaymentScreenshotFile(e.target.files[0]);
+                              }
+                            }}
+                            className="w-full bg-white border border-slate-300 rounded-2xl p-3 text-sm font-medium outline-none file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#5D5fb1]/10 file:text-[#5D5fb1] hover:file:bg-[#5D5fb1]/20 transition-all shadow-sm"
+                          />
+                          {formErrors.screenshot && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.screenshot}</span>}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Email ID</label>
+                          <input
+                            required
+                            type="email"
+                            placeholder="Contact email for payment"
+                            className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-[#5D5fb1] focus:ring-2 focus:ring-[#5D5fb1]/20 transition-all shadow-sm"
+                            value={paymentForm.email}
+                            onChange={(e) => setPaymentForm({ ...paymentForm, email: e.target.value })}
+                          />
+                          {formErrors.email && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.email}</span>}
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[13px] font-normal text-slate-600 capitalize tracking-tight pl-1">Mobile Number</label>
+                          <input
+                            required
+                            type="tel"
+                            placeholder="10-digit mobile number"
+                            className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-sm font-medium outline-none focus:border-[#5D5fb1] focus:ring-2 focus:ring-[#5D5fb1]/20 transition-all shadow-sm"
+                            value={paymentForm.phone}
+                            onChange={(e) => setPaymentForm({ ...paymentForm, phone: e.target.value })}
+                          />
+                          {formErrors.phone && <span className="text-[11px] font-bold text-red-500 pl-1 capitalize">{formErrors.phone}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingPayment}
+                    className="w-full bg-[#5D5fb1] text-white py-5 rounded-[2rem] text-sm font-black capitalize tracking-widest shadow-xl hover:bg-[#4a4c8f] hover:shadow-2xl hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-3"
+                  >
+                    {isSubmittingPayment ? (
+                      <><Loader2 className="animate-spin" size={20} /> Uploading & Submitting...</>
+                    ) : (
+                      <><CheckCircle2 size={20} /> Submit Payment Request</>
+                    )}
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -5109,7 +5380,6 @@ function DashboardContent() {
                             src={receiptPhoto} 
                             alt="Student Photo" 
                             className="w-full h-full object-cover rounded-sm"
-                            crossOrigin="anonymous" 
                           />
                         ) : (
                           <span className="text-[9px] font-bold text-[#fca5a5] uppercase italic text-center">No Photo</span>
@@ -5123,7 +5393,6 @@ function DashboardContent() {
                               src={receiptSignature} 
                               alt="Student Signature" 
                               className="max-w-full max-h-full object-contain mix-blend-multiply"
-                              crossOrigin="anonymous" 
                             />
                           ) : (
                             <span className="text-[9px] font-bold text-[#fca5a5] uppercase italic">No Signature</span>

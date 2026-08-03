@@ -18,6 +18,7 @@ import {
 interface Student {
   id: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   collegeId: string;
   collegeName?: string;

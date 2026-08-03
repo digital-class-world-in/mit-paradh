@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, get, set } from 'firebase/database';
 import { realtimeDb } from '@/lib/firebase';
-import { User, UserPlus, X, FileText, MapPin, Users, Tag, GraduationCap, Briefcase, Landmark, History, CheckCircle2, Mail, Phone, Calendar, Eye, EyeOff, Trash2, Image as ImageIcon, Download, Lock, Edit2 } from 'lucide-react';
+import { User, UserPlus, FileText, Download, Upload, CheckCircle, XCircle, Search, Trash2, Edit, ChevronDown, Check, X, File, ShieldAlert, Loader2, Eye, ShieldCheck, Mail, LogOut, ArrowRight, Save, LayoutDashboard, Settings, Filter, FileSpreadsheet, MapPin, Users, Tag, GraduationCap, Briefcase, Landmark, History, CheckCircle2, Phone, Calendar, EyeOff, Image as ImageIcon, Lock, Edit2 } from 'lucide-react';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
 import { remove, update } from 'firebase/database';
 import { getDefaultAdminUid } from '@/lib/adminUtils';
 
@@ -96,6 +97,12 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
               const appliedColleges = appList.map((a: any) => a?.collegeId).filter(Boolean);
               if (user.collegeId) appliedColleges.push(user.collegeId);
               
+              const courseTypes = appList.map((a: any) => a?.courseType).filter(Boolean);
+              const courseNames = appList.map((a: any) => a?.courseName).filter(Boolean);
+              const durations = appList.map((a: any) => a?.duration).filter(Boolean);
+              const semesters = appList.map((a: any) => a?.semester).filter(Boolean);
+              const streams = appList.map((a: any) => a?.stream).filter(Boolean);
+              
               return {
                 id,
                 ...(user.profile || {}),
@@ -104,7 +111,12 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                 regNo: user.regNo || 'PENDING',
                 profileLocked: user.profile?.profileLocked || false,
                 createdAt: user.createdAt || user.registrationDate || user.profile?.createdAt || user.profile?.submittedAt || user.profile?.registrationDate || user.profile?.date || null,
-                appliedColleges
+                appliedColleges,
+                courseType: courseTypes,
+                courseName: courseNames,
+                duration: durations,
+                semester: semesters,
+                stream: streams,
               };
             } catch (err) {
               console.error(`[StudentRegistrationManager] Error parsing user ${id}:`, err);
@@ -190,8 +202,11 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterProfileStatus, setFilterProfileStatus] = useState('');
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+  });
 
-  const filteredRegistrations = registrations.filter(reg => {
+  const baseFilteredRegistrations = registrations.filter(reg => {
     const matchesCollege = !selectedCollegeId || (reg.appliedColleges?.includes(selectedCollegeId) || reg.collegeId === selectedCollegeId);
     const matchesSearch = !searchQuery || 
       (reg.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -205,6 +220,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
     return matchesCollege && matchesSearch && matchesProfile;
   });
+
+  const filteredRegistrations = applyGlobalFilters(baseFilteredRegistrations, globalFilters);
 
   const itemsPerPage = 10;
   const totalItems = filteredRegistrations.length;
@@ -469,6 +486,12 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
           </button>
         </div>
       )}
+
+      <GlobalDataFilter 
+        data={registrations} 
+        filters={globalFilters} 
+        setFilters={setGlobalFilters} 
+      />
 
       <div className="bg-white rounded-[2.5rem] border border-black shadow-xl p-8">
         {collegeId && (

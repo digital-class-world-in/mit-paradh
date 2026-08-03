@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { Download, FileBadge, ShieldCheck } from 'lucide-react';
 
+import { formatAutoRegNo } from '@/lib/formatUtils';
+
 export default function StudentIDCard({ userData, activeApp }: { userData: any, activeApp?: any }) {
   const cardRef = useRef<HTMLDivElement>(null);
   
@@ -72,7 +74,7 @@ export default function StudentIDCard({ userData, activeApp }: { userData: any, 
                 <span className="font-bold w-12 text-[#003366] shrink-0">Reg No:</span>
                 <span className="font-semibold text-red-600 uppercase truncate">
                   {userData.manualRegNo || profile.manualRegNo ? `${userData.manualRegNo || profile.manualRegNo} / ` : ''}
-                  {userData.regNo || 'PENDING'}
+                  {userData.regNo ? formatAutoRegNo(userData.regNo) : 'PENDING'}
                 </span>
               </div>
               <div className="flex items-center text-[7.5px] leading-tight">

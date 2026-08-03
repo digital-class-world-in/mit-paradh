@@ -202,24 +202,23 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
 
       const dateObj = new Date(date);
       const year = String(dateObj.getFullYear());
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const prefix = `${year}${month}R`;
+      const prefix = `MIT-${year}-`;
 
       let sequence = 1;
       if (admissionsSnap.exists()) {
         const admissions = admissionsSnap.val();
         const samePrefixAdmissions = Object.values(admissions)
-          .filter((adm: any) => adm.registrationNumber && adm.registrationNumber.startsWith(prefix));
+          .filter((adm: any) => (adm.registrationNumber && adm.registrationNumber.startsWith(prefix)) || (adm.regNo && adm.regNo.startsWith(prefix)));
 
         if (samePrefixAdmissions.length > 0) {
           const maxSeq = Math.max(...samePrefixAdmissions.map((adm: any) => {
-            const seqStr = adm.registrationNumber.replace(prefix, '');
+            const seqStr = (adm.registrationNumber || adm.regNo).replace(prefix, '');
             return parseInt(seqStr) || 0;
           }));
           sequence = maxSeq + 1;
         }
       }
-      const registrationNumber = `${prefix}${String(sequence).padStart(3, '0')}`;
+      const registrationNumber = `${prefix}${String(sequence).padStart(5, '0')}`;
       setProcessAutoRegNo(registrationNumber);
     } catch (err) {
       console.error(err);
@@ -773,13 +772,19 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
       let sequence = 1;
       if (admissionsSnap.exists()) {
         const existingAdmissions = Object.values(admissionsSnap.val());
-        const prefix = `${admissionDate.year}${admissionDate.month}R`;
-        const sameMonthAdmissions = existingAdmissions.filter((adm: any) =>
-          adm.regNo && adm.regNo.startsWith(prefix)
+        const prefix = `MIT-${admissionDate.year}-`;
+        const sameYearAdmissions = existingAdmissions.filter((adm: any) =>
+          (adm.regNo && adm.regNo.startsWith(prefix)) || (adm.registrationNumber && adm.registrationNumber.startsWith(prefix))
         );
-        sequence = sameMonthAdmissions.length + 1;
+        if (sameYearAdmissions.length > 0) {
+          const maxSeq = Math.max(...sameYearAdmissions.map((adm: any) => {
+            const seqStr = (adm.regNo || adm.registrationNumber).replace(prefix, '');
+            return parseInt(seqStr) || 0;
+          }));
+          sequence = maxSeq + 1;
+        }
       }
-      const regNo = `${admissionDate.year}${admissionDate.month}R${sequence.toString().padStart(3, '0')}`;
+      const regNo = `MIT-${admissionDate.year}-${sequence.toString().padStart(5, '0')}`;
 
       const inqRef = ref(realtimeDb, `colleges/${targetCollegeId}/frontOffice/admissionInquiries/${selectedInquiry.id}`);
       const status = 'Accepted';
