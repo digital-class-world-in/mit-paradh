@@ -78,6 +78,7 @@ export default function ProfileWizard({
   const [loading, setLoading] = useState(false);
   const [declarationChecked, setDeclarationChecked] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isUploadingQualDoc, setIsUploadingQualDoc] = useState(false);
 
   // Temporary state for multi-entry forms
   const [tempQual, setTempQual] = useState({
@@ -385,18 +386,24 @@ export default function ProfileWizard({
     const fileRef = storageRef(studentStorage || storage, `students/${userId}/documents/${fieldName}_${Date.now()}_${file.name}`);
     const uploadTask = uploadBytesResumable(fileRef, file);
 
+    if (isTemp) {
+      setIsUploadingQualDoc(true);
+    }
+
     uploadTask.on(
       'state_changed',
       null,
       (error) => {
         console.error('File upload failed:', error);
         alert('Failed to upload file.');
+        if (isTemp) setIsUploadingQualDoc(false);
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
         if (isTemp) {
           setTempQual(prev => ({ ...prev, [fieldName]: downloadURL, marksheetName: file.name }));
+          setIsUploadingQualDoc(false);
         } else {
           setFormData((prev: any) => ({
             ...prev,
@@ -2389,10 +2396,11 @@ export default function ProfileWizard({
                       <div className="flex gap-2">
                         <button
                           onClick={addQualification}
-                          className="bg-[#ff9f1c] hover:bg-orange-700 text-white p-4 rounded-xl shadow-md transition-all active:scale-95 group flex items-center justify-center min-w-[100px]"
+                          disabled={isUploadingQualDoc}
+                          className={`bg-[#ff9f1c] hover:bg-orange-700 text-white p-4 rounded-xl shadow-md transition-all active:scale-95 group flex items-center justify-center min-w-[100px] ${isUploadingQualDoc ? 'opacity-50 cursor-not-allowed' : ''}`}
                           type="button"
                         >
-                          {editQualIndex !== null ? 'Update' : 'Add'}
+                          {isUploadingQualDoc ? 'Uploading...' : (editQualIndex !== null ? 'Update' : 'Add')}
                         </button>
                         {editQualIndex !== null && (
                           <button

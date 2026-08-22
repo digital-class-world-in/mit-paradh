@@ -1068,12 +1068,12 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
               v: toTitleCase(userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
             { l: 'Auto Reg No.', v: formatAutoRegNo(activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo) },
-            { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
-            { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
-            { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
             ...(activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo 
               ? [{ l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo }] 
               : []),
+            { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
+            { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
+            { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
             { l: 'Email ID', v: userData?.email || userData?.studentEmail || 'N/A' },
           ].map((item, i) => (
             <div key={i} className="flex border-2 border-slate-200 rounded-md overflow-hidden bg-white h-12">
@@ -1166,13 +1166,16 @@ const ApplicationManager = ({
       <div className="bg-white border border-black rounded-xl shadow-sm overflow-hidden text-[#343a40]">
         <div className="bg-[#343a40] text-white py-3 px-6 font-normal text-sm tracking-wide uppercase">Your Applications</div>
         <div className="p-0 overflow-x-auto">
+          {(() => {
+            const showManualRegCol = userData?.manualRegNo || userData?.profile?.manualRegNo || filteredApps.some((app: any) => app.manualRegNo);
+            return (
           <table className="w-full text-left border-collapse border-[0.5px] border-black">
             <thead>
               <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
                 <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">DATE AND TIME</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REGISTER NUMBER</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Manual REGISTER NUMBER</th>
+                {showManualRegCol && <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Manual REGISTER NUMBER</th>}
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">STUDENT NAME</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
@@ -1198,7 +1201,7 @@ const ApplicationManager = ({
                     })()}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.regNo || userData?.profile?.regNo || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
+                  {showManualRegCol && <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>}
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
@@ -1259,6 +1262,8 @@ const ApplicationManager = ({
               ))}
             </tbody>
           </table>
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -5267,12 +5272,19 @@ function DashboardContent() {
                       <span className="text-[13px] font-bold uppercase italic">Receipt No :</span>
                       <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">{lastReceipt.receiptNo}</span>
                     </div>
-                    {(userData?.manualRegNo || userData?.regNo) && (
+                    {userData?.regNo && (
                       <div className="flex items-baseline gap-2 mt-2">
                         <span className="text-[13px] font-bold uppercase italic">Auto Registration No :</span>
                         <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">
-                          {userData?.manualRegNo ? userData.manualRegNo : userData?.regNo}
-                          {userData?.manualRegNo && userData?.regNo ? ` (Auto: ${userData.regNo})` : ''}
+                          {userData.regNo}
+                        </span>
+                      </div>
+                    )}
+                    {userData?.manualRegNo && (
+                      <div className="flex items-baseline gap-2 mt-2">
+                        <span className="text-[13px] font-bold uppercase italic">Manual Registration No :</span>
+                        <span className="text-[14px] font-black border-b border-dotted border-[#f87171] px-4">
+                          {userData.manualRegNo}
                         </span>
                       </div>
                     )}

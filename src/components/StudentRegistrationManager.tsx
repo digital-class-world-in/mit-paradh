@@ -780,6 +780,15 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                           <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.regNo}
                         </p>
                       </div>
+
+                      {(fullUserData.manualRegNo || fullUserData.profile?.manualRegNo) && (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Manual Registration No</span>
+                          <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                            <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.manualRegNo || fullUserData.profile?.manualRegNo}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                </div>
