@@ -71,12 +71,19 @@ export default function StudentIDCard({ userData, activeApp }: { userData: any, 
                 <span className="font-semibold text-black uppercase truncate">{app.courseName || profile.courseName || 'N/A'}</span>
               </div>
               <div className="flex items-center text-[7.5px] leading-tight">
-                <span className="font-bold w-12 text-[#003366] shrink-0">Reg No:</span>
+                <span className="font-bold w-12 text-[#003366] shrink-0">Auto Reg:</span>
                 <span className="font-semibold text-red-600 uppercase truncate">
-                  {userData.manualRegNo || profile.manualRegNo ? `${userData.manualRegNo || profile.manualRegNo} / ` : ''}
                   {userData.regNo ? formatAutoRegNo(userData.regNo) : 'PENDING'}
                 </span>
               </div>
+              {(userData.manualRegNo || profile.manualRegNo) && (
+                <div className="flex items-center text-[7.5px] leading-tight">
+                  <span className="font-bold w-12 text-[#003366] shrink-0">Manual Reg:</span>
+                  <span className="font-semibold text-red-600 uppercase truncate">
+                    {userData.manualRegNo || profile.manualRegNo}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center text-[7.5px] leading-tight">
                 <span className="font-bold w-12 text-[#003366] shrink-0">Phone:</span>
                 <span className="font-semibold text-black uppercase truncate">{profile.phone || profile.mobileNumber || profile.mobileNo || userData.phone || 'N/A'}</span>

@@ -50,7 +50,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
     firstName: '', middleName: '', lastName: '', fatherFirstName: '',
     dateOfBirth: '', gender: '',
     email: '', password: '', phone: '', alternatePhone: '',
-    securityQuestion: '', securityAnswer: '', regNo: ''
+    securityQuestion: '', securityAnswer: '', regNo: '', manualRegNo: ''
   });
 
   useEffect(() => {
@@ -109,6 +109,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                 email: user.email || '',
                 password: user.password || '',
                 regNo: user.regNo || 'PENDING',
+                manualRegNo: user.manualRegNo || user.profile?.manualRegNo || '',
                 profileLocked: user.profile?.profileLocked || false,
                 createdAt: user.createdAt || user.registrationDate || user.profile?.createdAt || user.profile?.submittedAt || user.profile?.registrationDate || user.profile?.date || null,
                 appliedColleges,
@@ -292,7 +293,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
           // Credentials
           email:    u.email    || '',
           password: u.password || '',
-          regNo:    u.regNo    || p.regNo || ''
+          regNo:    u.regNo    || p.regNo || '',
+          manualRegNo: u.manualRegNo || p.manualRegNo || ''
         });
         setIsEditModalOpen(true);
       }
@@ -325,6 +327,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
       updates[`users/${uid}/securityQuestion`] = editForm.securityQuestion;
       updates[`users/${uid}/securityAnswer`]   = editForm.securityAnswer;
       updates[`users/${uid}/regNo`]            = editForm.regNo;
+      updates[`users/${uid}/manualRegNo`]      = editForm.manualRegNo;
       updates[`users/${uid}/profile/firstName`]      = editForm.firstName;
       updates[`users/${uid}/profile/lastName`]       = editForm.lastName;
       updates[`users/${uid}/profile/fatherFirstName`]= editForm.fatherFirstName;
@@ -349,6 +352,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         updates[`${adminRegPath}/securityQuestion`] = editForm.securityQuestion;
         updates[`${adminRegPath}/securityAnswer`]   = editForm.securityAnswer;
         updates[`${adminRegPath}/regNo`]            = editForm.regNo;
+        updates[`${adminRegPath}/manualRegNo`]      = editForm.manualRegNo;
         updates[`${adminRegPath}/profile/firstName`]      = editForm.firstName;
         updates[`${adminRegPath}/profile/lastName`]       = editForm.lastName;
         updates[`${adminRegPath}/profile/fatherFirstName`]= editForm.fatherFirstName;
@@ -545,7 +549,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       </div>
                       <div>
                         <p className="text-sm font-normal text-black tracking-tight">{`${reg.firstName || ''} ${reg.middleName || ''} ${reg.lastName || ''}`.trim()}</p>
-                        <p className="text-[11px] font-bold text-[#003366] mt-0.5">REG ID: {reg.regNo}</p>
+                        <p className="text-[11px] font-bold text-[#003366] mt-0.5">AUTO REG: {reg.regNo}</p>
+                        {reg.manualRegNo && <p className="text-[11px] font-bold text-[#00a5a5] mt-0.5">MANUAL REG: {reg.manualRegNo}</p>}
                       </div>
                     </div>
                   </td>
@@ -1276,6 +1281,16 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       value={editForm.regNo}
                       onChange={e => setEditForm({...editForm, regNo: e.target.value})}
                       placeholder="Enter Custom Auto Registration No."
+                      className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Manual Registration No.</label>
+                    <input
+                      type="text"
+                      value={editForm.manualRegNo}
+                      onChange={e => setEditForm({...editForm, manualRegNo: e.target.value})}
+                      placeholder="Enter Manual Registration No."
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
                   </div>

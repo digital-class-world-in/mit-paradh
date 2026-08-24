@@ -1067,10 +1067,8 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
               l: 'Name',
               v: toTitleCase(userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
-            { l: 'Auto Reg No.', v: formatAutoRegNo(activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo) },
-            ...(activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo 
-              ? [{ l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo }] 
-              : []),
+            { l: 'Auto Reg No.', v: formatAutoRegNo(activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo || '') || 'N/A' },
+            { l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A' },
             { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
             { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
             { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
@@ -1166,16 +1164,13 @@ const ApplicationManager = ({
       <div className="bg-white border border-black rounded-xl shadow-sm overflow-hidden text-[#343a40]">
         <div className="bg-[#343a40] text-white py-3 px-6 font-normal text-sm tracking-wide uppercase">Your Applications</div>
         <div className="p-0 overflow-x-auto">
-          {(() => {
-            const showManualRegCol = userData?.manualRegNo || userData?.profile?.manualRegNo || filteredApps.some((app: any) => app.manualRegNo);
-            return (
           <table className="w-full text-left border-collapse border-[0.5px] border-black">
             <thead>
               <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
                 <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">DATE AND TIME</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">REGISTER NUMBER</th>
-                {showManualRegCol && <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Manual REGISTER NUMBER</th>}
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">AUTO REG NUMBER</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">MANUAL REG NUMBER</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">STUDENT NAME</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
@@ -1200,8 +1195,8 @@ const ApplicationManager = ({
                       return `${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
                     })()}
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.regNo || userData?.profile?.regNo || 'N/A'}</td>
-                  {showManualRegCol && <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>}
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{formatAutoRegNo(app.regNo || userData?.profile?.regNo || '') || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
@@ -1262,8 +1257,6 @@ const ApplicationManager = ({
               ))}
             </tbody>
           </table>
-            );
-          })()}
         </div>
       </div>
     </div>
@@ -1316,7 +1309,14 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                         </div>
                       </td>
                       <td className="px-8 py-6 border-r-[0.5px] border-black">
-                        <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{userData?.profile?.regNo || userData?.regNo || 'PENDING'}</span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
+                            AUTO REG: {formatAutoRegNo(userData?.profile?.regNo || userData?.regNo || '') || 'PENDING'}
+                          </span>
+                          <span className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mt-0.5">
+                            MANUAL REG: {userData?.profile?.manualRegNo || userData?.manualRegNo || 'N/A'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-8 py-6 border-r-[0.5px] border-black">
                         <span className="text-sm font-black text-slate-800 capitalize tracking-tight">

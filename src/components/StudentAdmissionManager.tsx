@@ -849,8 +849,9 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                                    {studentName}
                                  </p>
                                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
-                                   ID: {adm.regNo || 'PENDING'}
+                                   AUTO REG: {adm.regNo || 'PENDING'}
                                  </p>
+                                 {adm.manualRegNo && <p className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mt-0.5">MANUAL REG: {adm.manualRegNo}</p>}
                                </div>
                              </div>
                           </td>
