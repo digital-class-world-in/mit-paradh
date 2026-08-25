@@ -3850,6 +3850,7 @@ export default function ProfileWizard({
           return c ? (c.course_slug && c.course_slug !== 'NULL' ? c.course_slug : c.course_name || c.name) : 'N/A';
         })()}
         selectedDuration={selectedDuration}
+        collegeData={availableColleges.find(c => c.id === selectedCollege)}
       />
     </div>
   );

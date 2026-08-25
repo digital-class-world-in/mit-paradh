@@ -115,3 +115,13 @@
 .college-panel h1, .college-panel h2, .college-panel h3, .college-panel h4, .college-panel h5, .college-panel h6 {
   font-weight: 500 !important;
 }
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

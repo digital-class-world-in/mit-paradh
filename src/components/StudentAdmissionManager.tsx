@@ -94,10 +94,6 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
   const [admissions, setAdmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [firstKey, setFirstKey] = useState<string | null>(null);
-  const [lastKey, setLastKey] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [pageHistory, setPageHistory] = useState<string[]>([]);
   const PAGE_SIZE = 20;
 
   const [availableColleges, setAvailableColleges] = useState<any[]>([]);
@@ -105,59 +101,40 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
   const [statusFilter, setStatusFilter] = useState<string>('Accepted');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
+  });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, globalFilters]);
+
   const getDbRef = (path: string) => {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    // Just return the global path directly instead of scoped under admin
     return ref(realtimeDb, cleanPath);
   };
 
-  const fetchPage = async (direction: 'first' | 'next' | 'prev' = 'first') => {
-    if (!realtimeDb || !resolvedAdminUid) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+  useEffect(() => {
+    if (!realtimeDb || !resolvedAdminUid) return;
 
-    try {
-      let currentColleges = availableColleges;
-      if (currentColleges.length === 0) {
-        const collegesRef = ref(realtimeDb, 'colleges');
-        const colSnap = await get(collegesRef);
+    let currentColleges = availableColleges;
+    if (currentColleges.length === 0) {
+      get(ref(realtimeDb, 'colleges')).then(colSnap => {
         if (colSnap.exists()) {
-           currentColleges = Object.entries(colSnap.val()).map(([id, val]: any) => ({ id, ...val }));
-           setAvailableColleges(currentColleges);
+           const cols = Object.entries(colSnap.val()).map(([id, val]: any) => ({ id, ...val }));
+           setAvailableColleges(cols);
+           currentColleges = cols;
         }
-      }
+      });
+    }
 
-      let data: any[] = [];
-      const targetCid = collegeId || selectedCollegeId;
-      
-      if (targetCid) {
-        const targetRef = ref(realtimeDb, `colleges/${targetCid}/studentAdmissions`);
-        let q;
-        if (direction === 'first') {
-           q = query(targetRef, orderByKey(), limitToFirst(PAGE_SIZE));
-           setPageHistory([]);
-           setCurrentPage(1);
-        } else if (direction === 'next' && lastKey) {
-           setPageHistory(prev => [...prev, firstKey as string]);
-           q = query(targetRef, orderByKey(), startAfter(lastKey), limitToFirst(PAGE_SIZE));
-           setCurrentPage(prev => prev + 1);
-        } else if (direction === 'prev' && pageHistory.length > 0) {
-           const newHistory = [...pageHistory];
-           const prevFirstKey = newHistory.pop();
-           setPageHistory(newHistory);
-           if (newHistory.length > 0) {
-              q = query(targetRef, orderByKey(), startAfter(newHistory[newHistory.length - 1]), limitToFirst(PAGE_SIZE));
-           } else {
-              q = query(targetRef, orderByKey(), limitToFirst(PAGE_SIZE));
-           }
-           setCurrentPage(prev => prev - 1);
-        } else {
-           q = query(targetRef, orderByKey(), limitToFirst(PAGE_SIZE));
-        }
+    setLoading(true);
+    const targetCid = collegeId || selectedCollegeId;
 
-        const snapshot = await get(q);
+    if (targetCid) {
+      const targetRef = ref(realtimeDb, `colleges/${targetCid}/studentAdmissions`);
+      const unsubscribe = onValue(targetRef, (snapshot) => {
+        const data: any[] = [];
         if (snapshot.exists()) {
           snapshot.forEach((child) => {
              let val = child.val();
@@ -173,70 +150,46 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
              });
           });
         }
-      } else {
-        // If no college selected, fetch from all available colleges
-        for (const col of currentColleges) {
-          const colRef = ref(realtimeDb, `colleges/${col.id}/studentAdmissions`);
-          const snapshot = await get(query(colRef, limitToFirst(PAGE_SIZE)));
-          if (snapshot.exists()) {
-            snapshot.forEach((child) => {
-               let val = child.val();
-               if (val.profile) val = { ...val, ...val.profile };
-               data.push({
-                 id: child.key,
-                 collegeId: col.id,
-                 collegeName: col.name,
-                 source: 'Admission',
-                 studentName: val.studentName || `${val.firstName || ''} ${val.middleName || ''} ${val.lastName || ''}`.trim(),
-                 studentEmail: val.studentEmail || val.email,
-                 studentPhone: val.studentPhone || val.phone,
-                 admissionDate: val.admissionDate || val.createdAt || val.date,
-                 ...val
-               });
-            });
-          }
-        }
-      }
-
-      let filteredData = data.filter(adm => {
-        if (statusFilter === 'All') return true;
-        const st = adm.admissionStatus || adm.status || 'Pending';
-        if (statusFilter === 'Accepted') return ['Accepted', 'Approved', 'Verified', 'Confirmed'].includes(st) || adm.source === 'Manual';
-        return st === statusFilter;
+        setAdmissions(data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+        setLoading(false);
       });
-
-      // Apply search filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        filteredData = filteredData.filter(adm => {
-          const name = (adm.studentName || '').toLowerCase();
-          const email = (adm.studentEmail || '').toLowerCase();
-          const phone = (adm.studentPhone || '').toLowerCase();
-          const reg = (adm.regNo || adm.manualRegNo || '').toLowerCase();
-          return name.includes(q) || email.includes(q) || phone.includes(q) || reg.includes(q);
+      return () => unsubscribe();
+    } else {
+      // If no college selected, fetch from all available colleges
+      if (currentColleges.length > 0) {
+        Promise.all(currentColleges.map(col => 
+          get(ref(realtimeDb, `colleges/${col.id}/studentAdmissions`)).then(snapshot => {
+            const colsData: any[] = [];
+            if (snapshot.exists()) {
+              snapshot.forEach((child) => {
+                 let val = child.val();
+                 if (val.profile) val = { ...val, ...val.profile };
+                 colsData.push({
+                   id: child.key,
+                   collegeId: col.id,
+                   collegeName: col.name,
+                   source: 'Admission',
+                   studentName: val.studentName || `${val.firstName || ''} ${val.middleName || ''} ${val.lastName || ''}`.trim(),
+                   studentEmail: val.studentEmail || val.email,
+                   studentPhone: val.studentPhone || val.phone,
+                   admissionDate: val.admissionDate || val.createdAt || val.date,
+                   ...val
+                 });
+              });
+            }
+            return colsData;
+          })
+        )).then(results => {
+          const allData = results.flat();
+          setAdmissions(allData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+          setLoading(false);
         });
+      } else {
+        setAdmissions([]);
+        setLoading(false);
       }
-
-      if (filteredData.length > 0) {
-         setFirstKey(filteredData[0].id);
-         setLastKey(filteredData[filteredData.length - 1].id);
-         setAdmissions(filteredData);
-      } else if (direction === 'first') {
-         setAdmissions([]);
-      }
-
-      setHasMore(data.length === PAGE_SIZE);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    setAdmissions([]);
-    fetchPage('first');
-  }, [statusFilter, selectedCollegeId, collegeId, resolvedAdminUid, searchQuery]);
+  }, [selectedCollegeId, collegeId, resolvedAdminUid]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -269,10 +222,32 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
       const admissionId = processingStudent.id;
       const uid = processingStudent.studentUid || processingStudent.uid;
       const appId = processingStudent.applicationId;
+      
+      // Auto-generate Roll Number if missing
+      let assignedRollNumber = processingStudent.rollNumber;
+      if (!assignedRollNumber) {
+        const currentYearMonth = new Date().toISOString().slice(0, 7).replace('-', ''); // YYYYMM
+        const allAdmissionsRef = getDbRef(`colleges/${targetCollegeId}/studentAdmissions`);
+        const allAdmissionsSnap = await get(allAdmissionsRef);
+        let maxSeq = 0;
+        if (allAdmissionsSnap.exists()) {
+          const allAds = allAdmissionsSnap.val();
+          Object.values(allAds).forEach((ad: any) => {
+            if (ad.rollNumber && typeof ad.rollNumber === 'string' && ad.rollNumber.startsWith(currentYearMonth + 'R')) {
+              const seq = parseInt(ad.rollNumber.slice(-3), 10);
+              if (!isNaN(seq) && seq > maxSeq) {
+                maxSeq = seq;
+              }
+            }
+          });
+        }
+        const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
+        assignedRollNumber = `${currentYearMonth}R${nextSeq}`;
+      }
 
       // 1. Update Admission Record
       const admissionRef = getDbRef(`colleges/${targetCollegeId}/studentAdmissions/${admissionId}`);
-      await update(admissionRef, { admissionStatus: 'Accepted', processedAt: new Date().toISOString() });
+      await update(admissionRef, { admissionStatus: 'Accepted', processedAt: new Date().toISOString(), rollNumber: assignedRollNumber });
 
       // 2. Update Student's Personal Application Ledger
       if (uid && appId) {
@@ -282,9 +257,9 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
           const apps = appsSnap.val();
           for (const [key, val] of Object.entries(apps)) {
             if ((val as any).applicationId === appId) {
-              await set(ref(realtimeDb, `users/${uid}/applications/${key}/status`), 'Accepted');
+              await update(ref(realtimeDb, `users/${uid}/applications/${key}`), { status: 'Accepted', rollNumber: assignedRollNumber });
               if (resolvedAdminUid) {
-                await set(ref(realtimeDb, `users/${resolvedAdminUid}/modules/registrations/${uid}/applications/${key}/status`), 'Accepted');
+                await update(ref(realtimeDb, `users/${resolvedAdminUid}/modules/registrations/${uid}/applications/${key}`), { status: 'Accepted', rollNumber: assignedRollNumber });
               }
               break;
             }
@@ -686,20 +661,32 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
     }
   };
 
-  const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
-  });
+
 
   const baseFilteredAdmissions = admissions.filter(app => {
-    const matchesSearch = !searchQuery || 
-      (app.studentName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (app.studentEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (app.studentPhone || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    if (statusFilter !== 'All') {
+      const st = app.admissionStatus || app.status || 'Pending';
+      if (statusFilter === 'Accepted') {
+         if (!['Accepted', 'Approved', 'Verified', 'Confirmed'].includes(st) && app.source !== 'Manual') return false;
+      } else {
+         if (st !== statusFilter) return false;
+      }
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const name = (app.studentName || '').toLowerCase();
+      const email = (app.studentEmail || '').toLowerCase();
+      const phone = (app.studentPhone || '').toLowerCase();
+      const reg = (app.regNo || app.manualRegNo || '').toLowerCase();
+      const roll = (app.rollNumber || '').toLowerCase();
+      if (!name.includes(q) && !email.includes(q) && !phone.includes(q) && !reg.includes(q) && !roll.includes(q)) return false;
+    }
+    return true;
   });
 
-  const paginatedAdmissions = applyGlobalFilters(baseFilteredAdmissions, globalFilters);
+  const fullyFilteredAdmissions = applyGlobalFilters(baseFilteredAdmissions, globalFilters);
+  const totalPages = Math.ceil(fullyFilteredAdmissions.length / PAGE_SIZE) || 1;
+  const paginatedAdmissions = fullyFilteredAdmissions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   if (loading) {
     return (
@@ -795,6 +782,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                     <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">Date & Time</th>
                     {!collegeId && <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">College</th>}
                     <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">Student Name</th>
+                    <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">Reg No.</th>
                     <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">Course</th>
                     <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight border-r border-black">Contact Info</th>
                     <th className="px-6 py-5 text-[13px] font-normal text-black uppercase tracking-tight text-center border-r border-black">Status</th>
@@ -804,7 +792,7 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                 <tbody className="border-b border-black">
                     {paginatedAdmissions.map((adm, i) => {
                       const p = adm.profileData || {};
-                      const studentName = adm.studentName || `${p.firstName || ''} ${p.middleName || ''} ${p.lastName || ''}`.trim() || 'No Name';
+                      const studentName = `${p.firstName || adm.firstName || ''} ${p.middleName || adm.middleName || ''} ${p.lastName || adm.lastName || ''}`.trim() || adm.studentName || 'No Name';
                       const studentEmail = adm.studentEmail || p.email || 'No Email';
                       const studentPhone = adm.studentPhone || p.phone || adm.phone || 'No Phone';
                       
@@ -848,12 +836,13 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                                  <p className="text-[14px] font-medium text-black capitalize tracking-tight">
                                    {studentName}
                                  </p>
-                                 <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
-                                   AUTO REG: {adm.regNo || 'PENDING'}
-                                 </p>
-                                 {adm.manualRegNo && <p className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mt-0.5">MANUAL REG: {adm.manualRegNo}</p>}
                                </div>
                              </div>
+                          </td>
+                          <td className="px-6 py-6 border-r border-black">
+                             <p className="text-[13px] font-bold text-black uppercase tracking-widest">
+                               {adm.regNo || adm.manualRegNo || 'PENDING'}
+                             </p>
                           </td>
                           <td className="px-6 py-6 border-r border-black">
                              <p className="text-[14px] font-medium text-black capitalize">{adm.courseName}</p>
@@ -923,18 +912,18 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
           </div>
           <div className="flex justify-between items-center mt-6 bg-slate-50 border border-black p-4 rounded-2xl">
             <button
-              onClick={() => fetchPage('prev')}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={loading || currentPage === 1}
               className="px-6 py-2 bg-white border border-black text-black rounded-xl text-sm font-bold shadow-sm hover:bg-slate-100 disabled:opacity-50 transition-all"
             >
               Previous Page
             </button>
             <span className="text-[13px] font-black text-black tracking-tight">
-              Page {currentPage}
+              Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => fetchPage('next')}
-              disabled={loading || !hasMore}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={loading || currentPage >= totalPages}
               className="px-6 py-2 bg-[#003366] text-white rounded-xl text-sm font-bold shadow-sm hover:bg-blue-900 disabled:opacity-50 transition-all"
             >
               Next Page
@@ -1251,12 +1240,16 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                   {(processingStudent.profileData?.panCardUrl || processingStudent.panCardUrl) && (
                     <PreviewButton label="PAN Card" onClick={() => openImagePreview(processingStudent.profileData?.panCardUrl || processingStudent.panCardUrl, "PAN Card")} />
                   )}
-                  {(processingStudent.profileData?.sscMarksheetUrl || processingStudent.sscMarksheetUrl) && (
-                    <PreviewButton label="SSC Marksheet" onClick={() => openImagePreview(processingStudent.profileData?.sscMarksheetUrl || processingStudent.sscMarksheetUrl, "SSC Marksheet")} />
-                  )}
-                  {(processingStudent.profileData?.hscMarksheetUrl || processingStudent.hscMarksheetUrl) && (
-                    <PreviewButton label="HSC Marksheet" onClick={() => openImagePreview(processingStudent.profileData?.hscMarksheetUrl || processingStudent.hscMarksheetUrl, "HSC Marksheet")} />
-                  )}
+                  {(() => {
+                    const sscQual = (processingStudent.profileData?.qualifications || []).find((q: any) => q.examination?.toLowerCase().includes('ssc') || q.examination?.toLowerCase().includes('10th'));
+                    const url = processingStudent.profileData?.sscMarksheetUrl || processingStudent.sscMarksheetUrl || sscQual?.marksheetUrl;
+                    return url ? <PreviewButton label="SSC Marksheet" onClick={() => openImagePreview(url, "SSC Marksheet")} /> : null;
+                  })()}
+                  {(() => {
+                    const hscQual = (processingStudent.profileData?.qualifications || []).find((q: any) => q.examination?.toLowerCase().includes('hsc') || q.examination?.toLowerCase().includes('12th'));
+                    const url = processingStudent.profileData?.hscMarksheetUrl || processingStudent.hscMarksheetUrl || hscQual?.marksheetUrl;
+                    return url ? <PreviewButton label="HSC Marksheet" onClick={() => openImagePreview(url, "HSC Marksheet")} /> : null;
+                  })()}
                 </div>
               </section>
 
@@ -1363,12 +1356,16 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
                   {processingStudent.profileData?.trainingCertificateUrl && (
                     <PreviewButton label="Other Documents" onClick={() => openImagePreview(processingStudent.profileData.trainingCertificateUrl, "Other Documents")} />
                   )}
-                  {processingStudent.profileData?.sscMarksheetUrl && (
-                    <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(processingStudent.profileData.sscMarksheetUrl, "SSC Marksheet")} />
-                  )}
-                  {processingStudent.profileData?.hscMarksheetUrl && (
-                    <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(processingStudent.profileData.hscMarksheetUrl, "HSC Marksheet")} />
-                  )}
+                  {(() => {
+                    const sscQual = (processingStudent.profileData?.qualifications || []).find((q: any) => q.examination?.toLowerCase().includes('ssc') || q.examination?.toLowerCase().includes('10th'));
+                    const url = processingStudent.profileData?.sscMarksheetUrl || sscQual?.marksheetUrl;
+                    return url ? <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(url, "SSC Marksheet")} /> : null;
+                  })()}
+                  {(() => {
+                    const hscQual = (processingStudent.profileData?.qualifications || []).find((q: any) => q.examination?.toLowerCase().includes('hsc') || q.examination?.toLowerCase().includes('12th'));
+                    const url = processingStudent.profileData?.hscMarksheetUrl || hscQual?.marksheetUrl;
+                    return url ? <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(url, "HSC Marksheet")} /> : null;
+                  })()}
                 </div>
               </section>
               

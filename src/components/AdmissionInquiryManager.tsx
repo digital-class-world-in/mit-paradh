@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import GlobalDataFilter, { FilterState, applyGlobalFilters } from './GlobalDataFilter';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -36,16 +37,18 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [firstKey, setFirstKey] = useState<string | null>(null);
-  const [lastKey, setLastKey] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [pageHistory, setPageHistory] = useState<string[]>([]);
   const PAGE_SIZE = 20;
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [globalFilters, setGlobalFilters] = useState<FilterState>({
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
+  });
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [mode, collegeId]);
+  }, [mode, collegeId, searchQuery, statusFilter, globalFilters]);
   const [studentProfile, setStudentProfile] = useState<any>(null);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -319,7 +322,9 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         admissionYear: year,
         rollNumber: 'N/A',
         registrationNumber,
+        processAutoRegNo: processAutoRegNo,
         regNo: registrationNumber, // Support legacy regNo field
+        manualRegNo: processManualRegNo,
         status: 'Confirmed',
         fees: processTotalFees || selectedInquiry.fees || '0',
         paidFees: processAmountPaid || '0',
@@ -335,9 +340,11 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         const updateData = {
           ...selectedInquiry,
           status: 'Confirmed',
-          registrationNumber: registrationNumber,
-          regNo: registrationNumber,
-          admissionDate: processDate,
+          registrationNumber: registrationNumber || '',
+          processAutoRegNo: processAutoRegNo || '',
+          regNo: registrationNumber || '',
+          manualRegNo: processManualRegNo || '',
+          admissionDate: processDate || '',
           rollNumber: 'N/A',
           confirmedAt: Date.now(),
           verificationStatus: 'Verified',
@@ -360,12 +367,14 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         }
 
         // Always update primary profile fields for immediate dashboard feedback
-        updates['course'] = selectedInquiry.courseName;
-        updates['collegeId'] = selectedInquiry.collegeId;
-        updates['collegeName'] = selectedInquiry.collegeName;
+        updates['course'] = selectedInquiry.courseName || '';
+        updates['collegeId'] = selectedInquiry.collegeId || '';
+        updates['collegeName'] = selectedInquiry.collegeName || '';
         updates['fees'] = processTotalFees || selectedInquiry.fees || '0';
         updates['paidFees'] = processAmountPaid || '0';
-        updates['regNo'] = registrationNumber;
+        updates['processAutoRegNo'] = processAutoRegNo || '';
+        updates['regNo'] = registrationNumber || '';
+        updates['manualRegNo'] = processManualRegNo || '';
         updates['status'] = 'Confirmed';
 
         await update(userRef, updates);
@@ -491,38 +500,30 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
     }
   };
 
-  const fetchPage = async (direction: 'first' | 'next' | 'prev' = 'first') => {
-    if (!realtimeDb || !resolvedAdminUid) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+  useEffect(() => {
+    if (!realtimeDb || !resolvedAdminUid) return;
 
-    try {
-      if (availableColleges.length === 0) {
-        const colSnap = await get(getDbRef('colleges'));
+    if (availableColleges.length === 0) {
+      get(getDbRef('colleges')).then(colSnap => {
         if (colSnap.exists()) {
           setAvailableColleges(Object.entries(colSnap.val()).map(([id, val]: any) => ({ id, ...val })));
         }
-      }
+      });
+    }
 
-      const targetCid = collegeId || selectedCollegeId;
-      const targetRef = targetCid
-        ? getDbRef(`colleges/${targetCid}/frontOffice/admissionInquiries`)
-        : ref(realtimeDb, 'users');
+    setLoading(true);
+    const targetCid = collegeId || selectedCollegeId;
+    const targetRef = targetCid
+      ? getDbRef(`colleges/${targetCid}/frontOffice/admissionInquiries`)
+      : ref(realtimeDb, 'users');
 
-      // Fetch a larger batch (1000) so client-side filtering actually works
-      const q = query(targetRef, orderByKey(), limitToFirst(1000));
+    const q = query(targetRef, orderByKey(), limitToFirst(2000));
 
-      const snapshot = await get(q);
+    const unsubscribe = onValue(q, (snapshot) => {
       let data: any[] = [];
-      let rawKeys: string[] = [];
-
       if (snapshot.exists()) {
         snapshot.forEach((child) => {
           const val = child.val();
-          rawKeys.push(child.key);
-
           if (!targetCid) {
             if (val.profile || val.courseName) {
               data.push({
@@ -540,29 +541,18 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
               });
             }
           } else {
-            data.push({
-              id: child.key,
-              ...val
-            });
+            data.push({ id: child.key, ...val });
           }
         });
       }
-      // Remove duplicate filtering here since filteredInquiries does it better
-      setInquiries(data);
-      setHasMore(false); // We fetched up to 1000, local pagination will handle it
-    } catch (err) {
-      console.error(err);
-    } finally {
+      setInquiries(data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
       setLoading(false);
-    }
-  };
+    });
 
-  useEffect(() => {
-    setInquiries([]);
-    fetchPage('first');
+    return () => unsubscribe();
   }, [collegeId, resolvedAdminUid, selectedCollegeId, mode]);
 
-  const filteredInquiries = inquiries.filter(inq => {
+  const baseFilteredInquiries = inquiries.filter(inq => {
     const isLocked = inq.profileLocked === true || inq.profileLocked === 'true' || inq.isLocked === true;
     const isFromStudentPortal = inq.source === 'Student Portal' || inq.source === 'Online Student Portal' || !!inq.studentUid;
     const isPendingOrAccepted = !inq.status || ['Pending', 'New', 'Submitted', 'Accepted', 'Confirmed', 'Unlocked', 'Updated', 'Viewed'].includes(inq.status);
@@ -571,22 +561,39 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
       ? true
       : (!selectedCollegeId || inq.collegeId === selectedCollegeId);
 
+    let modeMatches = false;
     if (mode === 'list') {
-      // Admission Confirm: Show only processed/verified applications (Online & Manual)
       const confirmStatuses = ['Accepted', 'Confirmed', 'Updated'];
-      return matchesCollege && confirmStatuses.includes(inq.status || '');
+      modeMatches = matchesCollege && confirmStatuses.includes(inq.status || '');
     } else if (mode === 'pending') {
-      // Pending Admission: Show applications awaiting initial verification
       const pendingStatuses = ['Pending', 'New', 'Submitted', 'Unlocked', 'Updated', 'Viewed'];
-      return matchesCollege && pendingStatuses.includes(inq.status || 'New') && (inq.profileLocked || inq.isLocked || isFromStudentPortal);
+      modeMatches = matchesCollege && pendingStatuses.includes(inq.status || 'New') && (inq.profileLocked || inq.isLocked || isFromStudentPortal);
     } else if (mode === 'cancelled') {
-      // Cancel Admission: Show rejected applications
-      return matchesCollege && inq.status === 'Rejected';
+      modeMatches = matchesCollege && inq.status === 'Rejected';
     } else {
-      // Admission Inquiry: Show inquiries from both website and student portal
-      return matchesCollege && isPendingOrAccepted;
+      modeMatches = matchesCollege && isPendingOrAccepted;
     }
+
+    if (!modeMatches) return false;
+
+    if (statusFilter !== 'All') {
+      if (inq.status !== statusFilter && inq.admissionStatus !== statusFilter) return false;
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const name = (inq.studentName || '').toLowerCase();
+      const email = (inq.studentEmail || '').toLowerCase();
+      const phone = (inq.studentPhone || '').toLowerCase();
+      const reg = (inq.regNo || inq.manualRegNo || '').toLowerCase();
+      const roll = (inq.rollNumber || '').toLowerCase();
+      if (!name.includes(q) && !email.includes(q) && !phone.includes(q) && !reg.includes(q) && !roll.includes(q)) return false;
+    }
+
+    return true;
   });
+
+  const filteredInquiries = applyGlobalFilters(baseFilteredInquiries, globalFilters);
 
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const paginatedInquiries = filteredInquiries.slice(startIndex, startIndex + PAGE_SIZE);
@@ -797,6 +804,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           processedAt: new Date().toISOString(),
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear,
+          processAutoRegNo: processAutoRegNo,
           regNo: regNo,
           manualRegNo: processManualRegNo,
           collegeId: targetCollegeId
@@ -811,6 +819,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           processedAt: new Date().toISOString(),
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear,
+          processAutoRegNo: processAutoRegNo,
           regNo: regNo,
           manualRegNo: processManualRegNo
         });
@@ -829,6 +838,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             if ((appData as any).applicationId === selectedInquiry.applicationId) {
               await update(ref(realtimeDb, `users/${uid}/applications/${appId}`), {
                 status,
+                processAutoRegNo: processAutoRegNo,
                 regNo: regNo,
                 manualRegNo: processManualRegNo,
                 admissionDate: formattedDate,
@@ -841,12 +851,14 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
 
         // Update profile
         await update(ref(realtimeDb, `users/${uid}/profile`), {
+          processAutoRegNo: processAutoRegNo,
           regNo: regNo,
           manualRegNo: processManualRegNo,
           admissionDate: formattedDate,
           admissionYear: admissionDate.admissionYear
         });
         await update(ref(realtimeDb, `users/${uid}`), {
+          processAutoRegNo: processAutoRegNo,
           regNo: regNo,
           manualRegNo: processManualRegNo
         });
@@ -865,6 +877,8 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         admissionYear: admissionDate.admissionYear,
         admissionStatus: 'Confirmed',
         isActive: true, // Default to active when admitted
+        processAutoRegNo: processAutoRegNo,
+        processAutoRegNo: processAutoRegNo,
         regNo: regNo,
         manualRegNo: processManualRegNo,
         inquiryId: selectedInquiry.id,
@@ -1168,6 +1182,24 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <h3 className="text-2xl font-bold text-black capitalize tracking-tight">Student Application List</h3>
           <div className="flex flex-col md:flex-row items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search by name, email, phone, reg no, roll no..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black tracking-tight outline-none focus:border-[#003366] transition-all min-w-[300px]"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Accepted">Accepted / Verified</option>
+              <option value="Pending">Pending / New</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Confirmed">Confirmed</option>
+            </select>
             {!collegeId && (
               <select
                 value={selectedCollegeId}
@@ -1192,6 +1224,15 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             </button>
           </div>
         </div>
+
+        <div className="mb-8">
+          <GlobalDataFilter
+            data={baseFilteredInquiries}
+            filters={globalFilters}
+            setFilters={setGlobalFilters}
+          />
+        </div>
+
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse border border-black">
             <thead>
@@ -1243,7 +1284,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                     </td>
                     <td className="px-6 py-6 border-r border-black">
                       <p className="text-[14px] font-medium text-black capitalize tracking-tight">
-                        {inq.studentName || `${inq.firstName || ''} ${inq.lastName || ''}`.trim() || 'N/A'}
+                        {`${inq.firstName || ''} ${inq.middleName || ''} ${inq.lastName || ''}`.trim() || inq.studentName || 'N/A'}
                       </p>
                     </td>
                     <td className="px-6 py-6 border-r border-black">
@@ -2096,10 +2137,10 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="flex gap-2">
-                <input 
+                <input
                   type="text"
                   value={newReasonText}
                   onChange={(e) => setNewReasonText(e.target.value)}
@@ -2127,15 +2168,15 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                             if (e.key === 'Escape') setEditingReasonKey(null);
                           }}
                         />
-                        <button onClick={handleUpdateReason} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16}/></button>
-                        <button onClick={() => setEditingReasonKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16}/></button>
+                        <button onClick={handleUpdateReason} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16} /></button>
+                        <button onClick={() => setEditingReasonKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16} /></button>
                       </div>
                     ) : (
                       <>
                         <span className="text-sm text-black">{r.text}</span>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                           <button onClick={() => { setEditingReasonKey(r.key); setEditReasonText(r.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14}/></button>
-                           <button onClick={() => handleDeleteReason(r.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14}/></button>
+                          <button onClick={() => { setEditingReasonKey(r.key); setEditReasonText(r.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14} /></button>
+                          <button onClick={() => handleDeleteReason(r.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14} /></button>
                         </div>
                       </>
                     )}
@@ -2160,10 +2201,10 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="flex gap-2">
-                <input 
+                <input
                   type="text"
                   value={newSessionText}
                   onChange={(e) => setNewSessionText(e.target.value)}
@@ -2191,15 +2232,15 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                             if (e.key === 'Escape') setEditingSessionKey(null);
                           }}
                         />
-                        <button onClick={handleUpdateSession} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16}/></button>
-                        <button onClick={() => setEditingSessionKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16}/></button>
+                        <button onClick={handleUpdateSession} className="text-emerald-600 p-1 hover:bg-emerald-50 rounded"><Check size={16} /></button>
+                        <button onClick={() => setEditingSessionKey(null)} className="text-slate-400 p-1 hover:bg-slate-100 rounded"><X size={16} /></button>
                       </div>
                     ) : (
                       <>
                         <span className="text-sm text-black">{s.text}</span>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                           <button onClick={() => { setEditingSessionKey(s.key); setEditSessionText(s.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14}/></button>
-                           <button onClick={() => handleDeleteSession(s.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14}/></button>
+                          <button onClick={() => { setEditingSessionKey(s.key); setEditSessionText(s.text); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={14} /></button>
+                          <button onClick={() => handleDeleteSession(s.key)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={14} /></button>
                         </div>
                       </>
                     )}

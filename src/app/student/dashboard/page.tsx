@@ -70,6 +70,25 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const formatStatus = (status: string) => {
+  if (!status) return 'Pending';
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+};
+
+const getAutoRegNo = (app: any, user: any) => {
+  if (app?.processAutoRegNo) return app.processAutoRegNo;
+  if (user?.processAutoRegNo) return user.processAutoRegNo;
+  
+  const manual = app?.processManualRegNo || app?.manualRegNo || user?.manualRegNo || user?.profile?.manualRegNo;
+  const reg = app?.regNo || user?.regNo || user?.profile?.regNo;
+  
+  if (reg && reg !== manual) {
+    return reg; // It is different from manual, so it must be the original auto reg!
+  }
+  
+  return ''; // They are the same, which means the auto reg was lost/overwritten in legacy records.
+};
+
 const toTitleCase = (str: string) => {
   if (!str) return '';
   return str.toLowerCase().split(' ').map(word => {
@@ -1067,7 +1086,7 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
               l: 'Name',
               v: toTitleCase(userData?.fullName || userData?.studentName || `${userData?.profile?.firstName || userData?.firstName || ''} ${userData?.profile?.middleName || userData?.middleName || ''} ${userData?.profile?.lastName || userData?.lastName || ''}`.trim() || 'Student')
             },
-            { l: 'Auto Reg No.', v: formatAutoRegNo(activeApp?.processAutoRegNo || activeApp?.regNo || userData?.regNo || userData?.profile?.regNo || '') || 'N/A' },
+            { l: 'Auto Reg No.', v: formatAutoRegNo(getAutoRegNo(activeApp, userData)) || 'N/A' },
             { l: 'Manual Reg No.', v: activeApp?.processManualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A' },
             { l: 'Mobile number', v: userData?.studentPhone || userData?.phone || userData?.profile?.phone || 'N/A' },
             { l: 'Gender', v: toTitleCase(userData?.gender || 'N/A') },
@@ -1195,7 +1214,9 @@ const ApplicationManager = ({
                       return `${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
                     })()}
                   </td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{formatAutoRegNo(app.regNo || userData?.profile?.regNo || '') || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">
+                    {formatAutoRegNo(getAutoRegNo(app, userData)) || 'N/A'}
+                  </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
@@ -1311,10 +1332,10 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                       <td className="px-8 py-6 border-r-[0.5px] border-black">
                         <div className="flex flex-col gap-1">
                           <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
-                            AUTO REG: {formatAutoRegNo(userData?.profile?.regNo || userData?.regNo || '') || 'PENDING'}
+                            AUTO REG: {formatAutoRegNo(getAutoRegNo(activeApp, userData)) || 'PENDING'}
                           </span>
                           <span className="text-[10px] font-bold text-[#00a5a5] uppercase tracking-widest mt-0.5">
-                            MANUAL REG: {userData?.profile?.manualRegNo || userData?.manualRegNo || 'N/A'}
+                            MANUAL REG: {activeApp?.processManualRegNo || activeApp?.manualRegNo || userData?.profile?.manualRegNo || userData?.manualRegNo || 'N/A'}
                           </span>
                         </div>
                       </td>
@@ -1928,8 +1949,13 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000', borderBottom: '1px solid #000000' }}>
                       <span style={{ color: '#000000', fontWeight: '700' }}>Student Full Name:</span> <span style={{ fontWeight: '600' }}>{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span>
                     </div>
-                    <div style={{ padding: '6px 8px', borderBottom: '1px solid #000000' }}>
-                      <span style={{ color: '#000000', fontWeight: '700' }}>Auto Generated Roll Number:</span> <span style={{ fontWeight: '600' }}>{formatAutoRegNo(userData.regNo || userData.profile?.regNo)}</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', borderBottom: '1px solid #000000' }}>
+                      <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
+                        <span style={{ color: '#000000', fontWeight: '700' }}>Auto Generated Roll Number:</span> <span style={{ fontWeight: '600' }}>{formatAutoRegNo(getAutoRegNo(app, userData)) || 'N/A'}</span>
+                      </div>
+                      <div style={{ padding: '6px 8px' }}>
+                        <span style={{ color: '#000000', fontWeight: '700' }}>Manual Reg Number:</span> <span style={{ fontWeight: '600' }}>{app.processManualRegNo || app.manualRegNo || userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'}</span>
+                      </div>
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
@@ -2528,13 +2554,14 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 
                 <div className="grid grid-cols-2 gap-x-12 gap-y-3 mt-8 text-[13px] font-bold text-black border-t-2 border-black pt-6">
                   <div>Student Full Name: <span className="font-medium text-slate-800">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span></div>
-                  <div>Auto Generated Roll Number: <span className="font-medium text-slate-800">{formatAutoRegNo(userData.regNo || userData.profile?.regNo)}</span></div>
+                  <div>Auto Generated Roll Number: <span className="font-medium text-slate-800">{formatAutoRegNo(getAutoRegNo(selectedApp, userData)) || 'N/A'}</span></div>
+                  <div>Manual Registration Number: <span className="font-medium text-slate-800">{selectedApp.processManualRegNo || selectedApp.manualRegNo || userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'}</span></div>
                   <div>Academic Year (Session): <span className="font-medium text-slate-800">{selectedApp.academicYear || '2026-27'}</span></div>
                   <div>College Name: <span className="font-medium text-slate-800">{selectedApp.collegeName}</span></div>
                   <div>Course Type: <span className="font-medium text-slate-800">{selectedApp.courseType || 'Regular'}</span></div>
                   <div>Course Name: <span className="font-medium text-slate-800">{selectedApp.courseName}</span></div>
-                  <div>Semester: <span className="font-medium text-slate-800">{selectedApp.semester || 'N/A'}</span></div>
                   <div>Stream/Branch: <span className="font-medium text-slate-800">{selectedApp.stream || selectedApp.streamBranch || 'N/A'}</span></div>
+                  <div>Semester: <span className="font-medium text-slate-800">{selectedApp.semester || 'N/A'}</span></div>
                   <div>Duration: <span className="font-medium text-slate-800">{selectedApp.duration || 'N/A'}</span></div>
                 </div>
               </div>
@@ -2571,7 +2598,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <DataRow label="Full Name" value={userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()} />
                 <DataRow label="Gender" value={toTitleCase(userData.profile?.gender || userData.gender || '')} />
                 <DataRow label="Date of Birth" value={userData.profile?.dateOfBirth || userData.dateOfBirth} />
-                <DataRow label="Auto Reg No." value={formatAutoRegNo(userData.regNo || userData.profile?.regNo)} />
+                <DataRow label="Auto Reg No." value={formatAutoRegNo(getAutoRegNo(null, userData)) || 'N/A'} />
                 {(userData.manualRegNo || userData.profile?.manualRegNo) && (
                   <DataRow label="Manual Reg No." value={userData.manualRegNo || userData.profile?.manualRegNo} />
                 )}

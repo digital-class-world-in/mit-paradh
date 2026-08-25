@@ -11,6 +11,7 @@ interface ApplicationPreviewModalProps {
   selectedCourseType?: string;
   selectedCourseName?: string;
   selectedDuration?: string;
+  collegeData?: any;
 }
 
 export default function ApplicationPreviewModal({
@@ -18,7 +19,8 @@ export default function ApplicationPreviewModal({
   onClose,
   onEdit,
   onNext,
-  formData
+  formData,
+  collegeData
 }: ApplicationPreviewModalProps) {
   if (!isOpen) return null;
 
@@ -62,6 +64,46 @@ export default function ApplicationPreviewModal({
 
         {/* Content */}
         <div className="p-4 md:p-8 overflow-y-auto">
+          <div className="w-full bg-white shadow-sm border border-slate-800 p-6 mb-6 text-center print:border-none print:shadow-none">
+            {collegeData && (
+              <div className="flex flex-col items-center justify-center gap-3">
+                {collegeData.tagline && (
+                  <p className="text-sm font-bold text-slate-600">{collegeData.tagline}</p>
+                )}
+                <div className="flex items-center gap-4">
+                  {(collegeData.logo || collegeData.headPhoto) && (
+                    <img src={collegeData.logo || collegeData.headPhoto} alt="Logo" className="h-16 w-16 object-contain" />
+                  )}
+                  <h1 className="text-2xl font-black text-slate-900 uppercase tracking-wide">{collegeData.name || 'MIT College'}</h1>
+                </div>
+                {(collegeData.address || collegeData.district) && (
+                  <p className="text-xs text-slate-500 font-medium">
+                    {collegeData.address}{collegeData.address && collegeData.district ? ', ' : ''}{collegeData.district}
+                  </p>
+                )}
+              </div>
+            )}
+            
+            <div className="mt-6 border-t border-slate-200 pt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Student Name</p>
+                <p className="text-[13px] font-bold text-slate-800">{`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim() || formData.studentName || '-'}</p>
+              </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Auto Reg Number</p>
+                  <p className="text-[13px] font-bold text-slate-800">{formData.processAutoRegNo || (formData.regNo !== formData.manualRegNo ? formData.regNo : '') || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Manual Reg Number</p>
+                  <p className="text-[13px] font-bold text-slate-800">{formData.manualRegNo || formData.processManualRegNo || 'N/A'}</p>
+                </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Academic Year / Session</p>
+                <p className="text-[13px] font-bold text-slate-800">{formData.academicYear || '2026-27'}</p>
+              </div>
+            </div>
+          </div>
+
           <table className="w-full text-left border-collapse border border-slate-800 text-[13px] bg-white shadow-sm">
             <tbody>
               {/* Top Form Header */}
@@ -78,9 +120,9 @@ export default function ApplicationPreviewModal({
                 </th>
               </tr>
               <tr>
-                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Auto Registration No</td>
-                <td className="border border-slate-800 p-2.5 w-1/4 font-bold text-indigo-700">{formData.regNo || formData.registrationNo || 'PENDING'}</td>
-                <td rowSpan={6} colSpan={2} className="border border-slate-800 p-4 w-1/2 align-middle text-center print:table-cell">
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Auto Reg Number</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold text-indigo-700">{formData.processAutoRegNo || (formData.regNo !== formData.manualRegNo ? formData.regNo : '') || 'N/A'}</td>
+                <td rowSpan={8} colSpan={2} className="border border-slate-800 p-4 w-1/2 align-middle text-center print:table-cell">
                   <div className="flex justify-center items-center h-full">
                     <div className="w-[120px] h-[150px] border-2 border-slate-800 p-1 bg-white shadow-sm flex items-center justify-center overflow-hidden">
                       {formData.photoUrl || formData.photo ? <img src={formData.photoUrl || formData.photo} alt="Photo" className="w-full h-full object-cover print:block" /> : <span className="text-xs text-slate-400">Passport Photo</span>}
@@ -89,14 +131,36 @@ export default function ApplicationPreviewModal({
                 </td>
               </tr>
               <tr>
-                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Course</td>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Manual Reg Number</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold text-indigo-700">{formData.manualRegNo || formData.processManualRegNo || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Academic Year / Session</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.academicYear || '2026-27'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Course Type</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.courseType || '-'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Course Name</td>
                 <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.courseName || formData.course || '-'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Stream / Branch</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.stream || formData.branch || '-'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Semester</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.semester || '-'}</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Course Duration</td>
+                <td className="border border-slate-800 p-2.5 w-1/4 font-bold uppercase">{formData.courseDuration || formData.duration || '-'}</td>
               </tr>
               <tr>
                 <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50 w-1/4">Candidate's Name</td>
                 <td className="border border-slate-800 p-2.5 w-1/4 uppercase font-bold">{`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim() || formData.studentName || '-'}</td>
-              </tr>
-              <tr>
                 <td className="border border-slate-800 p-2.5 font-semibold bg-slate-50">Date of Birth</td>
                 <td className="border border-slate-800 p-2.5">{formData.dateOfBirth || '-'}</td>
               </tr>

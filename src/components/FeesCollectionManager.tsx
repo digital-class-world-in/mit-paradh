@@ -383,6 +383,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
     } catch (error) {
       console.error(error);
       alert("Failed to approve payment");
+      setIsProcessModalOpen(false);
     }
   };
 
@@ -570,6 +571,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
     } catch (error) {
       console.error(error);
       alert("Failed to collect fees");
+      setIsCollectModalOpen(false);
     }
   };
 
@@ -1797,7 +1799,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                              {lastReceipt.collegeParentOrg || "Mahavishnu Gramin Vikas & Shaikshnik B. sanstha Dhamangaon ( Dhad )"}
                           </h5>
                           <h1 className="text-[18px] font-black text-red-700 uppercase leading-none tracking-tighter mt-2">
-                             Mahalaxmi Nursing and technical institute Paradh
+                             {lastReceipt.collegeName}
                           </h1>
                           <p className="text-[12px] font-bold uppercase tracking-widest mt-1 text-red-600">
                              {lastReceipt.collegeAddress || "Tq.Bhokardan Dist. jalna , Paradh - 431114"}
@@ -1824,25 +1826,34 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                                 {lastReceipt.studentName}
                              </div>
                           </div>
-                          <div className="flex items-baseline gap-4 flex-1">
-                             <span className="text-[13px] font-bold uppercase shrink-0">College Name :</span>
-                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4 uppercase">
-                                {lastReceipt.collegeName}
-                             </div>
-                          </div>
                        </div>
 
                        <div className="flex items-center gap-10">
+                          <div className="flex items-baseline gap-4 flex-1">
+                             <span className="text-[13px] font-bold uppercase shrink-0">Registration No :</span>
+                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4">
+                                {lastReceipt.regNo || 'N/A'}
+                             </div>
+                          </div>
                           <div className="flex items-baseline gap-4 flex-1">
                              <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
                              <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4">
                                 {lastReceipt.rollNo || 'N/A'}
                              </div>
                           </div>
+                       </div>
+
+                       <div className="flex items-center gap-10">
                           <div className="flex items-baseline gap-4 flex-1">
                              <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
                              <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4">
                                 {lastReceipt.academicYear}
+                             </div>
+                          </div>
+                          <div className="flex items-baseline gap-4 flex-1">
+                             <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
+                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4 uppercase">
+                                {lastReceipt.courseType || 'Reg'}
                              </div>
                           </div>
                        </div>
@@ -1855,9 +1866,24 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                              </div>
                           </div>
                           <div className="flex items-baseline gap-4 flex-1">
-                             <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
-                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black pl-4 uppercase">
-                                {lastReceipt.courseType || 'Reg'}
+                             <span className="text-[13px] font-bold uppercase shrink-0">Stream/Branch :</span>
+                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black uppercase pl-4">
+                                {lastReceipt.stream || 'N/A'}
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="flex items-center gap-10">
+                          <div className="flex items-baseline gap-4 flex-1">
+                             <span className="text-[13px] font-bold uppercase shrink-0">Semester :</span>
+                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black uppercase pl-4">
+                                {lastReceipt.semester || 'N/A'}
+                             </div>
+                          </div>
+                          <div className="flex items-baseline gap-4 flex-1">
+                             <span className="text-[13px] font-bold uppercase shrink-0">Duration :</span>
+                             <div className="flex-1 border-b-[2px] border-dotted border-red-300 pb-1 text-[14px] font-black uppercase pl-4">
+                                {lastReceipt.duration || 'N/A'}
                              </div>
                           </div>
                        </div>

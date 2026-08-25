@@ -392,7 +392,9 @@ function StudentLayoutContent({
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col">
-      <Header />
+      <div className="print:hidden">
+        <Header />
+      </div>
       <StudentNavbar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
@@ -404,7 +406,7 @@ function StudentLayoutContent({
       <main className="max-w-[1600px] w-full mx-auto px-4 md:px-12 pb-20 pt-6 transition-all">
         {children}
       </main>
-      <footer className="text-center py-12 opacity-30 mt-auto">
+      <footer className="text-center py-12 opacity-30 mt-auto print:hidden">
         <p className="text-[13px] font-black capitalize tracking-[0.5em] text-black">Institutional ERP Phase IV | Safe Campus Edition</p>
       </footer>
     </div>

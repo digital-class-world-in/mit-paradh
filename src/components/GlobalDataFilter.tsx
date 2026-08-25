@@ -8,6 +8,8 @@ export interface FilterState {
   duration: string;
   semester: string;
   stream: string;
+  academicYear: string;
+  paymentStatus: string;
 }
 
 interface GlobalDataFilterProps {
@@ -21,6 +23,8 @@ interface GlobalDataFilterProps {
     duration?: string;
     semester?: string;
     stream?: string;
+    academicYear?: string;
+    paymentStatus?: string;
   };
 }
 
@@ -31,6 +35,8 @@ export default function GlobalDataFilter({ data, filters, setFilters, keys = {} 
   const kDuration = keys.duration || 'duration';
   const kSemester = keys.semester || 'semester';
   const kStream = keys.stream || 'stream';
+  const kAcademicYear = keys.academicYear || 'academicYear';
+  const kPaymentStatus = keys.paymentStatus || 'paymentStatus';
 
   const options = useMemo(() => {
     const getUnique = (key: string) => {
@@ -54,15 +60,17 @@ export default function GlobalDataFilter({ data, filters, setFilters, keys = {} 
       durations: getUnique(kDuration),
       semesters: getUnique(kSemester),
       streams: getUnique(kStream),
+      academicYears: getUnique(kAcademicYear),
+      paymentStatuses: getUnique(kPaymentStatus),
     };
-  }, [data, kCollege, kCourseType, kCourseName, kDuration, kSemester, kStream]);
+  }, [data, kCollege, kCourseType, kCourseName, kDuration, kSemester, kStream, kAcademicYear, kPaymentStatus]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
   const handleReset = () => {
-    setFilters({ collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '' });
+    setFilters({ collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: '' });
   };
 
   return (
@@ -147,6 +155,32 @@ export default function GlobalDataFilter({ data, filters, setFilters, keys = {} 
           </div>
         </div>
 
+        <div className="flex flex-col">
+          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Session / Year</label>
+          <div className="relative">
+            <select name="academicYear" value={filters.academicYear} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl px-4 py-2.5 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/20 transition-all appearance-none font-medium pr-10">
+              <option value="">All Sessions</option>
+              {options.academicYears.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Payment Status</label>
+          <div className="relative">
+            <select name="paymentStatus" value={filters.paymentStatus} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl px-4 py-2.5 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/20 transition-all appearance-none font-medium pr-10">
+              <option value="">All Statuses</option>
+              {options.paymentStatuses.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div className="flex justify-end mt-4">
@@ -165,6 +199,8 @@ export const applyGlobalFilters = (data: any[], filters: FilterState, keys: any 
   const kDuration = keys.duration || 'duration';
   const kSemester = keys.semester || 'semester';
   const kStream = keys.stream || 'stream';
+  const kAcademicYear = keys.academicYear || 'academicYear';
+  const kPaymentStatus = keys.paymentStatus || 'paymentStatus';
 
   return data.filter(item => {
     const checkMatch = (filterVal: string, itemVal: any) => {
@@ -179,6 +215,8 @@ export const applyGlobalFilters = (data: any[], filters: FilterState, keys: any 
     if (!checkMatch(filters.duration, item[kDuration])) return false;
     if (!checkMatch(filters.semester, item[kSemester])) return false;
     if (!checkMatch(filters.stream, item[kStream])) return false;
+    if (!checkMatch(filters.academicYear, item[kAcademicYear])) return false;
+    if (!checkMatch(filters.paymentStatus, item[kPaymentStatus])) return false;
 
     return true;
   });
