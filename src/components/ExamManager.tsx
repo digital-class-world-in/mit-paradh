@@ -69,7 +69,7 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
   const [selectedExamForResults, setSelectedExamForResults] = useState<any | null>(null);
   
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const filteredExams = applyGlobalFilters(publishedExams, globalFilters);

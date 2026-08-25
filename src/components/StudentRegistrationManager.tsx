@@ -204,7 +204,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
   const [searchQuery, setSearchQuery] = useState('');
   const [filterProfileStatus, setFilterProfileStatus] = useState('');
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
 
   const baseFilteredRegistrations = registrations.filter(reg => {

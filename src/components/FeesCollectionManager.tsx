@@ -246,7 +246,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
   });
 
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const finalFilteredStudents = applyGlobalFilters(filteredStudents, globalFilters);

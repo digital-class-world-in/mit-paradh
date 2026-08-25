@@ -77,7 +77,7 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
   }, [collegeId]);
 
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
 
   const baseFilteredPayments = payments.filter(p => {

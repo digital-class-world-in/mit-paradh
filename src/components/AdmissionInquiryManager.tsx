@@ -878,7 +878,6 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         admissionStatus: 'Confirmed',
         isActive: true, // Default to active when admitted
         processAutoRegNo: processAutoRegNo,
-        processAutoRegNo: processAutoRegNo,
         regNo: regNo,
         manualRegNo: processManualRegNo,
         inquiryId: selectedInquiry.id,
