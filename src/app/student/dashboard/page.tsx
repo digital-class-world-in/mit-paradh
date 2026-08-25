@@ -274,7 +274,7 @@ const QuestionPaperModule = ({ exams, activeApp, userData }: any) => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const filteredExams = applyGlobalFilters(exams || [], globalFilters);
@@ -721,7 +721,7 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
   const certificateRecords = credentials.filter(c => c.type === 'certificate');
 
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const filteredRecords = applyGlobalFilters(certificateRecords, globalFilters);
@@ -1166,7 +1166,7 @@ const ApplicationManager = ({
   handleDownloadPDF, downloadingAppId
 }: any) => {
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const filteredApps = applyGlobalFilters([...userApplications].sort((a, b) => new Date(b.appliedAt || b.date || 0).getTime() - new Date(a.appliedAt || a.date || 0).getTime()), globalFilters);
