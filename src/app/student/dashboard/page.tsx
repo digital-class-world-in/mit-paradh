@@ -191,7 +191,7 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
   const marksheetRecords = credentials.filter(c => c.type === 'marksheet');
 
   const [globalFilters, setGlobalFilters] = useState<FilterState>({
-    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: ''
+    collegeName: '', courseType: '', courseName: '', duration: '', semester: '', stream: '', academicYear: '', paymentStatus: ''
   });
   
   const filteredRecords = applyGlobalFilters(marksheetRecords, globalFilters);
