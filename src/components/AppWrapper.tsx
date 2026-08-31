@@ -10,7 +10,9 @@ export default function AppWrapper({
 }) {
 
 
+
   
+
   const pathname = usePathname();
   // Hide global Navbar on the home page, login, register, and student portal
   // These sections have their own specialized headers/navbars
