@@ -35,6 +35,9 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
   const [allExamSettings, setAllExamSettings] = useState<any>({});
   const [selectedCourseType, setSelectedCourseType] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedStream, setSelectedStream] = useState('');
+  const [targetAudience, setTargetAudience] = useState<'all' | 'custom'>('all');
+  const [studentSearch, setStudentSearch] = useState('');
   const [courseExamConfigs, setCourseExamConfigs] = useState<any[]>([]);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [viewingStudent, setViewingStudent] = useState<any>(null);
@@ -45,7 +48,10 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
     examDate: '',
     lastDate: '',
     fees: '500',
-    academicYear: '2026-2027'
+    academicYear: '2026-2027',
+    stream: '',
+    targetAudience: 'all',
+    selectedStudentIds: []
   });
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
@@ -77,7 +83,7 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
     setAvailableCourses([]);
     setAllExamSettings({});
     setCourseExamConfigs([]);
-    // Fetch all inquiries to build Course Types, Courses, and Students
+    // Fetch all inquiries to build Course Types, Courses, Streams, and Students
     const inqRef = ref(realtimeDb, `colleges/${targetId}/frontOffice/admissionInquiries`);
     onValue(inqRef, (snap) => {
       if (snap.exists()) {
@@ -89,14 +95,6 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
         setInquiries([]);
       }
       setLoading(false);
-    });
-
-    // Fetch Exam Settings (Global fallback or merged)
-    const settingsRef = ref(realtimeDb, `colleges/${targetId}/examSettings`);
-    onValue(settingsRef, (snap) => {
-      if (snap.exists()) {
-        setExamSettings(snap.val());
-      }
     });
 
     // Fetch master list of courses (both Global and College-specific)
@@ -135,42 +133,64 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
     return () => clearTimeout(safetyTimer);
   }, [selectedCollegeId]);
 
-  useEffect(() => {
-    if (!selectedCollegeId || selectedStudentIds.length === 0) {
-      setExamSettings({ registrationOpen: false, examDate: '', lastDate: '', fees: '500' });
-      return;
-    }
-    if (selectedStudentIds.includes('ALL')) return;
-    if (selectedStudentIds.length > 1) return;
-
-    const settingsRef = ref(realtimeDb, `colleges/${selectedCollegeId}/students/${selectedStudentIds[0]}/examSettings`);
-    onValue(settingsRef, (snap) => {
-      if (snap.exists()) {
-        setExamSettings(snap.val());
-      } else {
-        setExamSettings({ registrationOpen: false, examDate: '', lastDate: '', fees: '500' });
+  // Derive available Streams / Branches based on course selection or inquiries
+  const availableStreams = useMemo(() => {
+    const streams = new Set<string>();
+    
+    availableCourses.forEach(c => {
+      const slug = c.course_slug || c.id;
+      const nameMatches = !selectedCourseType || (c.course_name === selectedCourseType || c.name === selectedCourseType || c.courseType === selectedCourseType);
+      const courseMatches = !selectedCourse || (slug === selectedCourse || c.name === selectedCourse);
+      if (nameMatches && courseMatches) {
+        if (c.stream) streams.add(c.stream);
+        if (c.branch) streams.add(c.branch);
+        if (c.streamBranch) streams.add(c.streamBranch);
       }
     });
-  }, [selectedCollegeId, selectedStudentIds]);
+
+    inquiries.forEach(i => {
+      const course = availableCourses.find(c => c.id === i.courseId);
+      const slug = course?.course_slug || i.courseId;
+      const nameMatches = !selectedCourseType || (i.courseName === selectedCourseType || i.courseType === selectedCourseType);
+      const courseMatches = !selectedCourse || (slug === selectedCourse || i.courseName === selectedCourse);
+      if (nameMatches && courseMatches) {
+        if (i.stream) streams.add(i.stream);
+        if (i.branch) streams.add(i.branch);
+        if (i.streamBranch) streams.add(i.streamBranch);
+      }
+    });
+
+    return Array.from(streams).filter(Boolean);
+  }, [availableCourses, inquiries, selectedCourseType, selectedCourse]);
+
+  // Candidates matching Course Type, Course, and Stream
+  const filteredCandidateStudents = useMemo(() => {
+    return inquiries.filter(i => {
+      if (i.status !== 'Accepted' && i.status !== 'Confirmed') return false;
+      const course = availableCourses.find(c => c.id === i.courseId);
+      const slug = course?.course_slug || i.courseId;
+      const nameMatches = !selectedCourseType || (i.courseName === selectedCourseType || i.courseType === selectedCourseType);
+      const slugMatches = !selectedCourse || (slug === selectedCourse || i.courseName === selectedCourse);
+      const streamMatches = !selectedStream || (i.stream === selectedStream || i.branch === selectedStream || i.streamBranch === selectedStream);
+      return nameMatches && slugMatches && streamMatches;
+    });
+  }, [inquiries, availableCourses, selectedCourseType, selectedCourse, selectedStream]);
 
   const toggleRegistration = async () => {
     if (!selectedCollegeId || !selectedCourseType || !selectedCourse) return alert("Please select Course Type and Course");
     
-    const targetIds = inquiries
-      .filter(i => {
-        if (i.status !== 'Accepted') return false;
-        const course = availableCourses.find(c => c.id === i.courseId);
-        const slug = course?.course_slug || i.courseId;
-        const nameMatches = (i.courseName === selectedCourseType || i.courseType === selectedCourseType);
-        const slugMatches = (slug === selectedCourse);
-        return nameMatches && slugMatches;
-      })
-      .map(s => s.studentUid);
+    const targetIds = targetAudience === 'custom' && selectedStudentIds.length > 0 
+      ? selectedStudentIds 
+      : filteredCandidateStudents.map(s => s.studentUid);
 
     const updates: any = {};
     const newStatus = !examSettings.registrationOpen;
     const academicYear = examSettings.academicYear || '2026-2027';
-    const configId = `${selectedCourseType}_${selectedCourse}_${academicYear}`.replace(/\s+/g, '_');
+    const streamSuffix = selectedStream ? `_${selectedStream}` : '';
+    const examSuffix = examSettings.examName ? `_${examSettings.examName}` : '';
+    const configId = `${selectedCourseType}_${selectedCourse}${streamSuffix}${examSuffix}_${academicYear}`
+      .replace(/[.#$/\[\]]/g, '')
+      .replace(/\s+/g, '_');
 
     // Update Course Config
     updates[`colleges/${selectedCollegeId}/examConfigurations/${configId}/registrationOpen`] = newStatus;
@@ -189,28 +209,27 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
     if (!selectedCollegeId) return alert("Please select a college");
     if (!selectedCourseType || !selectedCourse) return alert("Please select Course Type and Course");
     
-    // Find all students in this course to update their individual settings too
-    const targetIds = inquiries
-      .filter(i => {
-        if (i.status !== 'Accepted') return false;
-        const course = availableCourses.find(c => c.id === i.courseId);
-        const slug = course?.course_slug || i.courseId;
-        const nameMatches = (i.courseName === selectedCourseType || i.courseType === selectedCourseType);
-        const slugMatches = (slug === selectedCourse);
-        return nameMatches && slugMatches;
-      })
-      .map(s => s.studentUid);
+    const targetIds = targetAudience === 'custom' && selectedStudentIds.length > 0
+      ? selectedStudentIds
+      : filteredCandidateStudents.map(s => s.studentUid);
 
     const updates: any = {};
     const timestamp = new Date().toISOString();
     const academicYear = examSettings.academicYear || '2026-2027';
-    const configId = `${selectedCourseType}_${selectedCourse}_${academicYear}`.replace(/\s+/g, '_');
+    const streamSuffix = selectedStream ? `_${selectedStream}` : '';
+    const examSuffix = examSettings.examName ? `_${examSettings.examName}` : '';
+    const configId = `${selectedCourseType}_${selectedCourse}${streamSuffix}${examSuffix}_${academicYear}`
+      .replace(/[.#$/\[\]]/g, '')
+      .replace(/\s+/g, '_');
     
     const configData = {
       ...examSettings,
       courseType: selectedCourseType,
       courseName: selectedCourse,
+      stream: selectedStream || '',
       academicYear: academicYear,
+      targetAudience: targetAudience,
+      selectedStudentIds: targetAudience === 'custom' ? selectedStudentIds : [],
       updatedAt: timestamp
     };
 
@@ -223,53 +242,21 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
     });
 
     await update(ref(realtimeDb), updates);
-    alert(`Exam configuration saved for ${selectedCourse} (${academicYear}) (${targetIds.length} students affected)!`);
+    alert(`Exam configuration saved for ${selectedCourse} ${selectedStream ? `(${selectedStream})` : ''} (${academicYear}) (${targetIds.length} students affected)!`);
   };
-  const groupedConfigs = useMemo(() => {
-    if (!allExamSettings || Object.keys(allExamSettings).length === 0) return [];
-    
-    const groups: Record<string, any> = {};
-    
-    // Process all students to find their exam settings
-    Object.entries(allExamSettings).forEach(([uid, data]: any) => {
-      const settings = data.examSettings;
-      if (!settings || !settings.examDate) return;
-
-      // Find the student's admission info to get the course name and type
-      const inquiry = inquiries.find(i => i.studentUid === uid);
-      if (!inquiry) return;
-
-      // Unique key for grouping: Course Type + Course Name + Exam Date + Fees
-      const groupKey = `${inquiry.courseType}-${inquiry.courseName}-${settings.examDate}-${settings.fees}`;
-      
-      if (!groups[groupKey]) {
-        groups[groupKey] = {
-          courseType: inquiry.courseType,
-          courseName: inquiry.courseName,
-          settings: settings,
-          students: [],
-          studentNames: []
-        };
-      }
-      groups[groupKey].students.push(uid);
-      groups[groupKey].studentNames.push(inquiry.studentName || 'Student');
-    });
-    
-    return Object.values(groups);
-  }, [allExamSettings, inquiries]);
 
   const availableCourseTypes = useMemo(() => {
     const types = new Set<string>();
     
     // Add from available courses
     availableCourses.forEach(c => {
-      const name = c.course_name || c.name || c.courseName;
+      const name = c.course_name || c.name || c.courseType || c.courseName;
       if (name) types.add(name);
     });
 
     // Add from inquiries (Accepted/Confirmed students)
     inquiries.filter(i => i.status === 'Accepted' || i.status === 'Confirmed').forEach(i => {
-      const name = i.courseName || i.course_name || i.name;
+      const name = i.courseType || i.courseName || i.course_name || i.name;
       if (name) types.add(name);
     });
 
@@ -284,9 +271,9 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
 
     // Add from available courses matching type
     availableCourses.forEach(c => {
-      const name = c.course_name || c.name || c.courseName;
+      const name = c.course_name || c.name || c.courseType || c.courseName;
       if (!selectedCourseType || name === selectedCourseType) {
-        const slug = c.course_slug || c.id;
+        const slug = c.course_slug || c.name || c.id;
         if (slug && slug !== 'NULL') {
           courses.add(slug);
         }
@@ -295,9 +282,9 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
 
     // Add from inquiries matching type
     inquiries.filter(i => (i.status === 'Accepted' || i.status === 'Confirmed')).forEach(i => {
-      const name = i.courseName || i.course_name || i.name;
+      const name = i.courseType || i.courseName || i.course_name || i.name;
       if (!selectedCourseType || name === selectedCourseType) {
-        const slug = i.course_slug || i.courseId || i.id;
+        const slug = i.course_slug || i.courseName || i.courseId || i.id;
         if (slug && slug !== 'NULL') {
           courses.add(slug);
         }
@@ -328,6 +315,20 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
               onClick={() => {
                 setSelectedCourseType('');
                 setSelectedCourse('');
+                setSelectedStream('');
+                setTargetAudience('all');
+                setSelectedStudentIds([]);
+                setExamSettings({
+                  examName: '',
+                  registrationOpen: false,
+                  examDate: '',
+                  lastDate: '',
+                  fees: '500',
+                  academicYear: '2026-2027',
+                  stream: '',
+                  targetAudience: 'all',
+                  selectedStudentIds: []
+                });
                 setIsCreateModalOpen(true);
               }}
               className="bg-[#00a5a5] text-white px-8 py-4 rounded-2xl text-[12px] font-black capitalize tracking-tight shadow-xl hover:bg-white hover:text-[#002147] transition-all flex items-center gap-3 active:scale-95 whitespace-nowrap"
@@ -361,6 +362,7 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-black tracking-tighter capitalize">Configured Exam Form</h3>
+                <p className="text-xs text-slate-500 font-medium">Active and scheduled exam configurations by course, stream, and student criteria.</p>
               </div>
             </div>
 
@@ -371,7 +373,9 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                     <th className="px-4 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center w-16">Sr No.</th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black">Course Type</th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black">Course</th>
+                    <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black">Stream / Branch</th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Academic Year</th>
+                    <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Target Students</th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Registration Status</th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Exam Date </th>
                     <th className="px-6 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Last Date of Submit</th>
@@ -381,6 +385,10 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                 </thead>
                 <tbody className="divide-y divide-black">
                   {courseExamConfigs.map((config, idx) => {
+                    const studentTargetCount = config.targetAudience === 'custom' && Array.isArray(config.selectedStudentIds) 
+                      ? `${config.selectedStudentIds.length} Custom Student(s)`
+                      : 'All Students';
+
                     return (
                       <tr key={idx} className="hover:bg-slate-50/50 transition-colors whitespace-nowrap border-b border-black">
                         <td className="px-4 py-6 border-r border-black text-center text-[16px] font-medium text-black">{idx + 1}</td>
@@ -392,8 +400,27 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                         <td className="px-6 py-6 border-r border-black font-medium text-slate-800 text-[15px]">
                           {config.courseName}
                         </td>
+                        <td className="px-6 py-6 border-r border-black text-center font-bold text-slate-700 text-[14px]">
+                          {config.stream ? (
+                            <span className="px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 text-xs">
+                              {config.stream}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-normal">All Streams</span>
+                          )}
+                        </td>
                         <td className="px-6 py-6 border-r border-black text-center font-medium text-slate-800 text-[15px]">
                           {config.academicYear || '2026-2027'}
+                        </td>
+                        <td className="px-6 py-6 border-r border-black text-center">
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-[11px] font-bold border",
+                            config.targetAudience === 'custom'
+                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                              : "bg-blue-50 text-blue-700 border-blue-200"
+                          )}>
+                            {studentTargetCount}
+                          </span>
                         </td>
                         <td className="px-6 py-6 border-r border-black text-center">
                            <span className={cn(
@@ -418,6 +445,9 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                               onClick={() => {
                                 setSelectedCourseType(config.courseType || '');
                                 setSelectedCourse(config.courseName || '');
+                                setSelectedStream(config.stream || '');
+                                setTargetAudience(config.targetAudience || 'all');
+                                setSelectedStudentIds(config.selectedStudentIds || []);
                                 setExamSettings(config);
                                 setIsCreateModalOpen(true);
                               }}
@@ -447,7 +477,7 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                   })}
                   {courseExamConfigs.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="px-10 py-32 text-center">
+                      <td colSpan={11} className="px-10 py-32 text-center">
                         <div className="flex flex-col items-center gap-4 text-slate-300">
                           <Settings size={64} strokeWidth={1} />
                           <p className="text-lg font-bold tracking-tight">No exam configurations assigned yet.</p>
@@ -478,8 +508,8 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsCreateModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-[#002147] p-10 text-white relative">
+          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+            <div className="bg-[#002147] p-10 text-white relative shrink-0">
               <button 
                 onClick={() => setIsCreateModalOpen(false)}
                 className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors"
@@ -490,9 +520,10 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                  <Settings size={32} />
               </div>
               <h3 className="text-3xl font-black tracking-tighter capitalize">Configure Exam Form</h3>
-              <p className="text-[13px] font-normal text-white/60 capitalize tracking-normal mt-2">Set up registration parameters for the current session.</p>
+              <p className="text-[13px] font-normal text-white/60 capitalize tracking-normal mt-2">Set up registration parameters, branch filtering, and student targeting.</p>
             </div>
-            <form onSubmit={(e) => { handleUpdateSettings(e); setIsCreateModalOpen(false); }} className="p-10 space-y-8">
+
+            <form onSubmit={(e) => { handleUpdateSettings(e); setIsCreateModalOpen(false); }} className="p-10 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
               <div className="space-y-6">
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -500,7 +531,12 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                     <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest pl-1">Course Type</label>
                     <select 
                       value={selectedCourseType}
-                      onChange={(e) => setSelectedCourseType(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedCourseType(e.target.value);
+                        setSelectedCourse('');
+                        setSelectedStream('');
+                        setSelectedStudentIds([]);
+                      }}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm cursor-pointer"
                     >
                       <option value="">{loading ? 'Loading types...' : 'Select Type...'}</option>
@@ -514,7 +550,11 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                     <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest pl-1">Course</label>
                     <select 
                       value={selectedCourse}
-                      onChange={(e) => setSelectedCourse(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedCourse(e.target.value);
+                        setSelectedStream('');
+                        setSelectedStudentIds([]);
+                      }}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm cursor-pointer"
                     >
                       <option value="">{loading ? 'Loading courses...' : 'Select Course...'}</option>
@@ -522,6 +562,36 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                         <option key={course} value={course}>{course}</option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest pl-1">Stream / Branch</label>
+                    <select 
+                      value={selectedStream}
+                      onChange={(e) => {
+                        setSelectedStream(e.target.value);
+                        setSelectedStudentIds([]);
+                      }}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm cursor-pointer"
+                    >
+                      <option value="">All Streams / Branches</option>
+                      {availableStreams.map((st: string) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest pl-1">Exam Name</label>
+                    <input 
+                      type="text" 
+                      value={examSettings.examName || ''}
+                      onChange={(e) => setExamSettings({...examSettings, examName: e.target.value})}
+                      placeholder="e.g. Annual Examination 2026"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -540,15 +610,115 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest pl-1">Exam Name</label>
-                  <input 
-                    type="text" 
-                    value={examSettings.examName || ''}
-                    onChange={(e) => setExamSettings({...examSettings, examName: e.target.value})}
-                    placeholder="e.g. Annual Examination 2026"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm"
-                  />
+                {/* Custom Student Targeting Section */}
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">Candidate Targeting</h4>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">Choose all admitted students in the selected course/stream or pick custom candidates.</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setTargetAudience('all')}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                          targetAudience === 'all' ? "bg-[#002147] text-white shadow" : "text-slate-600 hover:text-black"
+                        )}
+                      >
+                        All Students ({filteredCandidateStudents.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTargetAudience('custom')}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                          targetAudience === 'custom' ? "bg-[#00a5a5] text-white shadow" : "text-slate-600 hover:text-black"
+                        )}
+                      >
+                        Select Custom Students ({selectedStudentIds.length})
+                      </button>
+                    </div>
+                  </div>
+
+                  {targetAudience === 'custom' && (
+                    <div className="space-y-3 pt-3 border-t border-slate-200">
+                      <div className="flex items-center justify-between gap-4">
+                        <input
+                          type="text"
+                          placeholder="Search candidate by name, reg no..."
+                          value={studentSearch}
+                          onChange={(e) => setStudentSearch(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-medium outline-none focus:border-[#00a5a5]"
+                        />
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedStudentIds(filteredCandidateStudents.map(s => s.studentUid))}
+                            className="px-3 py-2 text-[11px] font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-100"
+                          >
+                            Select All
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedStudentIds([])}
+                            className="px-3 py-2 text-[11px] font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-rose-600"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="max-h-48 overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
+                        {filteredCandidateStudents
+                          .filter(s => {
+                            const q = studentSearch.toLowerCase();
+                            const name = (s.studentName || '').toLowerCase();
+                            const reg = (s.regNo || s.manualRegNo || '').toLowerCase();
+                            return name.includes(q) || reg.includes(q);
+                          })
+                          .map((student) => {
+                            const isChecked = selectedStudentIds.includes(student.studentUid);
+                            return (
+                              <label
+                                key={student.studentUid || student.id}
+                                className={cn(
+                                  "flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer",
+                                  isChecked ? "bg-teal-50/70 border-[#00a5a5]" : "bg-white border-slate-200 hover:bg-slate-50"
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedStudentIds([...selectedStudentIds, student.studentUid]);
+                                      } else {
+                                        setSelectedStudentIds(selectedStudentIds.filter(id => id !== student.studentUid));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-[#00a5a5] rounded focus:ring-0 cursor-pointer"
+                                  />
+                                  <div>
+                                    <p className="text-xs font-bold text-slate-800 capitalize">{student.studentName}</p>
+                                    <p className="text-[10px] text-slate-400 font-medium">
+                                      Reg: {student.regNo || student.manualRegNo || 'N/A'} {student.stream ? `| Stream: ${student.stream}` : ''}
+                                    </p>
+                                  </div>
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">{student.courseType || 'Regular'}</span>
+                              </label>
+                            );
+                          })}
+
+                        {filteredCandidateStudents.length === 0 && (
+                          <p className="text-xs text-slate-400 text-center py-4">No admitted students found matching selected course and stream criteria.</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">

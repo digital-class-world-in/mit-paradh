@@ -14,6 +14,7 @@ import StudentNavbar from '@/components/StudentNavbar';
 import GlobalDataFilter, { FilterState, applyGlobalFilters } from '@/components/GlobalDataFilter';
 import { QRCodeCanvas } from 'qrcode.react';
 import { safeHtml2Canvas as html2canvas } from '@/lib/safeHtml2Canvas';
+import { compressImage } from '@/lib/imageCompressor';
 import jsPDF from 'jspdf';
 import { OfficialMarksheet } from '@/components/OfficialMarksheet';
 import { OfficialCertificate } from '@/components/OfficialCertificate';
@@ -61,7 +62,8 @@ import {
   Upload,
   Filter,
   RotateCcw,
-  Search
+  Search,
+  Receipt
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -1284,7 +1286,7 @@ const ApplicationManager = ({
   );
 };
 
-const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExamModalOpen, setSelectedExamConfig, userData }: any) => (
+const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExamModalOpen, setSelectedExamConfig, userData, setLastReceipt, setShowReceipt }: any) => (
   <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
     <div className="bg-white border-[0.5px] border-black rounded-md shadow-sm overflow-hidden text-[#343a40]">
       <div className="bg-[#002147] text-white py-4 px-8 font-black text-sm tracking-widest flex items-center justify-between">
@@ -1306,6 +1308,7 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
               <th className="px-8 py-5 border-r-[0.5px] border-black">Course Type</th>
               <th className="px-8 py-5 border-r-[0.5px] border-black">Course (Academic Year)</th>
               <th className="px-8 py-5 border-r-[0.5px] border-black text-center">Fees</th>
+              <th className="px-8 py-5 border-r-[0.5px] border-black text-center">Form Status</th>
               <th className="px-8 py-5 text-right">Action</th>
             </tr>
           </thead>
@@ -1314,10 +1317,16 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
               Array.isArray(examSettings) && examSettings.length > 0 ? (
                 examSettings.map((config: any, index: number) => {
                   const academicYear = config.academicYear || '2026-2027';
-                  const submissionForConfig = examSubmissions.find((s: any) => 
-                    (s.academicYear || '2026-2027') === academicYear && s.status !== 'Rejected'
-                  );
-                  const isBtnDisabled = !config.registrationOpen || !!submissionForConfig;
+                  // Get active or latest submission for this exam config
+                  const matchingSubmissions = examSubmissions.filter((s: any) => {
+                    if (config.id && s.examConfigId && s.examConfigId === config.id) return true;
+                    if (s.examName && config.examName && s.examName.toLowerCase() === config.examName.toLowerCase() && (s.academicYear || '2026-2027') === academicYear) return true;
+                    if (!s.examConfigId && !s.examName && (s.academicYear || '2026-2027') === academicYear) return true;
+                    return false;
+                  });
+                  // Prefer active (Verified / Pending) or latest rejected
+                  const submissionForConfig = matchingSubmissions.find((s: any) => s.status !== 'Rejected') || matchingSubmissions[0];
+                  const isBtnDisabled = !config.registrationOpen || (!!submissionForConfig && submissionForConfig.status !== 'Rejected');
 
                   return (
                     <tr key={config.id || index} className="hover:bg-slate-50/50 transition-colors border-b-[0.5px] border-black whitespace-nowrap">
@@ -1360,35 +1369,131 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Exam Fees</span>
                         </div>
                       </td>
+                      <td className="px-8 py-6 border-r-[0.5px] border-black text-center">
+                        {submissionForConfig?.status === 'Verified' ? (
+                          <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-700 font-black text-[11px] uppercase border border-emerald-300 tracking-wider">
+                            VERIFIED & APPROVED
+                          </span>
+                        ) : submissionForConfig?.status === 'Rejected' ? (
+                          <div className="flex flex-col items-center gap-1.5">
+                            <span className="px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-black text-[10px] uppercase border border-rose-300">
+                              REJECTED BY COLLEGE
+                            </span>
+                            <div className="bg-rose-50 text-rose-700 border border-rose-200 rounded-xl px-3 py-1.5 text-[11px] font-bold max-w-[220px] whitespace-normal text-center shadow-sm">
+                              <span className="text-rose-500 uppercase text-[9px] block font-black mb-0.5">Rejection Reason:</span>
+                              {submissionForConfig.remarks || 'Please re-verify payment details and re-submit.'}
+                            </div>
+                          </div>
+                        ) : submissionForConfig ? (
+                          <span className="px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-800 font-black text-[10px] uppercase border border-amber-300 tracking-wider">
+                            AWAITING APPROVAL
+                          </span>
+                        ) : (
+                          <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-700 font-black text-[10px] uppercase border border-blue-200">
+                            PENDING SUBMISSION
+                          </span>
+                        )}
+                      </td>
                       <td className="px-8 py-6 text-right">
-                        <button
-                          disabled={isBtnDisabled}
-                          onClick={() => {
-                            setSelectedExamConfig(config);
-                            setIsExamModalOpen(true);
-                          }}
-                          className={cn(
-                            "px-8 py-3 rounded-xl text-[12px] font-black capitalize tracking-tight shadow-xl transition-all active:scale-95",
-                            isBtnDisabled
-                              ? "bg-slate-100 text-slate-400 cursor-not-allowed border-[0.5px] border-black"
-                              : "bg-[#00a5a5] text-white hover:bg-[#002147] hover:scale-105"
-                          )}
-                        >
-                          {submissionForConfig?.status === 'Verified' ? 'VERIFIED' : submissionForConfig ? 'PENDING' : 'SUBMIT EXAM FORM'}
-                        </button>
+                        {submissionForConfig?.status === 'Verified' ? (
+                          <div className="flex items-center justify-end gap-3">
+                            {submissionForConfig.screenshot && (
+                              <button
+                                onClick={() => setModalPreview({ url: submissionForConfig.screenshot, label: 'Payment Receipt / UTR: ' + (submissionForConfig.utrId || 'N/A') })}
+                                className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-[#002147] hover:text-white transition-all border border-slate-200 shadow-sm active:scale-95"
+                                title="View Submitted Payment Proof"
+                              >
+                                <Eye size={16} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                setLastReceipt({
+                                  ...submissionForConfig,
+                                  isExamFee: true,
+                                  amount: submissionForConfig.fees || config.fees,
+                                  fees: submissionForConfig.fees || config.fees,
+                                  examName: config.examName || 'Annual / Semester Examination',
+                                  collegeName: activeApp.collegeName,
+                                  courseName: activeApp.courseName,
+                                  courseType: activeApp.courseType || 'Regular',
+                                  academicYear: academicYear
+                                });
+                                setShowReceipt(true);
+                              }}
+                              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] font-black uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all"
+                              title="Download / Print Official Exam Fee Receipt"
+                            >
+                              <Receipt size={15} /> Get Receipt
+                            </button>
+                          </div>
+                        ) : submissionForConfig?.status === 'Rejected' ? (
+                          <div className="flex items-center justify-end gap-2">
+                            {submissionForConfig.screenshot && (
+                              <button
+                                onClick={() => setModalPreview({ url: submissionForConfig.screenshot, label: 'Payment Proof / UTR: ' + (submissionForConfig.utrId || 'N/A') })}
+                                className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-[#002147] hover:text-white transition-all border border-slate-200"
+                                title="View Uploaded Payment"
+                              >
+                                <Eye size={14} />
+                              </button>
+                            )}
+                            <button
+                              disabled={isBtnDisabled}
+                              onClick={() => {
+                                setSelectedExamConfig(config);
+                                setIsExamModalOpen(true);
+                              }}
+                              className="px-4 py-2 rounded-xl text-[11px] font-black uppercase bg-rose-600 text-white hover:bg-rose-700 transition-all shadow-md active:scale-95"
+                            >
+                              Re-Submit
+                            </button>
+                          </div>
+                        ) : submissionForConfig ? (
+                          <div className="flex items-center justify-end gap-3">
+                            {submissionForConfig.screenshot && (
+                              <button
+                                onClick={() => setModalPreview({ url: submissionForConfig.screenshot, label: 'Submitted Payment Proof / UTR: ' + (submissionForConfig.utrId || 'N/A') })}
+                                className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-[#002147] hover:text-white transition-all border border-slate-200 shadow-sm active:scale-95"
+                                title="View Uploaded Payment Proof"
+                              >
+                                <Eye size={16} />
+                              </button>
+                            )}
+                            <span className="text-[11px] text-amber-700 font-bold bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                              Verification In Progress
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            disabled={isBtnDisabled}
+                            onClick={() => {
+                              setSelectedExamConfig(config);
+                              setIsExamModalOpen(true);
+                            }}
+                            className={cn(
+                              "px-8 py-3 rounded-xl text-[12px] font-black capitalize tracking-tight shadow-xl transition-all active:scale-95",
+                              isBtnDisabled
+                                ? "bg-slate-100 text-slate-400 cursor-not-allowed border-[0.5px] border-black"
+                                : "bg-[#00a5a5] text-white hover:bg-[#002147] hover:scale-105"
+                            )}
+                          >
+                            Fill Exam Form
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={10} className="py-20 text-center text-slate-400 font-medium border-b-[0.5px] border-black">
+                  <td colSpan={11} className="py-20 text-center text-slate-400 font-medium border-b-[0.5px] border-black">
                     Exam form is not configured yet for your course ({activeApp.courseType || 'Regular'} - {activeApp.courseName}).
                   </td>
                 </tr>
               )
             ) : (
-              <tr><td colSpan={10} className="py-20 text-center text-slate-400 font-medium border-b-[0.5px] border-black">No active enrollment found.</td></tr>
+              <tr><td colSpan={11} className="py-20 text-center text-slate-400 font-medium border-b-[0.5px] border-black">No active enrollment found.</td></tr>
             )}
           </tbody>
         </table>
@@ -2885,6 +2990,8 @@ function DashboardContent() {
   const [selectedExamConfig, setSelectedExamConfig] = useState<any>(null);
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [isSubmittingExam, setIsSubmittingExam] = useState(false);
+  const [isUploadingExamScreenshot, setIsUploadingExamScreenshot] = useState(false);
+  const [examScreenshotFileName, setExamScreenshotFileName] = useState('');
   const [examForm, setExamForm] = useState<any>({
     screenshot: '',
     studentName: '',
@@ -2893,7 +3000,8 @@ function DashboardContent() {
     dob: '',
     aadharNumber: '',
     studentPhone: '',
-    regNo: ''
+    regNo: '',
+    utrId: ''
   });
   const [selectedAppForPreview, setSelectedAppForPreview] = useState<any>(null);
   const [studentProfileForPreview, setStudentProfileForPreview] = useState<any>(null);
@@ -3387,12 +3495,44 @@ function DashboardContent() {
       if (configUnsubRef.current) configUnsubRef.current();
       configUnsubRef.current = onValue(configRef, (configSnap) => {
         getCourseSlug().then((courseSlug) => {
-          const configId = `${activeApp.courseType || 'Regular'}_${courseSlug}`.replace(/\s+/g, '_');
           if (configSnap.exists()) {
             const configs = configSnap.val();
-            if (configs[configId]) {
-              setExamSettings([ { ...configs[configId], id: configId } ]);
-              safeSessionSet('student_exam_settings', [ { ...configs[configId], id: configId } ]);
+            const matchedConfigs: any[] = [];
+            const studentCourseType = (activeApp.courseType || 'Regular').trim().toLowerCase();
+            const studentCourseName = (activeApp.courseName || '').trim().toLowerCase();
+            const studentCourseSlug = (courseSlug || '').trim().toLowerCase();
+            const studentCourseId = (activeApp.courseId || '').trim().toLowerCase();
+
+            Object.entries(configs).forEach(([id, val]: any) => {
+              const cfgCourseType = (val.courseType || '').trim().toLowerCase();
+              const cfgCourseName = (val.courseName || '').trim().toLowerCase();
+              const cfgStream = (val.stream || '').trim().toLowerCase();
+              const studentStream = (activeApp.stream || activeApp.branch || activeApp.streamBranch || '').trim().toLowerCase();
+
+              const typeMatches = !cfgCourseType || cfgCourseType === studentCourseType || studentCourseName.includes(cfgCourseType);
+              const courseMatches = cfgCourseName === studentCourseSlug ||
+                                    cfgCourseName === studentCourseName ||
+                                    cfgCourseName === studentCourseId ||
+                                    studentCourseName.includes(cfgCourseName) ||
+                                    cfgCourseName.includes(studentCourseName);
+              const streamMatches = !cfgStream || cfgStream === studentStream;
+
+              // Check if exam is targeted to all or specific students
+              const studentTargetMatches = !val.targetAudience || 
+                                           val.targetAudience === 'all' || 
+                                           (Array.isArray(val.selectedStudentIds) && val.selectedStudentIds.includes(currentUid));
+
+              if (typeMatches && courseMatches && streamMatches && studentTargetMatches) {
+                matchedConfigs.push({ ...val, id });
+              }
+            });
+
+            if (matchedConfigs.length > 0) {
+              setExamSettings(matchedConfigs);
+              safeSessionSet('student_exam_settings', matchedConfigs);
+            } else {
+              setExamSettings([]);
+              safeSessionSet('student_exam_settings', []);
             }
           }
         });
@@ -4017,12 +4157,16 @@ function DashboardContent() {
         aadharNumber: examForm.aadharNumber || userData.profile?.aadhaarNo || 'N/A',
         gender: userData.profile?.gender || userData.gender || 'N/A',
         studentPhone: userData.profile?.phone || userData.profile?.mobileNo || userData.profile?.mobileNumber || userData.phone || 'N/A',
+        stream: activeApp.stream || activeApp.branch || activeApp.streamBranch || selectedExamConfig?.stream || '',
         session: userData.profile?.admissionYear || 'N/A',
+        utrId: examForm.utrId || 'N/A',
         screenshot: examForm.screenshot,
         studentPhoto: userData.profile?.photoUrl || userData.photo || '',
         studentSignature: userData.profile?.signUrl || userData.profile?.signatureUrl || '',
         submittedAt: new Date().toISOString(),
         status: 'Pending',
+        examConfigId: selectedExamConfig?.id || '',
+        examName: selectedExamConfig?.examName || 'Annual / Semester Examination',
         fees: selectedExamConfig?.fees || '0',
         academicYear: selectedExamConfig?.academicYear || '2026-2027'
       };
@@ -4412,6 +4556,8 @@ function DashboardContent() {
             setIsExamModalOpen={setIsExamModalOpen}
             setSelectedExamConfig={setSelectedExamConfig}
             userData={userData}
+            setLastReceipt={setLastReceipt}
+            setShowReceipt={setShowReceipt}
           />
         );
       case 5: {
@@ -5037,56 +5183,127 @@ function DashboardContent() {
                   </div>
                 )}
 
-                <div className="space-y-4">
-                  <label className="text-[13px] font-black text-slate-800 capitalize tracking-tight pl-1">Upload Payment Receipt / Screenshot <span className="text-red-500">*</span></label>
-                  <div className="flex items-center gap-6">
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        id="exam-payment-screenshot"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const fileRef = storageRef(storage, `users/${userData.uid}/examPayments/${Date.now()}_${file.name}`);
-                            const uploadTask = uploadBytesResumable(fileRef, file);
-                            uploadTask.on('state_changed', null, 
-                              (error) => { console.error('Upload failed', error); alert('Failed to upload image'); },
-                              async () => {
-                                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                                setExamForm({ ...examForm, screenshot: url });
-                              }
-                            );
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="exam-payment-screenshot"
-                        className="w-full flex items-center justify-center gap-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded-[2rem] p-8 cursor-pointer hover:bg-white hover:border-[#00a5a5] transition-all group"
-                      >
-                        <Camera size={24} className="text-slate-400 group-hover:text-[#00a5a5]" />
-                        <span className="text-sm font-bold text-slate-500 group-hover:text-black">
-                          {examForm.screenshot ? 'Update Receipt Photo' : 'Upload Transaction Screenshot'}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-black text-slate-800 capitalize tracking-tight pl-1">
+                      Transaction / UTR Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 12-digit UPI Ref / UTR No"
+                      value={examForm.utrId || ''}
+                      onChange={(e) => setExamForm({ ...examForm, utrId: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-black text-slate-800 capitalize tracking-tight pl-1 flex items-center justify-between">
+                      <span>Payment Screenshot / Receipt <span className="text-red-500">*</span></span>
+                      {examScreenshotFileName && (
+                        <span className="text-[11px] font-bold text-teal-600 truncate max-w-[180px]">
+                          {examScreenshotFileName}
                         </span>
-                      </label>
-                    </div>
-                    {examForm.screenshot && (
-                      <div className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl overflow-hidden shrink-0 animate-in zoom-in-50" onClick={() => setModalPreview({ url: examForm.screenshot, label: 'Payment Receipt' })}>
-                        <img src={examForm.screenshot} className="w-full h-full object-cover" alt="Preview" />
+                      )}
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id="exam-payment-screenshot"
+                          disabled={isUploadingExamScreenshot}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setExamScreenshotFileName(file.name);
+                              setIsUploadingExamScreenshot(true);
+                              try {
+                                const compressedBlob = await compressImage(file, 1280, 1280, 0.75);
+                                const fileRef = storageRef(storage, `users/${userData.uid}/examPayments/${Date.now()}_${file.name.replace(/\.[^/.]+$/, '')}.jpg`);
+                                const uploadTask = uploadBytesResumable(fileRef, compressedBlob, { contentType: 'image/jpeg' });
+                                uploadTask.on('state_changed', 
+                                  null, 
+                                  (error) => { 
+                                    console.error('Upload failed', error); 
+                                    alert('Failed to upload image'); 
+                                    setIsUploadingExamScreenshot(false);
+                                  },
+                                  async () => {
+                                    const url = await getDownloadURL(uploadTask.snapshot.ref);
+                                    setExamForm({ ...examForm, screenshot: url });
+                                    setIsUploadingExamScreenshot(false);
+                                  }
+                                );
+                              } catch (compErr) {
+                                console.error('Compression error:', compErr);
+                                const fileRef = storageRef(storage, `users/${userData.uid}/examPayments/${Date.now()}_${file.name}`);
+                                const uploadTask = uploadBytesResumable(fileRef, file);
+                                uploadTask.on('state_changed', 
+                                  null, 
+                                  (error) => { 
+                                    console.error('Upload failed', error); 
+                                    alert('Failed to upload image'); 
+                                    setIsUploadingExamScreenshot(false);
+                                  },
+                                  async () => {
+                                    const url = await getDownloadURL(uploadTask.snapshot.ref);
+                                    setExamForm({ ...examForm, screenshot: url });
+                                    setIsUploadingExamScreenshot(false);
+                                  }
+                                );
+                              }
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor="exam-payment-screenshot"
+                          className={cn(
+                            "w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-2xl p-3.5 transition-all group",
+                            isUploadingExamScreenshot 
+                              ? "bg-teal-50 border-[#00a5a5] cursor-wait" 
+                              : "bg-slate-50 border-slate-300 hover:bg-white hover:border-[#00a5a5] cursor-pointer"
+                          )}
+                        >
+                          {isUploadingExamScreenshot ? (
+                            <>
+                              <Loader2 size={18} className="animate-spin text-[#00a5a5]" />
+                              <span className="text-xs font-black text-[#00a5a5] animate-pulse">
+                                Uploading {examScreenshotFileName || 'File'}...
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <Camera size={18} className="text-slate-400 group-hover:text-[#00a5a5]" />
+                              <span className="text-xs font-bold text-slate-500 group-hover:text-black">
+                                {examForm.screenshot ? `Change Photo (${examScreenshotFileName || 'Uploaded'})` : 'Upload Receipt Photo'}
+                              </span>
+                            </>
+                          )}
+                        </label>
                       </div>
-                    )}
+                      {examForm.screenshot && !isUploadingExamScreenshot && (
+                        <div 
+                          className="w-12 h-12 rounded-xl border-2 border-[#00a5a5] shadow-md overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" 
+                          onClick={() => setModalPreview({ url: examForm.screenshot, label: `Receipt: ${examScreenshotFileName || 'Payment Screenshot'}` })}
+                          title="Click to preview uploaded image"
+                        >
+                          <img src={examForm.screenshot} className="w-full h-full object-cover" alt="Preview" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmittingExam}
+                disabled={isSubmittingExam || isUploadingExamScreenshot}
                 className="w-full bg-[#00a5a5] text-white py-6 rounded-[2.5rem] text-sm font-black capitalize tracking-widest shadow-2xl hover:bg-[#002147] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
               >
-                {isSubmittingExam ? 'Processing Submission...' : <><Save size={20} /> Submit Examination Form</>}
-
+                {isSubmittingExam ? 'Processing Submission...' : isUploadingExamScreenshot ? 'Uploading Screenshot...' : <><Save size={20} /> Submit Examination Form</>}
               </button>
             </form>
           </div>
@@ -5284,11 +5501,14 @@ function DashboardContent() {
                     )}
                   </div>
                   <div className="flex-1 text-center pr-20">
-                    <h5 className="text-[10px] font-bold uppercase text-[#dc2626]">{lastReceipt.collegeParentOrg}</h5>
+                    <h5 className="text-[10px] font-bold uppercase text-[#dc2626]">{lastReceipt.collegeParentOrg || 'Maharashtra State Board of Vocational Education'}</h5>
                     <h1 className="text-[18px] font-black text-[#b91c1c] uppercase leading-none tracking-tighter mt-1">
-                      Mahalaxmi Nursing and technical institute Paradh
+                      {lastReceipt.collegeName || 'Mahalaxmi Nursing and Technical Institute Paradh'}
                     </h1>
-                    <p className="text-[12px] font-bold uppercase tracking-widest mt-1 text-[#dc2626]">{lastReceipt.collegeAddress}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider mt-1 text-[#dc2626]">{lastReceipt.collegeAddress || 'Paradh Bk TQ Bhokardan Dist Jalna'}</p>
+                    <div className="mt-2 inline-block px-4 py-0.5 bg-[#fef2f2] border border-[#dc2626] rounded-full text-[11px] font-black uppercase text-[#991b1b] tracking-wider">
+                      {lastReceipt.isExamFee || lastReceipt.examName ? `EXAMINATION FEE RECEIPT - ${lastReceipt.examName || 'ANNUAL EXAM'}` : 'OFFICIAL MONEY RECEIPT'}
+                    </div>
                   </div>
                 </div>
 
@@ -5384,17 +5604,23 @@ function DashboardContent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {["Tuition Fee", "Admission Fee/Enrollment Fee", "University Eligibility Fee", "Univ Exam. Fee", "Univ Sports Fee", "Univ Welfare Fund", "Student Insurance", "Caution Money Deposit", "I-Card, Magazines", "Journals / Stationary", "Extra Curricular Fee", "College Development Fee", "Library Fee", "Laboratory Fee", "Professional Membership", "Transportation Fee", "Medical Exam Fee", "Development Fee", "Other Fees"].map((item, idx) => (
-                        <tr key={idx} className="border-b-[1px] border-[#f87171] text-[12px]">
-                          <td className="px-3 py-1 border-r-[1.5px] border-[#dc2626] text-center font-bold">{idx + 1}</td>
-                          <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626] font-medium">{item}</td>
-                          <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626]">-</td>
-                          <td className="px-4 py-1 text-right font-black">{idx === 0 ? `₹${parseFloat(lastReceipt.amount).toLocaleString()}` : '-'}</td>
-                        </tr>
-                      ))}
+                      {["Tuition Fee", "Admission Fee/Enrollment Fee", "University Eligibility Fee", "Univ Exam. Fee", "Univ Sports Fee", "Univ Welfare Fund", "Student Insurance", "Caution Money Deposit", "I-Card, Magazines", "Journals / Stationary", "Extra Curricular Fee", "College Development Fee", "Library Fee", "Laboratory Fee", "Professional Membership", "Transportation Fee", "Medical Exam Fee", "Development Fee", "Other Fees"].map((item, idx) => {
+                        const isExamReceipt = !!(lastReceipt.isExamFee || lastReceipt.examName || lastReceipt.fees);
+                        const isAmountRow = isExamReceipt ? idx === 3 : idx === 0;
+                        const amountVal = parseFloat(lastReceipt.amount || lastReceipt.fees || '0');
+
+                        return (
+                          <tr key={idx} className="border-b-[1px] border-[#f87171] text-[12px]">
+                            <td className="px-3 py-1 border-r-[1.5px] border-[#dc2626] text-center font-bold">{idx + 1}</td>
+                            <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626] font-medium">{item}</td>
+                            <td className="px-4 py-1 border-r-[1.5px] border-[#dc2626]">{isAmountRow ? (isExamReceipt ? 'PAID & VERIFIED' : '-') : '-'}</td>
+                            <td className="px-4 py-1 text-right font-black">{isAmountRow ? `₹${amountVal.toLocaleString()}` : '-'}</td>
+                          </tr>
+                        );
+                      })}
                       <tr className="border-t-[1.5px] border-[#dc2626] font-black bg-[#fef2f2]">
-                        <td colSpan={3} className="px-4 py-2 text-right text-[12px] uppercase border-r-[1.5px] border-[#dc2626]">Total Fess</td>
-                        <td className="px-4 py-2 text-right text-[14px] text-[#991b1b]">₹{parseFloat(lastReceipt.amount).toLocaleString()}</td>
+                        <td colSpan={3} className="px-4 py-2 text-right text-[12px] uppercase border-r-[1.5px] border-[#dc2626]">Total Fees</td>
+                        <td className="px-4 py-2 text-right text-[14px] text-[#991b1b]">₹{parseFloat(lastReceipt.amount || lastReceipt.fees || '0').toLocaleString()}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -5404,7 +5630,7 @@ function DashboardContent() {
                 <div className="mt-4 space-y-4 shrink-0">
                   <div className="flex items-baseline gap-4 w-full">
                     <span className="text-[13px] font-bold uppercase shrink-0 italic">Amount In Words Rs :</span>
-                    <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 text-[14px] font-black uppercase pl-4">{numberToWords(parseFloat(lastReceipt.amount))}</div>
+                    <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 text-[14px] font-black uppercase pl-4">{numberToWords(parseFloat(lastReceipt.amount || lastReceipt.fees || '0'))}</div>
                   </div>
                   <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[12px] font-bold italic uppercase">
                     <div className="flex items-baseline gap-4"><span className="shrink-0">Cash/D.D. No :</span><div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-0.5 pl-4">{lastReceipt.utrId || 'Online Payment'}</div></div>

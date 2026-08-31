@@ -60,7 +60,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         setRegistrations(JSON.parse(cached));
         setLoading(false);
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (!realtimeDb || !resolvedAdminUid) {
       setLoading(false);
@@ -90,19 +90,19 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
             if (!user || typeof user !== 'object') return false;
             return user?.role !== 'admin' && user?.role !== 'college' && user?.role !== 'staff';
           });
-          
+
           lockedProfs = entries.map(([id, user]: [string, any]) => {
             try {
               const appList = user.applications ? Object.values(user.applications) : [];
               const appliedColleges = appList.map((a: any) => a?.collegeId).filter(Boolean);
               if (user.collegeId) appliedColleges.push(user.collegeId);
-              
+
               const courseTypes = appList.map((a: any) => a?.courseType).filter(Boolean);
               const courseNames = appList.map((a: any) => a?.courseName).filter(Boolean);
               const durations = appList.map((a: any) => a?.duration).filter(Boolean);
               const semesters = appList.map((a: any) => a?.semester).filter(Boolean);
               const streams = appList.map((a: any) => a?.stream).filter(Boolean);
-              
+
               return {
                 id,
                 ...(user.profile || {}),
@@ -154,40 +154,40 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
           setRegistrations(finalRegs);
           try {
             localStorage.setItem(collegeId ? `cache_admin_student_reg_${collegeId}` : 'cache_admin_student_reg_global', JSON.stringify(finalRegs));
-          } catch (e) {}
+          } catch (e) { }
         } else {
           console.log("[StudentRegistrationManager] No snapshot data found for users node");
           setRegistrations([{
-              id: 'dummy-student-123',
-              firstName: 'Test',
-              lastName: 'Student',
-              email: 'test@student.com',
-              password: 'password123',
-              regNo: 'MIT-2026-TEST',
-              profileLocked: false,
-              createdAt: new Date().toISOString(),
-              appliedColleges: [],
-              phone: '9876543210',
-              gender: 'male',
-              dateOfBirth: '2000-01-01'
+            id: 'dummy-student-123',
+            firstName: 'Test',
+            lastName: 'Student',
+            email: 'test@student.com',
+            password: 'password123',
+            regNo: 'MIT-2026-TEST',
+            profileLocked: false,
+            createdAt: new Date().toISOString(),
+            appliedColleges: [],
+            phone: '9876543210',
+            gender: 'male',
+            dateOfBirth: '2000-01-01'
           }]);
         }
         setLoading(false);
       }, (error) => {
         console.error('Realtime DB Error:', error);
         setRegistrations([{
-              id: 'dummy-student-123',
-              firstName: 'Test',
-              lastName: 'Student',
-              email: 'test@student.com',
-              password: 'password123',
-              regNo: 'MIT-2026-TEST',
-              profileLocked: false,
-              createdAt: new Date().toISOString(),
-              appliedColleges: [],
-              phone: '9876543210',
-              gender: 'male',
-              dateOfBirth: '2000-01-01'
+          id: 'dummy-student-123',
+          firstName: 'Test',
+          lastName: 'Student',
+          email: 'test@student.com',
+          password: 'password123',
+          regNo: 'MIT-2026-TEST',
+          profileLocked: false,
+          createdAt: new Date().toISOString(),
+          appliedColleges: [],
+          phone: '9876543210',
+          gender: 'male',
+          dateOfBirth: '2000-01-01'
         }]);
         setLoading(false);
       });
@@ -209,13 +209,13 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
   const baseFilteredRegistrations = registrations.filter(reg => {
     const matchesCollege = !selectedCollegeId || (reg.appliedColleges?.includes(selectedCollegeId) || reg.collegeId === selectedCollegeId);
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       (reg.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (reg.lastName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (reg.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (reg.regNo || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (reg.phone || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesProfile = !filterProfileStatus || 
+    const matchesProfile = !filterProfileStatus ||
       (filterProfileStatus === 'Locked' && reg.profileLocked) ||
       (filterProfileStatus === 'In Progress' && !reg.profileLocked);
 
@@ -250,7 +250,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
   const handleDeleteRegistration = async (regId: string) => {
     if (!window.confirm("Are you sure you want to permanently delete this student registration? This will remove all data and cannot be undone.")) return;
-    
+
     try {
       const userRef = ref(realtimeDb, `users/${regId}`);
       await remove(userRef);
@@ -276,24 +276,24 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         setSelectedReg({ ...registrations.find(r => r.id === regId), id: regId });
         setEditForm({
           // Name: registration form saves at root; profile wizard saves under profile
-          firstName:        u.firstName       || p.firstName       || '',
-          lastName:         u.lastName        || p.lastName        || '',
-          middleName:       u.middleName      || p.middleName      || '',
+          firstName: u.firstName || p.firstName || '',
+          lastName: u.lastName || p.lastName || '',
+          middleName: u.middleName || p.middleName || '',
           // DOB & Gender
-          dateOfBirth:      u.dateOfBirth     || p.dateOfBirth     || '',
-          gender:           u.gender          || p.gender          || '',
+          dateOfBirth: u.dateOfBirth || p.dateOfBirth || '',
+          gender: u.gender || p.gender || '',
           // Contact
-          phone:            u.phone           || p.phone           || '',
-          alternatePhone:   u.secondaryPhone  || p.secondaryPhone  || p.alternatePhone || p.alternativeMobile || '',
+          phone: u.phone || p.phone || '',
+          alternatePhone: u.secondaryPhone || p.secondaryPhone || p.alternatePhone || p.alternativeMobile || '',
           // Father
-          fatherFirstName:  p.fatherFirstName || '',
+          fatherFirstName: p.fatherFirstName || '',
           // Security (stored at root by registration form)
           securityQuestion: u.securityQuestion || '',
-          securityAnswer:   u.securityAnswer   || '',
+          securityAnswer: u.securityAnswer || '',
           // Credentials
-          email:    u.email    || '',
+          email: u.email || '',
           password: u.password || '',
-          regNo:    u.regNo    || p.regNo || '',
+          regNo: u.regNo || p.regNo || '',
           manualRegNo: u.manualRegNo || p.manualRegNo || ''
         });
         setIsEditModalOpen(true);
@@ -310,55 +310,55 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
     try {
       const uid = selectedReg.id;
       const updates: any = {};
-      
+
       // Global User updates
       if (resolvedAdminUid) {
-        updates[`users/${uid}/adminUid`]         = resolvedAdminUid;
+        updates[`users/${uid}/adminUid`] = resolvedAdminUid;
       }
-      updates[`users/${uid}/email`]            = editForm.email;
-      updates[`users/${uid}/password`]         = editForm.password;
-      updates[`users/${uid}/firstName`]        = editForm.firstName;
-      updates[`users/${uid}/lastName`]         = editForm.lastName;
-      updates[`users/${uid}/middleName`]       = editForm.middleName || '';
-      updates[`users/${uid}/phone`]            = editForm.phone;
-      updates[`users/${uid}/secondaryPhone`]   = editForm.alternatePhone;
-      updates[`users/${uid}/gender`]           = editForm.gender;
-      updates[`users/${uid}/dateOfBirth`]      = editForm.dateOfBirth;
+      updates[`users/${uid}/email`] = editForm.email;
+      updates[`users/${uid}/password`] = editForm.password;
+      updates[`users/${uid}/firstName`] = editForm.firstName;
+      updates[`users/${uid}/lastName`] = editForm.lastName;
+      updates[`users/${uid}/middleName`] = editForm.middleName || '';
+      updates[`users/${uid}/phone`] = editForm.phone;
+      updates[`users/${uid}/secondaryPhone`] = editForm.alternatePhone;
+      updates[`users/${uid}/gender`] = editForm.gender;
+      updates[`users/${uid}/dateOfBirth`] = editForm.dateOfBirth;
       updates[`users/${uid}/securityQuestion`] = editForm.securityQuestion;
-      updates[`users/${uid}/securityAnswer`]   = editForm.securityAnswer;
-      updates[`users/${uid}/regNo`]            = editForm.regNo;
-      updates[`users/${uid}/manualRegNo`]      = editForm.manualRegNo;
-      updates[`users/${uid}/profile/firstName`]      = editForm.firstName;
-      updates[`users/${uid}/profile/lastName`]       = editForm.lastName;
-      updates[`users/${uid}/profile/fatherFirstName`]= editForm.fatherFirstName;
-      updates[`users/${uid}/profile/dateOfBirth`]    = editForm.dateOfBirth;
-      updates[`users/${uid}/profile/gender`]         = editForm.gender;
-      updates[`users/${uid}/profile/phone`]          = editForm.phone;
+      updates[`users/${uid}/securityAnswer`] = editForm.securityAnswer;
+      updates[`users/${uid}/regNo`] = editForm.regNo;
+      updates[`users/${uid}/manualRegNo`] = editForm.manualRegNo;
+      updates[`users/${uid}/profile/firstName`] = editForm.firstName;
+      updates[`users/${uid}/profile/lastName`] = editForm.lastName;
+      updates[`users/${uid}/profile/fatherFirstName`] = editForm.fatherFirstName;
+      updates[`users/${uid}/profile/dateOfBirth`] = editForm.dateOfBirth;
+      updates[`users/${uid}/profile/gender`] = editForm.gender;
+      updates[`users/${uid}/profile/phone`] = editForm.phone;
       updates[`users/${uid}/profile/alternatePhone`] = editForm.alternatePhone;
 
       // Admin-scoped registration updates
       if (resolvedAdminUid) {
         const adminRegPath = `users/${resolvedAdminUid}/modules/registrations/${uid}`;
-        updates[`${adminRegPath}/adminUid`]         = resolvedAdminUid;
-        updates[`${adminRegPath}/email`]            = editForm.email;
-        updates[`${adminRegPath}/password`]         = editForm.password;
-        updates[`${adminRegPath}/firstName`]        = editForm.firstName;
-        updates[`${adminRegPath}/lastName`]         = editForm.lastName;
-        updates[`${adminRegPath}/middleName`]       = editForm.middleName || '';
-        updates[`${adminRegPath}/phone`]            = editForm.phone;
-        updates[`${adminRegPath}/secondaryPhone`]   = editForm.alternatePhone;
-        updates[`${adminRegPath}/gender`]           = editForm.gender;
-        updates[`${adminRegPath}/dateOfBirth`]      = editForm.dateOfBirth;
+        updates[`${adminRegPath}/adminUid`] = resolvedAdminUid;
+        updates[`${adminRegPath}/email`] = editForm.email;
+        updates[`${adminRegPath}/password`] = editForm.password;
+        updates[`${adminRegPath}/firstName`] = editForm.firstName;
+        updates[`${adminRegPath}/lastName`] = editForm.lastName;
+        updates[`${adminRegPath}/middleName`] = editForm.middleName || '';
+        updates[`${adminRegPath}/phone`] = editForm.phone;
+        updates[`${adminRegPath}/secondaryPhone`] = editForm.alternatePhone;
+        updates[`${adminRegPath}/gender`] = editForm.gender;
+        updates[`${adminRegPath}/dateOfBirth`] = editForm.dateOfBirth;
         updates[`${adminRegPath}/securityQuestion`] = editForm.securityQuestion;
-        updates[`${adminRegPath}/securityAnswer`]   = editForm.securityAnswer;
-        updates[`${adminRegPath}/regNo`]            = editForm.regNo;
-        updates[`${adminRegPath}/manualRegNo`]      = editForm.manualRegNo;
-        updates[`${adminRegPath}/profile/firstName`]      = editForm.firstName;
-        updates[`${adminRegPath}/profile/lastName`]       = editForm.lastName;
-        updates[`${adminRegPath}/profile/fatherFirstName`]= editForm.fatherFirstName;
-        updates[`${adminRegPath}/profile/dateOfBirth`]    = editForm.dateOfBirth;
-        updates[`${adminRegPath}/profile/gender`]         = editForm.gender;
-        updates[`${adminRegPath}/profile/phone`]          = editForm.phone;
+        updates[`${adminRegPath}/securityAnswer`] = editForm.securityAnswer;
+        updates[`${adminRegPath}/regNo`] = editForm.regNo;
+        updates[`${adminRegPath}/manualRegNo`] = editForm.manualRegNo;
+        updates[`${adminRegPath}/profile/firstName`] = editForm.firstName;
+        updates[`${adminRegPath}/profile/lastName`] = editForm.lastName;
+        updates[`${adminRegPath}/profile/fatherFirstName`] = editForm.fatherFirstName;
+        updates[`${adminRegPath}/profile/dateOfBirth`] = editForm.dateOfBirth;
+        updates[`${adminRegPath}/profile/gender`] = editForm.gender;
+        updates[`${adminRegPath}/profile/phone`] = editForm.phone;
         updates[`${adminRegPath}/profile/alternatePhone`] = editForm.alternatePhone;
       }
 
@@ -446,41 +446,41 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
       {!collegeId && (
         <div className="bg-[#003366] text-white py-6 px-10 rounded-[2.5rem] shadow-2xl flex items-center justify-between border-b-4 border-black flex-wrap gap-4">
           <div className="flex items-center gap-4 flex-wrap">
-             <select 
-               value={selectedCollegeId}
-               onChange={(e) => setSelectedCollegeId(e.target.value)}
-               className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
-             >
-                <option value="" className="text-black">Filter by College</option>
-                {availableColleges.map(c => (
-                  <option key={c.id} value={c.id} className="text-black">{c.name}</option>
-                ))}
-             </select>
+            <select
+              value={selectedCollegeId}
+              onChange={(e) => setSelectedCollegeId(e.target.value)}
+              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
+            >
+              <option value="" className="text-black">Filter by College</option>
+              {availableColleges.map(c => (
+                <option key={c.id} value={c.id} className="text-black">{c.name}</option>
+              ))}
+            </select>
 
-             <select
-               value={filterProfileStatus}
-               onChange={(e) => setFilterProfileStatus(e.target.value)}
-               className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
-             >
-               <option value="" className="text-black">All Profile Statuses</option>
-               <option value="Locked" className="text-black">Profile Locked</option>
-               <option value="In Progress" className="text-black">In Progress</option>
-             </select>
+            <select
+              value={filterProfileStatus}
+              onChange={(e) => setFilterProfileStatus(e.target.value)}
+              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
+            >
+              <option value="" className="text-black">All Profile Statuses</option>
+              <option value="Locked" className="text-black">Profile Locked</option>
+              <option value="In Progress" className="text-black">In Progress</option>
+            </select>
 
-             <div className="relative">
-               <input
-                 type="text"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-                 placeholder="Search student, email, reg no..."
-                 className="bg-white/10 border border-white/20 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-white placeholder-white/60 outline-none focus:bg-white/20 transition-all w-60"
-               />
-               <User size={14} className="absolute left-3 top-2.5 text-white/60" />
-             </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search student, email, reg no..."
+                className="bg-white/10 border border-white/20 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-white placeholder-white/60 outline-none focus:bg-white/20 transition-all w-60"
+              />
+              <User size={14} className="absolute left-3 top-2.5 text-white/60" />
+            </div>
           </div>
           <div className="flex items-center gap-4 bg-white/10 px-6 py-2 rounded-xl border border-white/20">
-             <span className="text-xs font-bold text-white/80 uppercase tracking-widest">Total Students</span>
-             <span className="text-2xl font-black text-white">{totalItems}</span>
+            <span className="text-xs font-bold text-white/80 uppercase tracking-widest">Total Students</span>
+            <span className="text-2xl font-black text-white">{totalItems}</span>
           </div>
           <button
             onClick={handleExportData}
@@ -491,10 +491,10 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         </div>
       )}
 
-      <GlobalDataFilter 
-        data={registrations} 
-        filters={globalFilters} 
-        setFilters={setGlobalFilters} 
+      <GlobalDataFilter
+        data={registrations}
+        filters={globalFilters}
+        setFilters={setGlobalFilters}
       />
 
       <div className="bg-white rounded-[2.5rem] border border-black shadow-xl p-8">
@@ -583,21 +583,21 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   </td>
                   <td className="px-4 py-6 text-right">
                     <div className="flex items-center justify-end gap-3">
-                      <button 
+                      <button
                         onClick={() => handleViewDetails(reg.id)}
                         className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm group"
                         title="Preview Details"
                       >
                         <Eye size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleEditOpen(reg.id)}
                         className="p-2.5 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-sm group"
                         title="Edit Registration"
                       >
                         <Edit2 size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteRegistration(reg.id)}
                         className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                         title="Delete Registration"
@@ -610,10 +610,10 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
               )) : (
                 <tr>
                   <td colSpan={9} className="px-8 py-20 text-center">
-                     <div className="flex flex-col items-center gap-4 text-slate-300">
-                        <UserPlus size={48} className="opacity-20" />
-                        <p className="text-xs font-medium  tracking-tight">No registrations found</p>
-                     </div>
+                    <div className="flex flex-col items-center gap-4 text-slate-300">
+                      <UserPlus size={48} className="opacity-20" />
+                      <p className="text-xs font-medium  tracking-tight">No registrations found</p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -642,15 +642,14 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   if (endPage - startPage < maxVisible - 1) {
                     startPage = Math.max(1, endPage - maxVisible + 1);
                   }
-                  
+
                   if (startPage > 1) {
                     pages.push(
                       <button
                         key={1}
                         onClick={() => setCurrentPage(1)}
-                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                          currentPage === 1 ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
-                        }`}
+                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${currentPage === 1 ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
+                          }`}
                       >
                         1
                       </button>
@@ -665,9 +664,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <button
                         key={p}
                         onClick={() => setCurrentPage(p)}
-                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                          currentPage === p ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
-                        }`}
+                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${currentPage === p ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
+                          }`}
                       >
                         {p}
                       </button>
@@ -682,9 +680,8 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <button
                         key={totalPages}
                         onClick={() => setCurrentPage(totalPages)}
-                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                          currentPage === totalPages ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
-                        }`}
+                        className={`w-8 h-8 rounded-xl border border-black text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${currentPage === totalPages ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'
+                          }`}
                       >
                         {totalPages}
                       </button>
@@ -710,101 +707,101 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsDetailsModalOpen(false)} />
           <div className="bg-[#f8fafc] w-full max-w-5xl h-[90vh] rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-            
+
             {/* Header */}
             <div className="bg-[#003366] p-8 text-white relative shrink-0">
-               <button 
-                 onClick={() => setIsDetailsModalOpen(false)}
-                 className="absolute right-8 top-8 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all"
-               >
-                 <X size={24} />
-               </button>
-               
-               <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-white rounded-3xl overflow-hidden border-4 border-white/20 shadow-xl">
-                    {fullUserData.profile?.photoUrl ? (
-                      <img src={fullUserData.profile.photoUrl} className="w-full h-full object-cover" alt="" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
-                        <User size={32} />
+              <button
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="absolute right-8 top-8 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 bg-white rounded-3xl overflow-hidden border-4 border-white/20 shadow-xl">
+                  {fullUserData.profile?.photoUrl ? (
+                    <img src={fullUserData.profile.photoUrl} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                      <User size={32} />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-3xl font-black tracking-tighter capitalize leading-none">
+                      {`${fullUserData.profile?.firstName || ''} ${fullUserData.profile?.middleName || ''} ${fullUserData.profile?.lastName || ''}`.trim()}
+                    </h3>
+                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[9px] font-black capitalize tracking-tight border border-emerald-500/30">
+                      Profile Locked
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-6 text-white/60">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Login Email</span>
+                      <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                        <Mail size={12} className="text-[#00a5a5]" />
+                        <input
+                          type="text"
+                          value={fullUserData.email || ''}
+                          onChange={(e) => setFullUserData({ ...fullUserData, email: e.target.value })}
+                          className="bg-transparent border-none outline-none text-[13px] font-medium text-white/80 w-48"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Login Password</span>
+                      <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 group">
+                        <Lock size={12} className="text-[#00a5a5]" />
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={fullUserData.password || ''}
+                          onChange={(e) => setFullUserData({ ...fullUserData, password: e.target.value })}
+                          className="bg-transparent border-none outline-none text-[13px] font-medium text-white/80 w-32"
+                        />
+                        <button
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-white/40 hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Contact Phone</span>
+                      <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                        <Phone size={12} className="text-[#00a5a5]" /> {fullUserData.profile?.phone || 'No Phone'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Auto Registration No</span>
+                      <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                        <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.regNo}
+                      </p>
+                    </div>
+
+                    {(fullUserData.manualRegNo || fullUserData.profile?.manualRegNo) && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Manual Registration No</span>
+                        <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                          <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.manualRegNo || fullUserData.profile?.manualRegNo}
+                        </p>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-3xl font-black tracking-tighter capitalize leading-none">
-                        {`${fullUserData.profile?.firstName || ''} ${fullUserData.profile?.middleName || ''} ${fullUserData.profile?.lastName || ''}`.trim()}
-                      </h3>
-                      <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[9px] font-black capitalize tracking-tight border border-emerald-500/30">
-                        Profile Locked
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-6 text-white/60">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Login Email</span>
-                        <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                          <Mail size={12} className="text-[#00a5a5]" />
-                          <input 
-                            type="text"
-                            value={fullUserData.email || ''} 
-                            onChange={(e) => setFullUserData({...fullUserData, email: e.target.value})}
-                            className="bg-transparent border-none outline-none text-[13px] font-medium text-white/80 w-48"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Login Password</span>
-                        <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 group">
-                          <Lock size={12} className="text-[#00a5a5]" />
-                          <input 
-                            type={showPassword ? "text" : "password"} 
-                            value={fullUserData.password || ''} 
-                            onChange={(e) => setFullUserData({...fullUserData, password: e.target.value})}
-                            className="bg-transparent border-none outline-none text-[13px] font-medium text-white/80 w-32"
-                          />
-                          <button 
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="text-white/40 hover:text-white transition-colors"
-                          >
-                            {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Contact Phone</span>
-                        <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                          <Phone size={12} className="text-[#00a5a5]" /> {fullUserData.profile?.phone || 'No Phone'}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Auto Registration No</span>
-                        <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                          <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.regNo}
-                        </p>
-                      </div>
-
-                      {(fullUserData.manualRegNo || fullUserData.profile?.manualRegNo) && (
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-black text-[#00a5a5] uppercase tracking-widest">Manual Registration No</span>
-                          <p className="text-[13px] font-normal capitalize tracking-tight flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                            <Calendar size={12} className="text-[#00a5a5]" /> {fullUserData.manualRegNo || fullUserData.profile?.manualRegNo}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-               </div>
+                </div>
+              </div>
             </div>
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
-              
+
               {/* Grid for Primary Sections */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
+
                 {/* Personal Information */}
                 <section className="bg-white rounded-3xl p-8 border border-black shadow-sm space-y-6">
                   <div className="flex items-center gap-3 border-b border-black pb-4">
@@ -916,9 +913,9 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                           </td>
                           <td className="px-4 py-4 flex justify-center">
                             {q.marksheetUrl ? (
-                               <PreviewButton label="View" onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />
+                              <PreviewButton label="View" onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />
                             ) : (
-                               <span className="text-[13px] text-black">N/A</span>
+                              <span className="text-[13px] text-black">N/A</span>
                             )}
                           </td>
                         </tr>
@@ -953,13 +950,13 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   {/* Training Section */}
                   {fullUserData.profile?.hasTraining === 'Yes' && (
                     <div className="pt-6 border-t border-black space-y-4">
-                       <h4 className="text-[13px] font-normal text-black capitalize tracking-tight">Vocational Training</h4>
-                       <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex items-center justify-between">
-                          <div>
-                            <p className="text-[11px] font-bold text-slate-700">Training Period</p>
-                            <p className="text-[13px] text-black font-normal">{fullUserData.profile.trainingStartDate} to {fullUserData.profile.trainingEndDate}</p>
-                          </div>
+                      <h4 className="text-[13px] font-normal text-black capitalize tracking-tight">Vocational Training</h4>
+                      <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-700">Training Period</p>
+                          <p className="text-[13px] text-black font-normal">{fullUserData.profile.trainingStartDate} to {fullUserData.profile.trainingEndDate}</p>
                         </div>
+                      </div>
                     </div>
                   )}
                 </section>
@@ -1000,11 +997,10 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                           <p className="text-[10px] font-medium text-slate-500 mt-1">Duration: {app.duration || 'N/A'} | Fees: ₹{app.fees || '0'}</p>
                         </div>
                         <div className="text-right">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border ${
-                            app.status === 'Accepted' || app.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            app.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                            'bg-amber-50 text-amber-600 border-amber-100'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border ${app.status === 'Accepted' || app.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                              app.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                'bg-amber-50 text-amber-600 border-amber-100'
+                            }`}>
                             {app.status || 'Pending'}
                           </span>
                         </div>
@@ -1069,14 +1065,14 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   )}
                   {(fullUserData.qualifications || [])
                     .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
-                    .map((q: any, i: number) => 
+                    .map((q: any, i: number) =>
                       q.marksheetUrl ? (
                         <PreviewButton key={i} label={`${q.examination} Marksheet`} onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />
                       ) : null
                     )}
                 </div>
                 {(!fullUserData.profile?.photoUrl && !fullUserData.profile?.signUrl && !fullUserData.profile?.aadhaarFrontUrl && !fullUserData.profile?.aadhaarBackUrl && !fullUserData.profile?.bankPassbookUrl && !fullUserData.profile?.transferCertificateUrl && !fullUserData.profile?.bonafideCertificateUrl) && (
-                   <p className="text-[13px] font-normal text-black capitalize tracking-tight text-center w-full py-4">No Documents Uploaded</p>
+                  <p className="text-[13px] font-normal text-black capitalize tracking-tight text-center w-full py-4">No Documents Uploaded</p>
                 )}
               </section>
 
@@ -1084,38 +1080,38 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
             {/* Footer Actions */}
             <div className="p-8 bg-white border-t border-black flex items-center justify-end shrink-0 gap-4">
-                <button 
-                  onClick={() => setIsDetailsModalOpen(false)}
-                  className="px-8 py-4 rounded-2xl text-[11px] font-black text-slate-400 capitalize tracking-tight hover:bg-slate-100 transition-all border border-black"
-                >
-                  Close View
-                </button>
-                <button 
-                  onClick={async () => {
-                    try {
-                      const userRef = ref(realtimeDb, `users/${selectedReg.id}`);
-                      await update(userRef, {
+              <button
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="px-8 py-4 rounded-2xl text-[11px] font-black text-slate-400 capitalize tracking-tight hover:bg-slate-100 transition-all border border-black"
+              >
+                Close View
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const userRef = ref(realtimeDb, `users/${selectedReg.id}`);
+                    await update(userRef, {
+                      email: fullUserData.email,
+                      password: fullUserData.password
+                    });
+                    if (resolvedAdminUid) {
+                      const adminRegRef = ref(realtimeDb, `users/${resolvedAdminUid}/modules/registrations/${selectedReg.id}`);
+                      await update(adminRegRef, {
                         email: fullUserData.email,
                         password: fullUserData.password
                       });
-                      if (resolvedAdminUid) {
-                        const adminRegRef = ref(realtimeDb, `users/${resolvedAdminUid}/modules/registrations/${selectedReg.id}`);
-                        await update(adminRegRef, {
-                          email: fullUserData.email,
-                          password: fullUserData.password
-                        });
-                      }
-                      alert('Student credentials updated successfully.');
-                      setIsDetailsModalOpen(false);
-                    } catch (err) {
-                      console.error(err);
-                      alert('Failed to update student data.');
                     }
-                  }}
-                  className="bg-[#003366] hover:bg-black text-white font-black px-12 py-4 rounded-2xl text-[11px] uppercase tracking-wider transition-all shadow-xl flex items-center gap-3"
-                >
-                  Update Information
-                </button>
+                    alert('Student credentials updated successfully.');
+                    setIsDetailsModalOpen(false);
+                  } catch (err) {
+                    console.error(err);
+                    alert('Failed to update student data.');
+                  }
+                }}
+                className="bg-[#003366] hover:bg-black text-white font-black px-12 py-4 rounded-2xl text-[11px] uppercase tracking-wider transition-all shadow-xl flex items-center gap-3"
+              >
+                Update Information
+              </button>
             </div>
 
           </div>
@@ -1131,15 +1127,15 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                 <ImageIcon size={18} className="text-[#00a5a5]" /> {previewImage.title}
               </h5>
               <div className="flex gap-3">
-                <a 
-                  href={previewImage.url} 
+                <a
+                  href={previewImage.url}
                   download={`${previewImage.title.replace(/\s+/g, '_')}.png`}
                   className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center hover:bg-slate-100 transition-all"
                   title="Download Image"
                 >
                   <Download size={20} />
                 </a>
-                <button 
+                <button
                   onClick={() => setIsPreviewOpen(false)}
                   className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-100 transition-all"
                 >
@@ -1148,9 +1144,9 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
               </div>
             </div>
             <div className="flex-1 overflow-auto p-4 bg-slate-100 flex items-center justify-center">
-              <img 
-                src={previewImage.url} 
-                alt={previewImage.title} 
+              <img
+                src={previewImage.url}
+                alt={previewImage.title}
                 className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
               />
             </div>
@@ -1201,7 +1197,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <input
                         type="email"
                         value={editForm.email}
-                        onChange={e => setEditForm({...editForm, email: e.target.value})}
+                        onChange={e => setEditForm({ ...editForm, email: e.target.value })}
                         placeholder="Enter email address"
                         className="flex-1 bg-transparent outline-none text-[14px] font-bold text-black placeholder:text-slate-300"
                       />
@@ -1214,7 +1210,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <input
                         type={editShowPassword ? 'text' : 'password'}
                         value={editForm.password}
-                        onChange={e => setEditForm({...editForm, password: e.target.value})}
+                        onChange={e => setEditForm({ ...editForm, password: e.target.value })}
                         placeholder="Enter new password"
                         className="flex-1 bg-transparent outline-none text-[14px] font-bold text-black placeholder:text-slate-300"
                       />
@@ -1237,7 +1233,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.firstName}
-                      onChange={e => setEditForm({...editForm, firstName: capitalizeWords(e.target.value)})}
+                      onChange={e => setEditForm({ ...editForm, firstName: capitalizeWords(e.target.value) })}
                       placeholder="Enter first name"
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1247,7 +1243,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.lastName}
-                      onChange={e => setEditForm({...editForm, lastName: capitalizeWords(e.target.value)})}
+                      onChange={e => setEditForm({ ...editForm, lastName: capitalizeWords(e.target.value) })}
                       placeholder="Enter last name / surname"
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1257,7 +1253,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="date"
                       value={editForm.dateOfBirth}
-                      onChange={e => setEditForm({...editForm, dateOfBirth: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
                   </div>
@@ -1265,7 +1261,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Gender</label>
                     <select
                       value={editForm.gender}
-                      onChange={e => setEditForm({...editForm, gender: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, gender: e.target.value })}
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all cursor-pointer appearance-none"
                     >
                       <option value="">Select Gender</option>
@@ -1279,7 +1275,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.regNo}
-                      onChange={e => setEditForm({...editForm, regNo: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, regNo: e.target.value })}
                       placeholder="Enter Custom Auto Registration No."
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1289,7 +1285,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.manualRegNo}
-                      onChange={e => setEditForm({...editForm, manualRegNo: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, manualRegNo: e.target.value })}
                       placeholder="Enter Manual Registration No."
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1308,7 +1304,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.fatherFirstName}
-                      onChange={e => setEditForm({...editForm, fatherFirstName: capitalizeWords(e.target.value)})}
+                      onChange={e => setEditForm({ ...editForm, fatherFirstName: capitalizeWords(e.target.value) })}
                       placeholder="Father's first name"
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1326,7 +1322,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Security Question</label>
                     <select
                       value={editForm.securityQuestion}
-                      onChange={e => setEditForm({...editForm, securityQuestion: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, securityQuestion: e.target.value })}
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all cursor-pointer appearance-none"
                     >
                       <option value="">Select a security question</option>
@@ -1340,7 +1336,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                     <input
                       type="text"
                       value={editForm.securityAnswer}
-                      onChange={e => setEditForm({...editForm, securityAnswer: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, securityAnswer: e.target.value })}
                       placeholder="Enter your answer"
                       className="w-full bg-slate-50 border-2 border-black rounded-2xl px-5 py-3 text-[14px] font-bold text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
                     />
@@ -1361,7 +1357,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <input
                         type="tel"
                         value={editForm.phone}
-                        onChange={e => setEditForm({...editForm, phone: e.target.value})}
+                        onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
                         placeholder="Enter mobile number"
                         className="flex-1 bg-transparent outline-none text-[14px] font-bold text-black placeholder:text-slate-300"
                       />
@@ -1374,7 +1370,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                       <input
                         type="tel"
                         value={editForm.alternatePhone}
-                        onChange={e => setEditForm({...editForm, alternatePhone: e.target.value})}
+                        onChange={e => setEditForm({ ...editForm, alternatePhone: e.target.value })}
                         placeholder="Enter alternate number (optional)"
                         className="flex-1 bg-transparent outline-none text-[14px] font-bold text-black placeholder:text-slate-300"
                       />
@@ -1422,7 +1418,7 @@ function DetailItem({ label, value }: { label: string, value: any }) {
 
 function PreviewButton({ label, onClick }: { label: string, onClick: () => void }) {
   return (
-    <button 
+    <button
       onClick={onClick}
       className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-black rounded-xl text-[13px] font-normal text-black capitalize tracking-tight hover:bg-[#00a5a5] hover:text-black hover:border-[#00a5a5] transition-all shadow-sm active:scale-95 group"
     >

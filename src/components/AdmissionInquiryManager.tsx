@@ -887,6 +887,11 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         paidFees: paidAmount
       };
 
+
+
+
+
+
       await set(newAdmissionRef, admissionData);
 
       // Record transaction if paidAmount > 0
@@ -2085,7 +2090,6 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           </div>
         </div>
       )}
-
       {/* Image Preview Modal */}
       {isPreviewOpen && previewImage && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
