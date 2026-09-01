@@ -207,7 +207,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
       const year = String(dateObj.getFullYear());
       const prefix = `MIT-${year}-`;
 
-      let sequence = 1;
+      let sequence = 15;
       if (admissionsSnap.exists()) {
         const admissions = admissionsSnap.val();
         const samePrefixAdmissions = Object.values(admissions)
@@ -218,7 +218,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             const seqStr = (adm.registrationNumber || adm.regNo).replace(prefix, '');
             return parseInt(seqStr) || 0;
           }));
-          sequence = maxSeq + 1;
+          sequence = Math.max(15, maxSeq + 1);
         }
       }
       const registrationNumber = `${prefix}${String(sequence).padStart(5, '0')}`;
@@ -776,7 +776,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
       // Generate Registration Number: YYYYMMR###
       const admissionsRef = ref(realtimeDb, `colleges/${targetCollegeId}/studentAdmissions`);
       const admissionsSnap = await get(admissionsRef);
-      let sequence = 1;
+      let sequence = 15;
       if (admissionsSnap.exists()) {
         const existingAdmissions = Object.values(admissionsSnap.val());
         const prefix = `MIT-${admissionDate.year}-`;
@@ -788,7 +788,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
             const seqStr = (adm.regNo || adm.registrationNumber).replace(prefix, '');
             return parseInt(seqStr) || 0;
           }));
-          sequence = maxSeq + 1;
+          sequence = Math.max(15, maxSeq + 1);
         }
       }
       const regNo = `MIT-${admissionDate.year}-${sequence.toString().padStart(5, '0')}`;

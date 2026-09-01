@@ -99,7 +99,6 @@ const CustomDropdown = ({ value, onChange, options, placeholder, id, openDropdow
     const label = String(getOptLabel(opt)).toLowerCase();
     return label.includes(searchTerm.toLowerCase());
   });
-
   return (
     <div className="relative custom-dropdown w-full">
       <div
@@ -126,6 +125,7 @@ const CustomDropdown = ({ value, onChange, options, placeholder, id, openDropdow
               />
             </div>
           )}
+          
           {placeholder && !searchTerm && (
             <div
               onClick={() => { onChange(''); setOpenDropdownId(null); }}
