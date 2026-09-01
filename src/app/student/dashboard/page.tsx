@@ -5295,16 +5295,18 @@ function DashboardContent() {
                       />
                     </div>
 
-                    {/* Pay Amount In RS */}
+                    {/* Pay Amount In RS (Fixed from Admin Config) */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Pay Amount (in ₹) <span className="text-red-500">*</span></label>
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1 flex items-center justify-between">
+                        <span>Pay Amount (in ₹) <span className="text-red-500">*</span></span>
+                        <span className="text-[9px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md uppercase">Fixed by Admin</span>
+                      </label>
                       <input
-                        type="number"
-                        required
-                        value={examForm.payAmount || selectedExamConfig?.fees || ''}
-                        onChange={(e) => setExamForm({ ...examForm, payAmount: e.target.value })}
-                        placeholder="Amount"
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold text-emerald-600 outline-none focus:border-[#00a5a5] shadow-sm"
+                        type="text"
+                        readOnly
+                        value={`₹${selectedExamConfig?.fees || '0'}`}
+                        className="w-full bg-slate-100/90 border border-slate-300 rounded-xl p-3.5 text-xs font-black text-emerald-700 outline-none cursor-not-allowed shadow-inner"
+                        title="Exam fee is fixed by administration"
                       />
                     </div>
 
