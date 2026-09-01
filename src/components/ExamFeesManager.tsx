@@ -362,7 +362,45 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
                 </div>
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Transaction / UTR No</span>
-                  <span className="text-sm font-bold font-mono text-slate-800">{selectedSubmissionDetails.utrId || 'N/A'}</span>
+                  <span className="text-sm font-bold font-mono text-slate-800">{selectedSubmissionDetails.utrId || selectedSubmissionDetails.utrNumber || selectedSubmissionDetails.transactionNumber || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Name Of Transfer / Sender</span>
+                  <span className="text-sm font-bold text-slate-800 capitalize">{selectedSubmissionDetails.nameOfTransfer || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Pay Amount</span>
+                  <span className="text-sm font-black text-emerald-600">₹{selectedSubmissionDetails.payAmount || selectedSubmissionDetails.fees || '0'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Mode Of Transfer</span>
+                  <span className="text-sm font-bold text-indigo-600 uppercase">{selectedSubmissionDetails.modeOfTransfer || 'UPI'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">UPI ID</span>
+                  <span className="text-sm font-bold text-slate-800">{selectedSubmissionDetails.upiId || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">UPI Mobile Number</span>
+                  <span className="text-sm font-bold text-slate-800">{selectedSubmissionDetails.upiMobileNumber || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Bank A/c No</span>
+                  <span className="text-sm font-bold font-mono text-slate-800">{selectedSubmissionDetails.bankAcNo || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">IFSC Code</span>
+                  <span className="text-sm font-bold font-mono text-slate-800 uppercase">{selectedSubmissionDetails.ifscCode || 'N/A'}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Transaction Date & Time</span>
+                  <span className="text-sm font-bold text-slate-800">
+                    {selectedSubmissionDetails.transactionDate || 'N/A'} {selectedSubmissionDetails.transactionTime ? `(${selectedSubmissionDetails.transactionTime})` : ''}
+                  </span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Reference Number</span>
+                  <span className="text-sm font-bold font-mono text-slate-800">{selectedSubmissionDetails.referenceNumber || 'N/A'}</span>
                 </div>
               </div>
 

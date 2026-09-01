@@ -3001,7 +3001,20 @@ function DashboardContent() {
     aadharNumber: '',
     studentPhone: '',
     regNo: '',
-    utrId: ''
+    utrId: '',
+    // Additional Payment & Transfer Details
+    nameOfStudent: '',
+    nameOfTransfer: '',
+    bankAcNo: '',
+    ifscCode: '',
+    payAmount: '',
+    modeOfTransfer: 'UPI',
+    upiId: '',
+    transactionDate: new Date().toISOString().split('T')[0],
+    transactionTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    transactionNumber: '',
+    referenceNumber: '',
+    upiMobileNumber: ''
   });
   const [selectedAppForPreview, setSelectedAppForPreview] = useState<any>(null);
   const [studentProfileForPreview, setStudentProfileForPreview] = useState<any>(null);
@@ -3235,18 +3248,32 @@ function DashboardContent() {
 
   useEffect(() => {
     if (isExamModalOpen && userData?.profile) {
-      setExamForm({
-        ...examForm,
-        studentName: `${userData.profile.firstName || ''} ${userData.profile.lastName || ''}`,
+      const stdFullName = `${userData.profile.firstName || ''} ${userData.profile.lastName || ''}`.trim() || userData.fullName || userData.studentName || '';
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const dateString = now.toISOString().split('T')[0];
+
+      setExamForm((prev: any) => ({
+        ...prev,
+        studentName: stdFullName,
+        nameOfStudent: stdFullName,
+        nameOfTransfer: userData.profile.accountHolderName || stdFullName,
         fatherName: userData.profile.fatherFirstName || '',
         motherName: userData.profile.motherFirstName || '',
         dob: userData.profile.dateOfBirth || userData.dateOfBirth || '',
         aadharNumber: userData.profile.aadhaarNo || '',
         studentPhone: userData.profile.phone || userData.profile.mobileNo || userData.profile.mobileNumber || userData.phone || '',
-        regNo: userData.profile.regNo || userData.regNo || ''
-      });
+        regNo: userData.profile.regNo || userData.regNo || '',
+        bankAcNo: userData.profile.accountNumber || '',
+        ifscCode: userData.profile.ifscCode || '',
+        payAmount: selectedExamConfig?.fees || '',
+        modeOfTransfer: prev.modeOfTransfer || 'UPI',
+        transactionDate: dateString,
+        transactionTime: timeString,
+        upiMobileNumber: userData.profile.phone || userData.profile.mobileNo || userData.profile.mobileNumber || userData.phone || ''
+      }));
     }
-  }, [isExamModalOpen, userData]);
+  }, [isExamModalOpen, userData, selectedExamConfig]);
 
   const activeApp = useMemo(() => {
     return userApplications.find(a => a.status === 'Accepted' || a.status === 'Confirmed') || userApplications[0];
@@ -4147,7 +4174,20 @@ function DashboardContent() {
       const submissionData = {
         studentUid: userData.uid,
         studentId: userData.profile?.regNo || userData.regNo || 'N/A',
-        studentName: examForm.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`,
+        studentName: examForm.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'N/A',
+        nameOfStudent: examForm.nameOfStudent || examForm.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.lastName || ''}`.trim() || 'N/A',
+        nameOfTransfer: examForm.nameOfTransfer || 'N/A',
+        bankAcNo: examForm.bankAcNo || 'N/A',
+        ifscCode: examForm.ifscCode || 'N/A',
+        payAmount: examForm.payAmount || selectedExamConfig?.fees || '0',
+        modeOfTransfer: examForm.modeOfTransfer || 'UPI',
+        upiId: examForm.upiId || 'N/A',
+        transactionDate: examForm.transactionDate || new Date().toISOString().split('T')[0],
+        transactionTime: examForm.transactionTime || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+        transactionNumber: examForm.transactionNumber || examForm.utrId || 'N/A',
+        referenceNumber: examForm.referenceNumber || 'N/A',
+        utrNumber: examForm.utrId || examForm.transactionNumber || 'N/A',
+        upiMobileNumber: examForm.upiMobileNumber || 'N/A',
         fatherName: examForm.fatherName || userData.profile?.fatherFirstName || 'N/A',
         motherName: examForm.motherName || userData.profile?.motherFirstName || 'N/A',
         collegeName: activeApp.collegeName,
@@ -4156,10 +4196,10 @@ function DashboardContent() {
         dob: examForm.dob || userData.profile?.dateOfBirth || userData.dateOfBirth || 'N/A',
         aadharNumber: examForm.aadharNumber || userData.profile?.aadhaarNo || 'N/A',
         gender: userData.profile?.gender || userData.gender || 'N/A',
-        studentPhone: userData.profile?.phone || userData.profile?.mobileNo || userData.profile?.mobileNumber || userData.phone || 'N/A',
+        studentPhone: examForm.upiMobileNumber || userData.profile?.phone || userData.profile?.mobileNo || userData.profile?.mobileNumber || userData.phone || 'N/A',
         stream: activeApp.stream || activeApp.branch || activeApp.streamBranch || selectedExamConfig?.stream || '',
         session: userData.profile?.admissionYear || 'N/A',
-        utrId: examForm.utrId || 'N/A',
+        utrId: examForm.utrId || examForm.transactionNumber || 'N/A',
         screenshot: examForm.screenshot,
         studentPhoto: userData.profile?.photoUrl || userData.photo || '',
         studentSignature: userData.profile?.signUrl || userData.profile?.signatureUrl || '',
@@ -5154,49 +5194,238 @@ function DashboardContent() {
               <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
                   <CreditCard size={18} className="text-[#00a5a5]" />
-                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest">Fee Payment (₹{selectedExamConfig?.fees || '0'})</h4>
+                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest">Fee Payment & Transfer Particulars</h4>
                 </div>
 
-                {collegePaymentSettings?.isActive && (
-                  <div className="bg-indigo-50/50 rounded-[2.5rem] p-8 border-2 border-dashed border-[#5D5fb1]/20 flex flex-col md:flex-row items-center gap-10">
-                    <div className="p-4 bg-white rounded-3xl shadow-2xl border border-indigo-100 shrink-0">
-                      <QRCodeCanvas
-                        value={`upi://pay?pa=${collegePaymentSettings.upiId}&pn=${encodeURIComponent(activeApp.collegeName)}&am=${selectedExamConfig?.fees || '0'}&cu=INR`}
-                        size={150}
-                        level="H"
+                {/* QR Code Card */}
+                {(() => {
+                  const targetUpiId = 'kulkarnianiketa14321@ybl';
+                  const targetMerchantName = 'ANIKET N KULKARNI';
+                  const targetAmount = selectedExamConfig?.fees || examForm.payAmount || '0';
+                  const upiPayload = `upi://pay?pa=${targetUpiId}&pn=${encodeURIComponent(targetMerchantName)}&am=${targetAmount}&cu=INR`;
+
+                  return (
+                    <div className="bg-gradient-to-br from-[#0c0d14] via-[#121422] to-[#1c1d2e] text-white rounded-[2.5rem] p-8 border-2 border-[#5f259f]/40 shadow-2xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                      {/* Background Glow */}
+                      <div className="absolute -right-16 -top-16 w-60 h-60 bg-[#5f259f]/20 rounded-full blur-3xl pointer-events-none" />
+
+                      {/* QR Box with PhonePe branding */}
+                      <div className="p-4 bg-white rounded-3xl shadow-2xl shrink-0 flex flex-col items-center border-2 border-white">
+                        <QRCodeCanvas
+                          value={upiPayload}
+                          size={160}
+                          level="H"
+                        />
+                        <div className="mt-2.5 flex items-center gap-1.5 bg-[#5f259f]/10 text-[#5f259f] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                          <CheckCircle2 size={12} /> PhonePe / UPI
+                        </div>
+                      </div>
+
+                      {/* Right Details beside QR */}
+                      <div className="space-y-3.5 text-center md:text-left flex-1 relative z-10">
+                        <div className="inline-flex items-center gap-2 bg-[#5f259f] px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider text-white shadow-md">
+                          <span>PhonePe</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span>Accepted Here</span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-2xl font-black text-white tracking-tight leading-tight uppercase">{targetMerchantName}</h4>
+                          <p className="text-xs font-bold text-slate-300 mt-0.5">{activeApp.collegeName}</p>
+                        </div>
+
+                        {/* UPI ID Pill with Copy */}
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                          <div className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-black/40 backdrop-blur-md rounded-2xl border border-white/15 shadow-inner">
+                            <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
+                            <span className="text-sm font-mono font-black text-amber-300 select-all tracking-wide">{targetUpiId}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(targetUpiId);
+                                alert("UPI ID copied to clipboard: " + targetUpiId);
+                              }}
+                              className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all ml-1"
+                              title="Copy UPI ID"
+                            >
+                              <Copy size={13} />
+                            </button>
+                          </div>
+
+                          <div className="px-3.5 py-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-2xl text-xs font-black">
+                            Amount: ₹{targetAmount}
+                          </div>
+                        </div>
+
+                        <p className="text-xs font-normal text-slate-400 max-w-md">
+                          Scan using PhonePe, Google Pay, Paytm or any UPI App and transfer the fee to <strong className="text-amber-300 font-mono font-bold">{targetUpiId}</strong>.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Transfer Fields Form */}
+                <div className="bg-slate-50/80 p-6 rounded-3xl border border-slate-200 space-y-6">
+                  <h5 className="text-xs font-black text-[#002147] uppercase tracking-widest">Enter Transfer & Transaction Details</h5>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {/* Name of Student */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Name Of Student <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        required
+                        value={examForm.nameOfStudent || ''}
+                        onChange={(e) => setExamForm({ ...examForm, nameOfStudent: e.target.value, studentName: e.target.value })}
+                        placeholder="Student's Name"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
                       />
                     </div>
-                    <div className="space-y-4 text-center md:text-left flex-1">
-                      <div>
-                        <p className="text-[10px] font-black text-[#5D5fb1] uppercase tracking-widest mb-1">Official Payment Gateway</p>
-                        <h4 className="text-xl font-black text-slate-800 tracking-tighter leading-tight capitalize">{activeApp.collegeName}</h4>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-indigo-100 shadow-sm self-center md:self-start">
-                          <ShieldCheck size={16} className="text-emerald-500" />
-                          <span className="text-sm font-bold text-slate-600">{collegePaymentSettings.upiId}</span>
-                        </div>
-                        <p className="text-[11px] font-medium text-slate-400 italic">Scan the QR code or pay to the UPI ID above to complete registration.</p>
 
-                      </div>
+                    {/* Name of Transfer (Account Holder) */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Name Of Transfer / Sender</label>
+                      <input
+                        type="text"
+                        value={examForm.nameOfTransfer || ''}
+                        onChange={(e) => setExamForm({ ...examForm, nameOfTransfer: e.target.value })}
+                        placeholder="Sender's Name"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Pay Amount In RS */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Pay Amount (in ₹) <span className="text-red-500">*</span></label>
+                      <input
+                        type="number"
+                        required
+                        value={examForm.payAmount || selectedExamConfig?.fees || ''}
+                        onChange={(e) => setExamForm({ ...examForm, payAmount: e.target.value })}
+                        placeholder="Amount"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold text-emerald-600 outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Mode Of Transfer */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Mode Of Transfer <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={examForm.modeOfTransfer || 'UPI'}
+                        onChange={(e) => setExamForm({ ...examForm, modeOfTransfer: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      >
+                        <option value="UPI">1. UPI</option>
+                        <option value="PhonePe">2. PhonePe</option>
+                        <option value="Google Pay">3. Google Pay</option>
+                        <option value="IMPS">4. IMPS</option>
+                        <option value="RTGS">5. RTGS</option>
+                        <option value="NEFT">6. NEFT</option>
+                        <option value="Net Banking">7. Net Banking</option>
+                      </select>
+                    </div>
+
+                    {/* UPI ID */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">UPI ID</label>
+                      <input
+                        type="text"
+                        value={examForm.upiId || ''}
+                        onChange={(e) => setExamForm({ ...examForm, upiId: e.target.value })}
+                        placeholder="e.g. user@okhdfcbank"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* UPI Mobile Number */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">UPI Mobile Number</label>
+                      <input
+                        type="tel"
+                        value={examForm.upiMobileNumber || ''}
+                        onChange={(e) => setExamForm({ ...examForm, upiMobileNumber: e.target.value })}
+                        placeholder="10-Digit Mobile Number"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Bank A/c No */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Bank A/c No.</label>
+                      <input
+                        type="text"
+                        value={examForm.bankAcNo || ''}
+                        onChange={(e) => setExamForm({ ...examForm, bankAcNo: e.target.value })}
+                        placeholder="Sender Bank Account No"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* IFSC Code */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">IFSC Code</label>
+                      <input
+                        type="text"
+                        value={examForm.ifscCode || ''}
+                        onChange={(e) => setExamForm({ ...examForm, ifscCode: e.target.value.toUpperCase() })}
+                        placeholder="e.g. SBIN0001234"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold uppercase outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Transaction / UTR Number */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">UTR / Transacting Number <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="12-digit UTR / Transaction No"
+                        value={examForm.utrId || examForm.transactionNumber || ''}
+                        onChange={(e) => setExamForm({ ...examForm, utrId: e.target.value, transactionNumber: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Reference Number */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Reference Number</label>
+                      <input
+                        type="text"
+                        placeholder="Reference No. (Optional)"
+                        value={examForm.referenceNumber || ''}
+                        onChange={(e) => setExamForm({ ...examForm, referenceNumber: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Transaction Date */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Transaction Date <span className="text-red-500">*</span></label>
+                      <input
+                        type="date"
+                        required
+                        value={examForm.transactionDate || ''}
+                        onChange={(e) => setExamForm({ ...examForm, transactionDate: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
+                    </div>
+
+                    {/* Transaction Time (AM/PM) */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Transaction Time (AM/PM) <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 02:45 PM"
+                        value={examForm.transactionTime || ''}
+                        onChange={(e) => setExamForm({ ...examForm, transactionTime: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-bold outline-none focus:border-[#00a5a5] shadow-sm"
+                      />
                     </div>
                   </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-black text-slate-800 capitalize tracking-tight pl-1">
-                      Transaction / UTR Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. 12-digit UPI Ref / UTR No"
-                      value={examForm.utrId || ''}
-                      onChange={(e) => setExamForm({ ...examForm, utrId: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none focus:bg-white focus:border-[#00a5a5] transition-all shadow-sm"
-                    />
-                  </div>
+                </div>
 
                   <div className="space-y-2">
                     <label className="text-[13px] font-black text-slate-800 capitalize tracking-tight pl-1 flex items-center justify-between">
@@ -5296,7 +5525,6 @@ function DashboardContent() {
                     </div>
                   </div>
                 </div>
-              </div>
 
               <button
                 type="submit"
