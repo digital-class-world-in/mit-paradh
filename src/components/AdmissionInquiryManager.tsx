@@ -201,26 +201,49 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
 
     try {
       const admissionsRef = ref(realtimeDb, `colleges/${targetCollegeId}/studentAdmissions`);
-      const admissionsSnap = await get(admissionsRef);
+      const inquiriesRef = ref(realtimeDb, `colleges/${targetCollegeId}/frontOffice/admissionInquiries`);
+
+      const [admissionsSnap, inquiriesSnap] = await Promise.all([
+        get(admissionsRef),
+        get(inquiriesRef)
+      ]);
 
       const dateObj = new Date(date);
       const year = String(dateObj.getFullYear());
       const prefix = `MIT-${year}-`;
 
-      let sequence = 15;
-      if (admissionsSnap.exists()) {
-        const admissions = admissionsSnap.val();
-        const samePrefixAdmissions = Object.values(admissions)
-          .filter((adm: any) => (adm.registrationNumber && adm.registrationNumber.startsWith(prefix)) || (adm.regNo && adm.regNo.startsWith(prefix)));
+      const usedSequences = new Set<number>();
 
-        if (samePrefixAdmissions.length > 0) {
-          const maxSeq = Math.max(...samePrefixAdmissions.map((adm: any) => {
-            const seqStr = (adm.registrationNumber || adm.regNo).replace(prefix, '');
-            return parseInt(seqStr) || 0;
-          }));
-          sequence = Math.max(15, maxSeq + 1);
+      const checkRecord = (item: any) => {
+        if (!item || typeof item !== 'object') return;
+        const candidates = [item.registrationNumber, item.regNo, item.processAutoRegNo];
+        for (const val of candidates) {
+          if (typeof val === 'string' && val.startsWith(prefix)) {
+            const seqStr = val.replace(prefix, '');
+            const parsed = parseInt(seqStr, 10);
+            if (!isNaN(parsed) && parsed > 0) {
+              usedSequences.add(parsed);
+            }
+          }
         }
+      };
+
+      if (admissionsSnap.exists()) {
+        Object.values(admissionsSnap.val()).forEach(checkRecord);
       }
+      if (inquiriesSnap.exists()) {
+        Object.entries(inquiriesSnap.val()).forEach(([key, item]: [string, any]) => {
+          // If this inquiry is currently being edited, don't count its old number
+          if (selectedInquiry && key === selectedInquiry.id) return;
+          checkRecord(item);
+        });
+      }
+
+      let sequence = 15;
+      while (usedSequences.has(sequence)) {
+        sequence++;
+      }
+
       const registrationNumber = `${prefix}${String(sequence).padStart(5, '0')}`;
       setProcessAutoRegNo(registrationNumber);
     } catch (err) {
@@ -775,23 +798,46 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
 
       // Generate Registration Number: YYYYMMR###
       const admissionsRef = ref(realtimeDb, `colleges/${targetCollegeId}/studentAdmissions`);
-      const admissionsSnap = await get(admissionsRef);
-      let sequence = 15;
-      if (admissionsSnap.exists()) {
-        const existingAdmissions = Object.values(admissionsSnap.val());
-        const prefix = `MIT-${admissionDate.year}-`;
-        const sameYearAdmissions = existingAdmissions.filter((adm: any) =>
-          (adm.regNo && adm.regNo.startsWith(prefix)) || (adm.registrationNumber && adm.registrationNumber.startsWith(prefix))
-        );
-        if (sameYearAdmissions.length > 0) {
-          const maxSeq = Math.max(...sameYearAdmissions.map((adm: any) => {
-            const seqStr = (adm.regNo || adm.registrationNumber).replace(prefix, '');
-            return parseInt(seqStr) || 0;
-          }));
-          sequence = Math.max(15, maxSeq + 1);
+      const inquiriesRef = ref(realtimeDb, `colleges/${targetCollegeId}/frontOffice/admissionInquiries`);
+
+      const [admissionsSnap, inquiriesSnap] = await Promise.all([
+        get(admissionsRef),
+        get(inquiriesRef)
+      ]);
+
+      const prefix = `MIT-${admissionDate.year}-`;
+      const usedSequences = new Set<number>();
+
+      const checkRecord = (item: any) => {
+        if (!item || typeof item !== 'object') return;
+        const candidates = [item.registrationNumber, item.regNo, item.processAutoRegNo];
+        for (const val of candidates) {
+          if (typeof val === 'string' && val.startsWith(prefix)) {
+            const seqStr = val.replace(prefix, '');
+            const parsed = parseInt(seqStr, 10);
+            if (!isNaN(parsed) && parsed > 0) {
+              usedSequences.add(parsed);
+            }
+          }
         }
+      };
+
+      if (admissionsSnap.exists()) {
+        Object.values(admissionsSnap.val()).forEach(checkRecord);
       }
-      const regNo = `MIT-${admissionDate.year}-${sequence.toString().padStart(5, '0')}`;
+      if (inquiriesSnap.exists()) {
+        Object.entries(inquiriesSnap.val()).forEach(([key, item]: [string, any]) => {
+          if (selectedInquiry && key === selectedInquiry.id) return;
+          checkRecord(item);
+        });
+      }
+
+      let sequence = 15;
+      while (usedSequences.has(sequence)) {
+        sequence++;
+      }
+
+      const regNo = `${prefix}${String(sequence).padStart(5, '0')}`;
 
       const inqRef = ref(realtimeDb, `colleges/${targetCollegeId}/frontOffice/admissionInquiries/${selectedInquiry.id}`);
       const status = 'Accepted';
