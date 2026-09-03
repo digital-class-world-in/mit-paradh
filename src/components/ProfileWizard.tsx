@@ -3741,8 +3741,8 @@ export default function ProfileWizard({
   };
 
   return (
-    <div className="max-w-7xl mx-auto bg-white border-4 border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-      <div className="bg-orange-50/50 p-6 border-b border-orange-100">
+    <div className="max-w-7xl mx-auto bg-white border-2 sm:border-4 border-slate-200 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden">
+      <div className="bg-orange-50/50 p-3 sm:p-6 border-b border-orange-100">
         <div className="flex justify-between gap-2 overflow-x-auto no-scrollbar pb-2">
           {steps.map((step) => {
             const Icon = step.icon;
@@ -3754,10 +3754,10 @@ export default function ProfileWizard({
                 key={step.id}
                 onClick={() => unlocked && setCurrentStep(step.id)}
                 disabled={!unlocked}
-                className={`flex flex-col items-center gap-3 shrink-0 group min-w-[90px] ${!unlocked ? 'cursor-not-allowed' : 'cursor-pointer'
+                className={`flex flex-col items-center gap-2 sm:gap-3 shrink-0 group min-w-[75px] sm:min-w-[90px] ${!unlocked ? 'cursor-not-allowed' : 'cursor-pointer'
                   }`}
               >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${isActive
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all ${isActive
                   ? 'bg-[#ff9f1c] text-white shadow-md ring-4 ring-orange-500/10 scale-105'
                   : isCompleted
                     ? 'bg-emerald-500 text-white hover:bg-emerald-600'
@@ -3765,9 +3765,10 @@ export default function ProfileWizard({
                       ? 'bg-slate-100 text-slate-600 border border-slate-200 hover:border-orange-300 hover:text-orange-500'
                       : 'bg-slate-50 text-slate-400 border border-slate-200/60'
                   }`}>
-                  {isCompleted ? <CheckCircle2 size={24} /> : step.id}
+                  {isCompleted ? <CheckCircle2 size={20} className="sm:hidden" /> : step.id}
+                  {isCompleted ? <CheckCircle2 size={24} className="hidden sm:block" /> : null}
                 </div>
-                <span className={`text-[11px] font-medium transition-colors ${isActive
+                <span className={`text-[10px] sm:text-[11px] font-medium transition-colors text-center ${isActive
                   ? 'text-orange-600 font-semibold'
                   : isCompleted
                     ? 'text-emerald-600 font-semibold'
@@ -3783,14 +3784,14 @@ export default function ProfileWizard({
         </div>
       </div>
 
-      <div className="p-12">
-        <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
+      <div className="p-4 sm:p-6 md:p-12">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 sm:mb-10 border-b border-slate-200 pb-4 sm:pb-6">
           <div>
-            <h3 className="text-[#ff9f1c] text-2xl font-normal italic tracking-tight">
+            <h3 className="text-[#ff9f1c] text-xl sm:text-2xl font-normal italic tracking-tight">
               {steps[currentStep - 1]?.label || 'Final'} Details
             </h3>
           </div>
-          <div className="bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 flex items-center gap-3">
+          <div className="bg-slate-50 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 sm:gap-3 w-fit">
             <span className="text-[11px] font-normal text-slate-400 capitalize tracking-tight">Status:</span>
             <span className={`text-[11px] font-medium capitalize tracking-tight italic ${formData.profileLocked ? 'text-red-500 animate-pulse' : 'text-orange-600'}`}>
               {formData.profileLocked ? '🔒 Profile Locked' : 'Verified Hub'}
@@ -3805,10 +3806,10 @@ export default function ProfileWizard({
 
       {/* Lock Profile Confirmation Popup */}
       {showLockPopup && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-normal text-red-600 mb-3 text-center">Are you sure you want to lock this profile?</h3>
-            <p className="text-sm font-normal text-blue-800/80 mb-8 leading-relaxed text-center">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-lg animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg sm:text-xl font-normal text-red-600 mb-3 text-center">Are you sure you want to lock this profile?</h3>
+            <p className="text-xs sm:text-sm font-normal text-blue-800/80 mb-6 sm:mb-8 leading-relaxed text-center">
               Once locked, you will not be able to edit your profile details. Please review all details carefully before proceeding.
             </p>
             <div className="flex justify-center gap-4">

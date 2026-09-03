@@ -2206,10 +2206,12 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
                         </a>
                       )}
                     </div>
+       
 
 
 
-                    
+
+
                     <div className="flex items-center gap-1.5 ml-3 shrink-0">
                       {editingOption?.old === opt ? (
                         <>

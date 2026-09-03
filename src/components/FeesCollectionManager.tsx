@@ -366,7 +366,8 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
         screenshot: pendingPayment.screenshot || '',
         collegeLogo: selectedStudent.collegeLogo || '',
         collegeAddress: selectedStudent.collegeAddress || '',
-        collegeParentOrg: selectedStudent.collegeParentOrg || ''
+        collegeParentOrg: selectedStudent.collegeParentOrg || '',
+        stream: selectedStudent.stream || selectedStudent.branch || ''
       };
       await set(transRef, transData);
 
@@ -374,6 +375,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
         ...transData,
         collegeName: selectedStudent.collegeName,
         courseType: selectedStudent.courseType,
+        stream: selectedStudent.stream || selectedStudent.branch || '',
         rollNo: selectedStudent.rollNo || 'N/A'
       });
       setShowReceipt(true);
@@ -504,7 +506,8 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
         regNo: selectedStudent.regNo || selectedStudent.applicationId || 'N/A',
         collegeLogo: selectedStudent.collegeLogo || '',
         collegeAddress: selectedStudent.collegeAddress || '',
-        collegeParentOrg: selectedStudent.collegeParentOrg || ''
+        collegeParentOrg: selectedStudent.collegeParentOrg || '',
+        stream: selectedStudent.stream || selectedStudent.branch || ''
       };
       
       if (existingTrans) {
@@ -534,6 +537,8 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
           collegeId: selectedStudent.collegeId || '',
           collegeName: selectedStudent.collegeName || '',
           courseName: selectedStudent.courseName || '',
+          courseType: selectedStudent.courseType || 'Regular',
+          stream: selectedStudent.stream || selectedStudent.branch || '',
           amount: totalAmountToSave.toString(),
           date: transactionDate ? new Date(transactionDate).toISOString() : new Date().toISOString(),
           approvedAt: new Date().toISOString(),
@@ -562,6 +567,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
         ...transData,
         collegeName: selectedStudent.collegeName,
         courseType: selectedStudent.courseType,
+        stream: selectedStudent.stream || selectedStudent.branch || '',
         rollNo: selectedStudent.rollNo || 'N/A'
       });
       setShowReceipt(true);
@@ -1216,6 +1222,7 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
                                    ...t,
                                    collegeName: student?.collegeName || college?.name || 'N/A',
                                    courseType: student?.courseType || 'Reg',
+                                   stream: t.stream || student?.stream || student?.branch || 'N/A',
                                    rollNo: student?.rollNo || 'N/A'
                                  });
                                  setShowReceipt(true);

@@ -216,8 +216,8 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
           />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full border-collapse min-w-[720px]">
             <thead>
               <tr className="bg-slate-50 border-b-2 border-black">
                 <th className="px-6 py-4 border-r-2 border-black text-left text-[12px] font-black uppercase tracking-widest text-black">Sr. No.</th>
@@ -253,14 +253,15 @@ const MarksheetModule = ({ credentials }: { credentials: any[] }) => {
   }
 
   return (
-    <div className="text-center py-32 glass-effect rounded-[3rem] border-2 border-white shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-700">
-      <div className="w-32 h-32 bg-amber-50 rounded-[2.5rem] flex items-center justify-center mx-auto border-2 border-amber-100 shadow-2xl shadow-amber-500/10 relative">
-        <div className="absolute inset-0 bg-amber-500/5 rounded-[2.5rem] animate-pulse" />
-        <Award size={56} className="text-amber-500 relative z-10" />
+    <div className="text-center py-16 sm:py-24 md:py-32 px-4 sm:px-8 glass-effect rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 border-white shadow-2xl space-y-6 sm:space-y-8 animate-in fade-in zoom-in-95 duration-700">
+      <div className="w-24 h-24 sm:w-32 sm:h-32 bg-amber-50 rounded-2xl sm:rounded-[2.5rem] flex items-center justify-center mx-auto border-2 border-amber-100 shadow-2xl shadow-amber-500/10 relative">
+        <div className="absolute inset-0 bg-amber-500/5 rounded-2xl sm:rounded-[2.5rem] animate-pulse" />
+        <Award size={44} className="text-amber-500 relative z-10 sm:hidden" />
+        <Award size={56} className="text-amber-500 relative z-10 hidden sm:block" />
       </div>
-      <div className="space-y-4">
-        <h3 className="text-4xl font-black text-[#002147] tracking-tighter uppercase italic">Statement of Marks</h3>
-        <p className="text-slate-500 font-bold max-w-lg mx-auto leading-relaxed">Your official academic marksheet and performance record will be available for download here once the examination results are formally declared by the institutional board.</p>
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-2xl sm:text-4xl font-black text-[#002147] tracking-tighter uppercase italic">Statement of Marks</h3>
+        <p className="text-slate-500 font-bold max-w-lg mx-auto leading-relaxed text-xs sm:text-base">Your official academic marksheet and performance record will be available for download here once the examination results are formally declared by the institutional board.</p>
       </div>
       <div className="pt-6">
         <div className="inline-flex items-center gap-3 px-8 py-3 bg-slate-100 text-slate-400 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] border border-slate-200">
@@ -746,8 +747,8 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
           />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full border-collapse min-w-[720px]">
             <thead>
               <tr className="bg-slate-50 border-b-2 border-black">
                 <th className="px-6 py-4 border-r-2 border-black text-left text-[12px] font-black uppercase tracking-widest text-black">Sr. No.</th>
@@ -783,14 +784,15 @@ const CertificateModule = ({ credentials }: { credentials: any[] }) => {
   }
 
   return (
-    <div className="text-center py-32 glass-effect rounded-[3rem] border-2 border-white shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-700">
-      <div className="w-32 h-32 bg-indigo-50 rounded-[2.5rem] flex items-center justify-center mx-auto border-2 border-indigo-100 shadow-2xl shadow-indigo-500/10 relative">
-        <div className="absolute inset-0 bg-indigo-500/5 rounded-[2.5rem] animate-pulse" />
-        <ShieldCheck size={56} className="text-[#002147] relative z-10" />
+    <div className="text-center py-16 sm:py-24 md:py-32 px-4 sm:px-8 glass-effect rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 border-white shadow-2xl space-y-6 sm:space-y-8 animate-in fade-in zoom-in-95 duration-700">
+      <div className="w-24 h-24 sm:w-32 sm:h-32 bg-indigo-50 rounded-2xl sm:rounded-[2.5rem] flex items-center justify-center mx-auto border-2 border-indigo-100 shadow-2xl shadow-indigo-500/10 relative">
+        <div className="absolute inset-0 bg-indigo-500/5 rounded-2xl sm:rounded-[2.5rem] animate-pulse" />
+        <ShieldCheck size={44} className="text-[#002147] relative z-10 sm:hidden" />
+        <ShieldCheck size={56} className="text-[#002147] relative z-10 hidden sm:block" />
       </div>
-      <div className="space-y-4">
-        <h3 className="text-4xl font-black text-[#002147] tracking-tighter uppercase italic">Course Certificate</h3>
-        <p className="text-slate-500 font-bold max-w-lg mx-auto leading-relaxed">Official course completion certificates and vocational diplomas are issued upon successful completion of all academic requirements and final verification.</p>
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-2xl sm:text-4xl font-black text-[#002147] tracking-tighter uppercase italic">Course Certificate</h3>
+        <p className="text-slate-500 font-bold max-w-lg mx-auto leading-relaxed text-xs sm:text-base">Official course completion certificates and vocational diplomas are issued upon successful completion of all academic requirements and final verification.</p>
       </div>
       <div className="pt-6">
         <div className="inline-flex items-center gap-3 px-8 py-3 bg-slate-100 text-slate-400 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] border border-slate-200">
@@ -857,11 +859,11 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
 
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-      <div className="glass-effect p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-4 border-white shadow-2xl">
-        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-effect p-4 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 sm:border-4 border-white shadow-2xl">
+        <header className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Course Fee Structure</h3>
-            <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official registry of course fees across all colleges</p>
+            <h3 className="text-xl sm:text-2xl font-black text-[#002147] tracking-tighter capitalize">Course Fee Structure</h3>
+            <p className="text-[12px] sm:text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official registry of course fees across all colleges</p>
           </div>
           <div className="px-4 py-2 bg-indigo-50 rounded-2xl border border-indigo-200 text-indigo-700 text-xs font-bold uppercase flex items-center gap-2 w-fit">
             <BookOpen size={14} /> Showing {displayedCourses.length} of {availableCourses.length} Courses
@@ -869,7 +871,7 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
         </header>
 
         {/* Compulsory Filters Bar */}
-        <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl mb-8 space-y-4 shadow-inner">
+        <div className="bg-slate-50 border border-slate-200 p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-8 space-y-4 shadow-inner">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs font-black uppercase text-[#002147] tracking-wider">
               <Filter size={16} className="text-[#00a5a5]" /> Compulsory Course Filters
@@ -884,7 +886,7 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* College Filter */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
@@ -967,7 +969,7 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
         </div>
 
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse border-[0.5px] border-black">
+          <table className="w-full text-left border-collapse border-[0.5px] border-black min-w-[700px]">
             <thead>
               <tr className="bg-slate-50/50 border-b-[0.5px] border-black">
                 <th className="px-6 py-5 text-[12px] font-black text-[#002147] uppercase tracking-widest border-r-[0.5px] border-black w-16 text-center">Sr.</th>
@@ -1018,9 +1020,9 @@ const FeeTablePortal = ({ availableCourses = [], availableColleges = [] }: any) 
 const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, hasActiveAdmission, setIsOtherCourseMode, setIsCourseModalOpen, handleTabChange, activeApp }: any) => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-[#003366] text-white py-4 px-8 rounded-2xl shadow-lg font-medium tracking-tight text-[16px] flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-[#003366] text-white py-3.5 sm:py-4 px-4 sm:px-8 rounded-2xl shadow-lg font-medium tracking-tight text-sm sm:text-[16px] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <LayoutDashboard size={20} className="text-[#00a5a5]" /> Welcome to MIT PARADH
+          <LayoutDashboard size={20} className="text-[#00a5a5] shrink-0" /> Welcome to MIT PARADH
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -1034,7 +1036,7 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
               }
             }}
             className={cn(
-              "px-6 py-2 rounded-xl text-[12px] font-black uppercase tracking-tight transition-all shadow-md active:scale-95 flex items-center gap-2",
+              "px-5 sm:px-6 py-2.5 sm:py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 w-full sm:w-fit",
               userApplications.length > 0
                 ? "bg-[#ff9f1c] hover:bg-white hover:text-black text-black"
                 : "bg-[#00a5a5] hover:bg-white hover:text-[#003366] text-white border border-white/20"
@@ -1047,7 +1049,7 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
       </div>
 
       {/* Summary Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <Widget
           icon={CheckCircle2}
           label="Profile Status"
@@ -1064,24 +1066,24 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
         />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-1/4 bg-white border-4 border-slate-200 rounded-md p-4 flex flex-col items-center gap-6 shadow-sm">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+        <div className="lg:w-1/4 bg-white border-2 sm:border-4 border-slate-200 rounded-xl sm:rounded-2xl p-4 flex flex-col items-center gap-4 sm:gap-6 shadow-sm">
           <div className="flex flex-col items-center w-full">
-            <div className="w-40 h-48 bg-slate-100 rounded-md border-2 border-slate-200 overflow-hidden flex items-center justify-center mb-2 group cursor-pointer shadow-inner" onClick={() => handleTabChange(3)}>
+            <div className="w-32 h-40 sm:w-40 sm:h-48 bg-slate-100 rounded-xl border-2 border-slate-200 overflow-hidden flex items-center justify-center mb-2 group cursor-pointer shadow-inner" onClick={() => handleTabChange(3)}>
               {(userData?.profile?.photoUrl || userData?.photo) ? (
                 <img src={userData.profile?.photoUrl || userData?.photo} alt="Student" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
               ) : (
                 <div className="flex flex-col items-center gap-2">
                   <User size={48} className="text-slate-300" />
-                  <span className="text-[13px] text-black capitalize font-medium">No Photo</span>
+                  <span className="text-xs text-black capitalize font-medium">No Photo</span>
                 </div>
               )}
             </div>
-            <p className="text-[13px] font-bold text-black capitalize tracking-tight">Official Photo</p>
+            <p className="text-xs sm:text-[13px] font-bold text-black capitalize tracking-tight">Official Photo</p>
           </div>
         </div>
 
-        <div className="lg:w-3/4 grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-min">
+        <div className="lg:w-3/4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 auto-rows-min">
           {[
             { l: 'Admission year', v: '2026-2027' },
             {
@@ -1095,20 +1097,20 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
             { l: 'DOB', v: userData?.dateOfBirth || userData?.profile?.dateOfBirth || 'N/A' },
             { l: 'Email ID', v: userData?.email || userData?.studentEmail || 'N/A' },
           ].map((item, i) => (
-            <div key={i} className="flex border-2 border-slate-200 rounded-md overflow-hidden bg-white h-12">
-              <div className="w-1/3 bg-[#e6f7f7] px-4 py-2 text-[#00a5a5] font-normal text-[15px] flex items-center tracking-tight">{item.l}</div>
-              <div className="w-2/3 px-4 py-2 text-slate-700 text-[15px] font-medium flex items-center">{item.v}</div>
+            <div key={i} className="flex flex-col sm:flex-row border border-slate-200 rounded-lg overflow-hidden bg-white min-h-[44px]">
+              <div className="w-full sm:w-2/5 bg-[#e6f7f7] px-3 sm:px-4 py-1.5 sm:py-2 text-[#00a5a5] font-semibold text-xs sm:text-[13px] flex items-center tracking-tight shrink-0">{item.l}</div>
+              <div className="w-full sm:w-3/5 px-3 sm:px-4 py-1.5 sm:py-2 text-slate-700 text-xs sm:text-[13px] font-medium flex items-center break-all">{item.v}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-[#003366] text-white py-3 px-6 rounded-md text-center font-normal text-[15px] tracking-wide shadow-md">
+      <div className="bg-[#003366] text-white py-3 px-4 sm:px-6 rounded-xl text-center font-normal text-xs sm:text-[15px] tracking-wide shadow-md">
         Candidate dashboard
       </div>
 
-      <div className="bg-white border-4 border-slate-200 rounded-md p-10 shadow-sm overflow-x-auto no-scrollbar">
-        <div className="min-w-[1000px] relative">
+      <div className="bg-white border-2 sm:border-4 border-slate-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 shadow-sm overflow-x-auto no-scrollbar">
+        <div className="min-w-[900px] relative py-2">
           <div className="absolute top-1/2 left-0 w-full h-1 bg-[#21ba45] -translate-y-1/2 z-0 opacity-20" />
           <div className="relative z-10 flex justify-between gap-4">
             {[
@@ -1133,12 +1135,12 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
                     onClick={() => {
                       handleTabChange(3, step.id <= 11 ? step.id : 1, activeApp?.id || 'new');
                     }}
-                    className="w-20 h-20 rounded-full bg-white flex flex-col items-center justify-center text-[13px] font-medium shadow-sm transition-all hover:scale-110 active:scale-95 group"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex flex-col items-center justify-center text-xs sm:text-[13px] font-medium shadow-sm transition-all hover:scale-110 active:scale-95 group"
                     style={{ border: `4px solid ${color}`, color: color === '#d1d1d1' ? '#a1a1a1' : color }}
                   >
-                    {perc === 100 ? <Check size={28} /> : `${perc}%`}
+                    {perc === 100 ? <Check size={24} /> : `${perc}%`}
                   </button>
-                  <span className="text-[13px] font-bold text-black capitalize tracking-tighter text-center max-w-[80px]">
+                  <span className="text-[11px] sm:text-[13px] font-bold text-black capitalize tracking-tighter text-center max-w-[80px]">
                     {perc === 100 && step.id === 222 ? 'Admission Confirm' : step.l}
                   </span>
                 </div>
@@ -1147,10 +1149,10 @@ const DashboardHome = ({ userData, userApplications, stepPercentages, feeDue, ha
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-4">
+        <div className="mt-8 sm:mt-12 flex flex-col items-center gap-4">
           {hasActiveAdmission && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-8 py-4 rounded-xl font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-              <Check size={18} /> Admission Processed - You have an active enrollment
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2 text-center">
+              <Check size={18} className="shrink-0" /> Admission Processed - You have an active enrollment
             </div>
           )}
         </div>
@@ -1184,8 +1186,8 @@ const ApplicationManager = ({
 
       <div className="bg-white border border-black rounded-xl shadow-sm overflow-hidden text-[#343a40]">
         <div className="bg-[#343a40] text-white py-3 px-6 font-normal text-sm tracking-wide uppercase">Your Applications</div>
-        <div className="p-0 overflow-x-auto">
-          <table className="w-full text-left border-collapse border-[0.5px] border-black">
+        <div className="p-0 overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse border-[0.5px] border-black min-w-[1100px]">
             <thead>
               <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
                 <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
@@ -1196,8 +1198,8 @@ const ApplicationManager = ({
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">Course Name</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Stream/Branch</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Duration</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Fee</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Paid</th>
@@ -1220,20 +1222,20 @@ const ApplicationManager = ({
                     {formatAutoRegNo(getAutoRegNo(app, userData)) || 'N/A'}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
                     <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || 'Regular'}</span>
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || app.streamBranch || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">
                     ₹{parseFloat(app.processTotalFees || app.fees || '0').toLocaleString()}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-indigo-600">
-                    ₹{parseFloat(app.paidFees || '0').toLocaleString()}
+                    ₹{parseFloat(app.paidFees || app.processAmountPaid || '0').toLocaleString()}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
                     {app.status || 'Pending'}
@@ -1289,14 +1291,14 @@ const ApplicationManager = ({
 const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExamModalOpen, setSelectedExamConfig, userData, setLastReceipt, setShowReceipt }: any) => (
   <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
     <div className="bg-white border-[0.5px] border-black rounded-md shadow-sm overflow-hidden text-[#343a40]">
-      <div className="bg-[#002147] text-white py-4 px-8 font-black text-sm tracking-widest flex items-center justify-between">
+      <div className="bg-[#002147] text-white py-3.5 sm:py-4 px-4 sm:px-8 font-black text-xs sm:text-sm tracking-widest flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <span>Exam Form</span>
         <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20 text-[10px]">
           <Clock size={12} className="text-[#00a5a5]" /> Academic Session
         </div>
       </div>
-      <div className="p-0 overflow-x-auto">
-        <table className="w-full text-left border-collapse border-b-[0.5px] border-black">
+      <div className="p-0 overflow-x-auto no-scrollbar">
+        <table className="w-full text-left border-collapse border-b-[0.5px] border-black min-w-[950px]">
           <thead className="bg-slate-50 border-b-[0.5px] border-black">
             <tr className="text-[12px] font-black text-[#00a5a5] uppercase tracking-tighter whitespace-nowrap">
               <th className="px-8 py-5 border-r-[0.5px] border-black text-center w-16">Sr No.</th>
@@ -1362,7 +1364,14 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                       <td className="px-8 py-6 border-r-[0.5px] border-black text-center">
                         <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border-[0.5px] border-indigo-100">{activeApp.courseType || 'REGULAR'}</span>
                       </td>
-                      <td className="px-8 py-6 border-r-[0.5px] border-black font-bold text-slate-700 text-sm capitalize">{activeApp.courseName} ({academicYear})</td>
+                      <td className="px-8 py-6 border-r-[0.5px] border-black font-bold text-slate-700 text-sm capitalize">
+                        <div>{activeApp.courseName} <span className="text-slate-400 font-normal">({academicYear})</span></div>
+                        {(activeApp.stream || activeApp.branch || activeApp.streamBranch) && (
+                          <span className="inline-block mt-1 text-[11px] font-semibold text-[#00a5a5] bg-[#e6f7f7] px-2 py-0.5 rounded">
+                            Stream: {activeApp.stream || activeApp.branch || activeApp.streamBranch}
+                          </span>
+                        )}
+                      </td>
                       <td className="px-8 py-6 border-r-[0.5px] border-black text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-sm font-black text-emerald-600">₹{parseFloat(config.fees || '0').toLocaleString()}</span>
@@ -1417,6 +1426,7 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
                                   collegeName: activeApp.collegeName,
                                   courseName: activeApp.courseName,
                                   courseType: activeApp.courseType || 'Regular',
+                                  stream: submissionForConfig.stream || activeApp?.stream || activeApp?.branch || activeApp?.streamBranch || selectedExamConfig?.stream || (activeApp as any)?.subcategory || '',
                                   academicYear: academicYear
                                 });
                                 setShowReceipt(true);
@@ -1504,16 +1514,16 @@ const ExaminationCenter = ({ activeApp, examSettings, examSubmissions, setIsExam
 
 const FeePaymentPortal = ({ acceptedApps, totalFees, totalPaid, balanceDue, userPayments, setSelectedAppForPayment, setPaymentForm, setIsPaymentModalOpen, setLastReceipt, setShowReceipt }: any) => (
   <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <Widget icon={CreditCard} label="Total Fee" value={`₹${totalFees.toLocaleString()}`} trend="Current Session" color="bg-blue-600" />
       <Widget icon={CheckCircle2} label="Amount Paid" value={`₹${totalPaid.toLocaleString()}`} trend="Verified" color="bg-emerald-600" />
       <Widget icon={AlertCircle} label="Balance Due" value={`₹${balanceDue.toLocaleString()}`} trend={balanceDue > 0 ? "Outstanding" : "Cleared"} color={balanceDue > 0 ? "bg-red-600" : "bg-emerald-600"} />
     </div>
 
-    <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
-      <h3 className="text-2xl font-medium text-slate-800 capitalize tracking-tighter mb-8">Financial Records & Payments</h3>
-      <div className="p-0 overflow-x-auto">
-        <table className="w-full text-left border-collapse border-[0.5px] border-black">
+    <div className="glass-effect p-4 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 sm:border-4 border-white shadow-2xl">
+      <h3 className="text-xl sm:text-2xl font-medium text-slate-800 capitalize tracking-tighter mb-6 sm:mb-8">Financial Records & Payments</h3>
+      <div className="p-0 overflow-x-auto no-scrollbar">
+        <table className="w-full text-left border-collapse border-[0.5px] border-black min-w-[950px]">
           <thead>
             <tr className="text-[12px] font-black text-[#00a5a5] border-b-[0.5px] border-black bg-white whitespace-nowrap text-center">
               <th className="px-4 py-5 border-r-[0.5px] border-black w-16">Sr No</th>
@@ -1602,13 +1612,13 @@ const FeePaymentPortal = ({ acceptedApps, totalFees, totalPaid, balanceDue, user
 
 const TransactionHistory = ({ userPayments, acceptedApps, setLastReceipt, setShowReceipt }: any) => (
   <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8 mt-12">
-    <div className="glass-effect p-10 rounded-[3rem] border-4 border-white shadow-2xl">
-      <header className="mb-10">
-        <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Financial Transaction History</h3>
-        <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Audit trail of all fees submitted to institutions</p>
+    <div className="glass-effect p-4 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 sm:border-4 border-white shadow-2xl">
+      <header className="mb-6 sm:mb-10">
+        <h3 className="text-xl sm:text-2xl font-black text-[#002147] tracking-tighter capitalize">Financial Transaction History</h3>
+        <p className="text-[12px] sm:text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Audit trail of all fees submitted to institutions</p>
       </header>
       <div className="overflow-x-auto no-scrollbar">
-        <table className="w-full text-left border-collapse border-[0.5px] border-black">
+        <table className="w-full text-left border-collapse border-[0.5px] border-black min-w-[1000px]">
           <thead>
             <tr className="bg-slate-50 border-b-[0.5px] border-black text-center whitespace-nowrap">
               <th className="px-4 py-5 text-[12px] font-black text-[#002147] uppercase border-r-[0.5px] border-black w-16">Sr No</th>
@@ -1651,11 +1661,11 @@ const TransactionHistory = ({ userPayments, acceptedApps, setLastReceipt, setSho
                 <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
                   <div className={cn(
                     "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border shadow-sm inline-flex items-center gap-2",
-                    p.status === 'Approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                    (p.status === 'Approved' || p.status === 'Accepted' || p.status === 'Verified') ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                       p.status === 'Rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
                         "bg-amber-50 text-amber-600 border-amber-100"
                   )}>
-                    {p.status === 'Approved' ? <CheckCircle2 size={12} /> : p.status === 'Rejected' ? <XCircle size={12} /> : <Clock size={12} />}
+                    {(p.status === 'Approved' || p.status === 'Accepted' || p.status === 'Verified') ? <CheckCircle2 size={12} /> : p.status === 'Rejected' ? <XCircle size={12} /> : <Clock size={12} />}
                     {p.status || 'Pending'}
                   </div>
                   {p.status === 'Rejected' && p.remarks && (
@@ -1666,9 +1676,17 @@ const TransactionHistory = ({ userPayments, acceptedApps, setLastReceipt, setSho
                 </td>
                 <td className="px-4 py-6 border-r-[0.5px] border-black text-right font-black text-rose-500">₹{pendingAmt.toLocaleString()}</td>
                 <td className="px-4 py-6 text-center">
-                  {p.status === 'Approved' ? (
+                  {(p.status === 'Approved' || p.status === 'Accepted' || p.status === 'Verified') ? (
                     <button
-                      onClick={() => { setLastReceipt(p); setShowReceipt(true); }}
+                      onClick={() => {
+                        setLastReceipt({
+                          ...app,
+                          ...p,
+                          stream: p.stream || app?.stream || app?.branch || app?.streamBranch || app?.subcategory || '',
+                          courseType: p.courseType || app?.courseType || 'Regular'
+                        });
+                        setShowReceipt(true);
+                      }}
                       className="px-4 py-2 mx-auto rounded bg-[#00a5a5] text-white hover:bg-[#007f7f] text-[10px] font-black uppercase transition-all shadow-sm flex items-center gap-1 justify-center active:scale-95"
                     >
                       <Download size={12} /> Print Receipt
@@ -1687,16 +1705,16 @@ const TransactionHistory = ({ userPayments, acceptedApps, setLastReceipt, setSho
   </div>
 );
 
-const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt }: any) => {
-  const approvedPayments = (userPayments || []).filter((pay: any) => pay.status === 'Accepted');
+const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt, userApplications, activeApp, userData }: any) => {
+  const approvedPayments = (userPayments || []).filter((pay: any) => pay.status === 'Accepted' || pay.status === 'Approved' || pay.status === 'Verified');
 
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8">
-      <div className="glass-effect p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border-4 border-white shadow-2xl">
-        <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="glass-effect p-4 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-2 sm:border-4 border-white shadow-2xl">
+        <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
           <div>
-            <h3 className="text-2xl font-black text-[#002147] tracking-tighter capitalize">Approved Payment Slips</h3>
-            <p className="text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official verified fee receipts and transaction records</p>
+            <h3 className="text-xl sm:text-2xl font-black text-[#002147] tracking-tighter capitalize">Approved Payment Slips</h3>
+            <p className="text-[12px] sm:text-[13px] font-medium text-slate-400 capitalize tracking-tight mt-1">Official verified fee receipts and transaction records</p>
           </div>
           <div className="px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-600 text-xs font-bold uppercase flex items-center gap-2 w-fit">
             <CheckCircle2 size={14} /> {approvedPayments.length} Verified Slip(s)
@@ -1743,24 +1761,52 @@ const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt }: any
                       <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">College / Course</span>
                       <div className="text-right md:text-left">
                         <p className="text-sm font-bold text-slate-800 tracking-tight leading-none mb-1">{pay.courseName}</p>
-                        <p className="text-[10px] font-medium text-slate-400 capitalize">{pay.collegeName}</p>
+                        <p className="text-[10px] font-medium text-slate-400 capitalize">
+                          {pay.collegeName}
+                          {(() => {
+                            const linkedApp = userApplications?.find((a: any) => a.id === pay.applicationId || a.applicationId === pay.applicationId || a.courseName === pay.courseName) || activeApp;
+                            const st = pay.stream || linkedApp?.stream || linkedApp?.branch || linkedApp?.streamBranch;
+                            return st ? ` • Stream: ${st}` : '';
+                          })()}
+                        </p>
                       </div>
                     </td>
                     <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-center text-sm font-medium text-slate-500">
                       <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Approved Date</span>
                       <span>{pay.approvedAt ? new Date(pay.approvedAt).toLocaleDateString() : pay.date ? new Date(pay.date).toLocaleDateString() : 'N/A'}</span>
                     </td>
-                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-right text-[15px] font-black text-emerald-600">
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-b-0 md:border-r-[0.5px] border-black text-right font-black text-slate-900">
                       <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Amount</span>
                       <span>₹{parseFloat(pay.amount || '0').toLocaleString()}</span>
                     </td>
-                    <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
+                    <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 text-center">
                       <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
                       <button
-                        onClick={() => { setLastReceipt(pay); setShowReceipt(true); }}
-                        className="px-5 py-2 bg-[#00a5a5] text-black hover:bg-[#5D5fb1] text-[11px] font-black uppercase transition-all shadow-md flex items-center gap-1.5 justify-center rounded-xl active:scale-95"
+                        onClick={() => {
+                          const linkedApp = userApplications?.find((a: any) => a.id === pay.applicationId || a.applicationId === pay.applicationId || a.courseName === pay.courseName) || activeApp;
+                          const st = pay.stream || linkedApp?.stream || linkedApp?.branch || linkedApp?.streamBranch || '';
+                          setLastReceipt({
+                            receiptNo: pay.receiptNo || ('REC-' + pay.id?.slice(-8).toUpperCase()),
+                            paymentDate: pay.approvedAt || pay.date || new Date().toISOString(),
+                            amount: pay.amount || '0',
+                            studentName: pay.studentName || userData?.fullName || userData?.studentName || 'Student',
+                            collegeName: pay.collegeName || linkedApp?.collegeName || userData?.collegeName || 'Mahalaxmi Nursing and Technical Institute Paradh',
+                            collegeParentOrg: pay.collegeParentOrg || linkedApp?.collegeParentOrg || 'Maharashtra State Board of Vocational Education',
+                            collegeAddress: pay.collegeAddress || linkedApp?.collegeAddress || 'Paradh Bk TQ Bhokardan Dist Jalna',
+                            collegeLogo: pay.collegeLogo || linkedApp?.collegeLogo || 'https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg',
+                            courseName: pay.courseName || linkedApp?.courseName || 'Vocational Course',
+                            courseType: pay.courseType || linkedApp?.courseType || 'Regular',
+                            stream: st,
+                            streamBranch: st,
+                            transactionId: pay.transactionId || pay.utrNumber || pay.referenceId || pay.id,
+                            paymentMethod: pay.mode || pay.modeOfTransfer || 'Online / Bank',
+                            applicationId: pay.applicationId || linkedApp?.applicationId || linkedApp?.id || 'APP-MIT'
+                          });
+                          setShowReceipt(true);
+                        }}
+                        className="px-4 py-2 bg-[#002147] hover:bg-[#00a5a5] text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md active:scale-95 md:mx-auto"
                       >
-                        <Download size={12} /> View Slip
+                        <Printer size={14} /> View / Download Slip
                       </button>
                     </td>
                   </tr>
@@ -1775,17 +1821,17 @@ const PaymentSlipPortal = ({ userPayments, setLastReceipt, setShowReceipt }: any
 };
 
 const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModalOpen, setModalPreview, handleDocumentUpload, handleDeleteCustomDoc }: any) => (
-  <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-8 p-6">
-    <header className="bg-[#003366] text-white py-6 px-10 rounded-2xl shadow-xl flex items-center justify-between">
-      <div className="flex items-center gap-6">
-        <div className="w-14 h-14 bg-[#00a5a5] rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20"><FileText size={28} /></div>
+  <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-6 sm:space-y-8 p-3 sm:p-4 md:p-6">
+    <header className="bg-[#003366] text-white py-5 sm:py-6 px-4 sm:px-8 md:px-10 rounded-2xl shadow-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#00a5a5] rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20 shrink-0"><FileText size={24} className="sm:hidden" /><FileText size={28} className="hidden sm:block" /></div>
         <div>
-          <h3 className="text-2xl font-bold tracking-tight">Digital Document Vault</h3>
-          <p className="text-white/60 text-sm mt-1 font-medium">Manage all academic & identity documents</p>
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Digital Document Vault</h3>
+          <p className="text-white/60 text-xs sm:text-sm mt-0.5 font-medium">Manage all academic & identity documents</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <button onClick={() => setIsAddDocModalOpen(true)} className="bg-[#00a5a5] hover:bg-white hover:text-[#003366] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2"><Plus size={18} /> ADD DOCUMENT</button>
+        <button onClick={() => setIsAddDocModalOpen(true)} className="bg-[#00a5a5] hover:bg-white hover:text-[#003366] text-white px-5 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 w-full sm:w-fit"><Plus size={16} /> ADD DOCUMENT</button>
       </div>
     </header>
     <div className="bg-white border-2 border-black rounded-xl shadow-2xl overflow-hidden">
@@ -2052,7 +2098,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <div style={{ border: '2px solid #000000', marginBottom: '15px', fontSize: '10px', backgroundColor: '#ffffff' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000', borderBottom: '1px solid #000000' }}>
-                      <span style={{ color: '#000000', fontWeight: '700' }}>Student Full Name:</span> <span style={{ fontWeight: '600' }}>{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Student Full Name:</span> <span style={{ fontWeight: '600' }}>{app.studentName || userData?.fullName || userData?.studentName || [userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'N/A'}</span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', borderBottom: '1px solid #000000' }}>
                       <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
@@ -2081,10 +2127,10 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#000000', fontWeight: '700' }}>Semester:</span> <span style={{ fontWeight: '600' }}>{app.semester || 'N/A'}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Stream/Branch:</span> <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{app.stream || app.streamBranch || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '6px 8px', borderRight: '1px solid #000000' }}>
-                      <span style={{ color: '#000000', fontWeight: '700' }}>Stream/Branch:</span> <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{app.stream || app.streamBranch || 'N/A'}</span>
+                      <span style={{ color: '#000000', fontWeight: '700' }}>Semester:</span> <span style={{ fontWeight: '600' }}>{app.semester || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '6px 8px' }}>
                       <span style={{ color: '#000000', fontWeight: '700' }}>Duration:</span> <span style={{ fontWeight: '600' }}>{app.duration || 'N/A'}</span>
@@ -2104,7 +2150,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                         <tr>
                           <td style={{ padding: '5px 8px', color: '#475569', fontWeight: '600', width: '110px', border: '1px solid #000000', backgroundColor: '#f8fafc' }}>Full Name:</td>
                           <td colSpan={3} style={{ padding: '5px 8px', fontWeight: '700', color: '#0f172a', textTransform: 'uppercase', border: '1px solid #000000' }}>
-                            {[userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || 'N/A'}
+                            {app.studentName || userData?.fullName || userData?.studentName || [userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'N/A'}
                           </td>
                         </tr>
                         <tr>
@@ -2525,20 +2571,20 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
 
       {!hiddenMode && (
         <>
-      <header className="bg-[#003366] text-white py-6 px-10 rounded-2xl shadow-xl flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-[#ff9f1c] rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20"><Printer size={28} /></div>
+      <header className="bg-[#003366] text-white py-4 sm:py-6 px-4 sm:px-10 rounded-2xl shadow-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 print:hidden">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#ff9f1c] rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20 shrink-0"><Printer size={24} className="sm:hidden" /><Printer size={28} className="hidden sm:block" /></div>
           <div>
-            <h3 className="text-2xl font-bold tracking-tight">Print Application Form</h3>
-            <p className="text-white/60 text-sm mt-1 font-medium">Generate official enrollment records</p>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Print Application Form</h3>
+            <p className="text-white/60 text-xs sm:text-sm mt-0.5 font-medium">Generate official enrollment records</p>
           </div>
         </div>
       </header>
 
       <div className="bg-white border border-black rounded-xl shadow-2xl overflow-hidden print:hidden">
-        <div className="bg-slate-800 text-white py-4 px-8 font-bold text-sm tracking-wide">YOUR ADMISSION APPLICATIONS</div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse md:border-[0.5px] border-black block md:table">
+        <div className="bg-slate-800 text-white py-3.5 sm:py-4 px-4 sm:px-8 font-bold text-xs sm:text-sm tracking-wide">YOUR ADMISSION APPLICATIONS</div>
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse md:border-[0.5px] border-black block md:table min-w-[1100px]">
             <thead>
               <tr className="bg-slate-50 border-b-[0.5px] border-black text-[12px] font-black text-[#00a5a5] whitespace-nowrap text-center">
                 <th className="px-4 py-5 border-r-[0.5px] border-black w-16 uppercase">Sr No</th>
@@ -2549,8 +2595,8 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">COLLEGE Name</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">course Type</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black text-left uppercase">Course Name</th>
-                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Stream/Branch</th>
+                <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Semester</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Duration</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Fee</th>
                 <th className="px-4 py-5 border-r-[0.5px] border-black uppercase text-center">Total Paid</th>
@@ -2571,20 +2617,20 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.regNo || userData?.profile?.regNo || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-slate-700">{app.manualRegNo || userData?.manualRegNo || userData?.profile?.manualRegNo || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || 'Student'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize max-w-[150px] truncate">{app.studentName || userData?.fullName || userData?.studentName || [userData?.profile?.firstName, userData?.profile?.middleName || userData?.profile?.fatherFirstName, userData?.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'Student'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-semibold text-slate-700 capitalize">{app.collegeName || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center">
                     <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-500 text-[10px] font-black uppercase tracking-wider">{app.courseType || 'Regular'}</span>
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black font-bold text-slate-800 capitalize">{app.courseName || 'N/A'}</td>
+                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || app.streamBranch || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">{app.semester || 'N/A'}</td>
-                  <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.stream || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600 capitalize">{app.duration || 'N/A'}</td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-emerald-600">
                     ₹{parseFloat(app.processTotalFees || app.fees || '0').toLocaleString()}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-bold text-indigo-600">
-                    ₹{parseFloat(app.paidFees || '0').toLocaleString()}
+                    ₹{parseFloat(app.paidFees || app.processAmountPaid || '0').toLocaleString()}
                   </td>
                   <td className="px-4 py-6 border-r-[0.5px] border-black text-center font-medium text-slate-600">
                     {app.status || 'Pending'}
@@ -2658,7 +2704,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                 </div>
                 
                 <div className="grid grid-cols-2 gap-x-12 gap-y-3 mt-8 text-[13px] font-bold text-black border-t-2 border-black pt-6">
-                  <div>Student Full Name: <span className="font-medium text-slate-800">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</span></div>
+                  <div>Student Full Name: <span className="font-medium text-slate-800">{selectedApp.studentName || userData?.fullName || userData?.studentName || [userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'N/A'}</span></div>
                   <div>Auto Generated Roll Number: <span className="font-medium text-slate-800">{formatAutoRegNo(getAutoRegNo(selectedApp, userData)) || 'N/A'}</span></div>
                   <div>Manual Registration Number: <span className="font-medium text-slate-800">{selectedApp.processManualRegNo || selectedApp.manualRegNo || userData.manualRegNo || userData.profile?.manualRegNo || 'N/A'}</span></div>
                   <div>Academic Year (Session): <span className="font-medium text-slate-800">{selectedApp.academicYear || '2026-27'}</span></div>
@@ -2700,7 +2746,7 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                   </div>
                 </div>
 
-                <DataRow label="Full Name" value={userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()} />
+                <DataRow label="Full Name" value={selectedApp.studentName || userData?.fullName || userData?.studentName || [userData.profile?.firstName, userData.profile?.middleName || userData.profile?.fatherFirstName, userData.profile?.lastName].filter(Boolean).join(' ').trim() || userData?.firstName || 'N/A'} />
                 <DataRow label="Gender" value={toTitleCase(userData.profile?.gender || userData.gender || '')} />
                 <DataRow label="Date of Birth" value={userData.profile?.dateOfBirth || userData.dateOfBirth} />
                 <DataRow label="Auto Reg No." value={formatAutoRegNo(getAutoRegNo(null, userData)) || 'N/A'} />
@@ -2808,8 +2854,8 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                         <th className="p-2 border-r border-black">Student Full Name</th>
                         <th className="p-2 border-r border-black">Course Type</th>
                         <th className="p-2 border-r border-black">Course Name</th>
-                        <th className="p-2 border-r border-black">Semester</th>
                         <th className="p-2 border-r border-black">Stream/Branch</th>
+                        <th className="p-2 border-r border-black">Semester</th>
                         <th className="p-2 border-r border-black">Duration</th>
                         <th className="p-2 border-r border-black">Admission Date</th>
                         <th className="p-2 border-r border-black">Total Fee</th>
@@ -2821,19 +2867,19 @@ const PrintApplicationRegistry = ({ userApplications, userData, availableCollege
                       <tr className="border-b border-black text-[12px]">
                         <td className="p-2 border-r border-black font-bold">1</td>
                         <td className="p-2 border-r border-black capitalize max-w-[120px] truncate">{selectedApp.collegeName || 'N/A'}</td>
-                        <td className="p-2 border-r border-black capitalize max-w-[120px] truncate">{userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim()}</td>
+                        <td className="p-2 border-r border-black capitalize max-w-[120px] truncate">{selectedApp.studentName || userData?.fullName || userData?.studentName || `${userData.profile?.firstName || ''} ${userData.profile?.middleName || ''} ${userData.profile?.lastName || ''}`.trim() || userData?.firstName || 'Student'}</td>
                         <td className="p-2 border-r border-black capitalize">{selectedApp.courseType || 'Regular'}</td>
                         <td className="p-2 border-r border-black font-bold capitalize max-w-[120px] truncate">{selectedApp.courseName || 'N/A'}</td>
+                        <td className="p-2 border-r border-black">{selectedApp.stream || selectedApp.streamBranch || 'N/A'}</td>
                         <td className="p-2 border-r border-black">{selectedApp.semester || 'N/A'}</td>
-                        <td className="p-2 border-r border-black">{selectedApp.stream || 'N/A'}</td>
                         <td className="p-2 border-r border-black uppercase">{selectedApp.duration || 'N/A'}</td>
                         <td className="p-2 border-r border-black">
                           {selectedApp.admissionDate || (selectedApp.appliedAt ? new Date(selectedApp.appliedAt).toLocaleDateString() : 'N/A')}
                         </td>
                         <td className="p-2 border-r border-black font-bold text-emerald-600">₹{parseFloat(selectedApp.processTotalFees || selectedApp.fees || '0').toLocaleString()}</td>
-                        <td className="p-2 border-r border-black font-bold text-indigo-600">₹{parseFloat(selectedApp.processAmountPaid || '0').toLocaleString()}</td>
+                        <td className="p-2 border-r border-black font-bold text-indigo-600">₹{parseFloat(selectedApp.paidFees || selectedApp.processAmountPaid || '0').toLocaleString()}</td>
                         <td className="p-2 text-center font-bold text-red-600">
-                          ₹{(parseFloat(selectedApp.processTotalFees || selectedApp.fees || '0') - parseFloat(selectedApp.processAmountPaid || '0')).toLocaleString()}
+                          ₹{(parseFloat(selectedApp.processTotalFees || selectedApp.fees || '0') - parseFloat(selectedApp.paidFees || selectedApp.processAmountPaid || '0')).toLocaleString()}
                         </td>
                       </tr>
                     </tbody>
@@ -3210,23 +3256,44 @@ function DashboardContent() {
     if (!printContent) return;
     setIsDownloadingReceipt(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 100)); // Allow UI to update to loading state
-      const imgs = printContent.querySelectorAll('img');
-      const promises = Array.from(imgs).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      });
-      await Promise.all(promises);
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Wait for and convert all images in the receipt container to base64 via proxy to avoid any cross-origin taint
+      const imgs = Array.from(printContent.querySelectorAll('img'));
+      await Promise.all(imgs.map(async (img) => {
+        try {
+          if (img.src && img.src.startsWith('http') && !img.src.startsWith('data:')) {
+            const proxied = `/api/proxy-image?url=${encodeURIComponent(img.src)}`;
+            const res = await fetch(proxied);
+            if (res.ok) {
+              const blob = await res.blob();
+              await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  if (typeof reader.result === 'string') {
+                    img.src = reader.result;
+                  }
+                  resolve(null);
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(blob);
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Could not convert image to base64:", e);
+        }
+      }));
+
+      // Extra short delay after source update
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       const canvas = await html2canvas(printContent, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
-        allowTaint: true
+        allowTaint: false
       });
       const imgData = canvas.toDataURL('image/png');
       
@@ -3240,7 +3307,7 @@ function DashboardContent() {
       pdf.save(fileName);
     } catch (error: any) {
       console.error('PDF Download Error:', error);
-      alert(`Failed to download receipt: ${error?.message || 'Unknown error'}`);
+      alert(`Download failed: ${error?.message || 'Error converting receipt to PDF'}. You can also use the Print button to Save as PDF.`);
     } finally {
       setIsDownloadingReceipt(false);
     }
@@ -4600,13 +4667,17 @@ function DashboardContent() {
             setShowReceipt={setShowReceipt}
           />
         );
+      case 15:
       case 5: {
         const subTabName = searchParams.get('name') || '';
 
-        if (subTabName === 'b)-payment-slip' || subTabName === 'Payment Slip') {
+        if (subTabName === 'b)-payment-slip' || subTabName === 'Payment Slip' || subTabName === 'payment-slip') {
           return (
             <PaymentSlipPortal
               userPayments={userPayments}
+              userApplications={userApplications}
+              activeApp={activeApp}
+              userData={userData}
               setLastReceipt={setLastReceipt}
               setShowReceipt={setShowReceipt}
             />
@@ -4699,7 +4770,7 @@ function DashboardContent() {
         );
       case 12:
         return (
-          <StudentIDCard userData={userData} activeApp={activeApp} />
+          <StudentIDCard userData={userData} activeApp={activeApp} userApplications={userApplications} />
         );
       default:
         return (
@@ -4751,31 +4822,32 @@ function DashboardContent() {
 
       {/* Course Selection Modal */}
       {isCourseModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => { setIsCourseModalOpen(false); setIsOtherCourseMode(false); }} />
 
 
-          <div className="bg-white w-full max-w-3xl rounded-[2rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="bg-white w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl sm:rounded-[2rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="bg-[#003366] p-8 text-white text-center relative">
+            <div className="bg-[#003366] p-5 sm:p-8 text-white text-center relative shrink-0">
               <button
                 onClick={() => { setIsCourseModalOpen(false); setIsOtherCourseMode(false); }}
 
-                className="absolute right-6 top-6 text-white/50 hover:text-white transition-colors"
+                className="absolute right-4 sm:right-6 top-4 sm:top-6 text-white/50 hover:text-white transition-colors"
               >
                 <X size={22} />
               </button>
-              <div className="w-14 h-14 bg-[#00a5a5] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <BookOpen size={28} />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#00a5a5] rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xl">
+                <BookOpen size={24} className="sm:hidden" />
+                <BookOpen size={28} className="hidden sm:block" />
               </div>
-              <h3 className="text-xl font-bold tracking-tight capitalize">Apply For Admission</h3>
-              <p className="text-[13px] font-bold text-black capitalize tracking-normal mt-1">Select your institution & course to continue</p>
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight capitalize">Apply For Admission</h3>
+              <p className="text-xs sm:text-[13px] font-bold text-black capitalize tracking-normal mt-1">Select your institution & course to continue</p>
 
               {/* Already Accepted Courses List */}
               {userApplications.filter(a => a.status === 'Accepted').length > 0 && (
-                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 sm:gap-3">
                   {userApplications.filter(a => a.status === 'Accepted').map((app, idx) => (
-                    <span key={idx} className="bg-emerald-500/20 border-2 border-emerald-500/40 text-emerald-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
+                    <span key={idx} className="bg-emerald-500/20 border-2 border-emerald-500/40 text-emerald-100 px-3 sm:px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
                       <Check size={12} className="text-emerald-400" /> you are already select previous: {app.courseName}
                     </span>
                   ))}
@@ -4785,7 +4857,7 @@ function DashboardContent() {
             </div>
 
             {/* Form Body */}
-            <div className="p-8 space-y-6">
+            <div className="p-4 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto flex-1 custom-scrollbar">
               {/* Row 1: College, Course Type, Course */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Target Institution */}
@@ -4939,20 +5011,20 @@ function DashboardContent() {
       )}
       {/* Payment Submission Modal */}
       {isPaymentModalOpen && selectedAppForPayment && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => !isSubmittingPayment && setIsPaymentModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-            <div className="bg-[#5D5fb1] p-10 text-white relative shrink-0">
-              <button onClick={() => setIsPaymentModalOpen(false)} className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors">
+          <div className="bg-white w-full max-w-4xl rounded-2xl sm:rounded-3xl md:rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
+            <div className="bg-[#5D5fb1] p-5 sm:p-8 md:p-10 text-white relative shrink-0">
+              <button onClick={() => setIsPaymentModalOpen(false)} className="absolute right-5 sm:right-8 top-5 sm:top-8 text-white/50 hover:text-white transition-colors">
                 <X size={24} />
               </button>
               <div className="space-y-1">
-                <h3 className="text-3xl font-black tracking-tighter capitalize">Online Fee Payment</h3>
-                <p className="text-[13px] font-normal text-white/60 capitalize tracking-tight">Submit your transaction details for verification</p>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tighter capitalize">Online Fee Payment</h3>
+                <p className="text-xs sm:text-[13px] font-normal text-white/60 capitalize tracking-tight">Submit your transaction details for verification</p>
               </div>
             </div>
 
-            <form onSubmit={handlePaymentSubmit} className="p-10 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+            <form onSubmit={handlePaymentSubmit} className="p-4 sm:p-6 md:p-10 overflow-y-auto flex-1 space-y-6 sm:space-y-8 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left Column: QR Code & Institute Details */}
                 <div className="md:col-span-1 space-y-6">
@@ -5099,26 +5171,26 @@ function DashboardContent() {
       )}
       {/* Exam Submission Modal */}
       {isExamModalOpen && activeApp && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => !isSubmittingExam && setIsExamModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl rounded-[3.5rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-            <div className="bg-[#002147] p-10 text-white relative shrink-0">
-              <button onClick={() => setIsExamModalOpen(false)} className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors">
+          <div className="bg-white w-full max-w-4xl rounded-2xl sm:rounded-3xl md:rounded-[3.5rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
+            <div className="bg-[#002147] p-5 sm:p-8 md:p-10 text-white relative shrink-0">
+              <button onClick={() => setIsExamModalOpen(false)} className="absolute right-5 sm:right-8 top-5 sm:top-8 text-white/50 hover:text-white transition-colors">
                 <X size={24} />
               </button>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#00a5a5] rounded-2xl flex items-center justify-center shadow-xl">
-                  <FileText size={32} />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#00a5a5] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
+                  <FileText size={24} className="sm:hidden" />
+                  <FileText size={32} className="hidden sm:block" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black tracking-tighter capitalize">Examination Form</h3>
-                  <p className="text-[13px] font-normal text-white/60 capitalize tracking-tight">Academic Session {selectedExamConfig?.academicYear || '2026-2027'}</p>
-
+                  <h3 className="text-xl sm:text-3xl font-black tracking-tighter capitalize">Examination Form</h3>
+                  <p className="text-xs sm:text-[13px] font-normal text-white/60 capitalize tracking-tight">Academic Session {selectedExamConfig?.academicYear || '2026-2027'}</p>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleExamSubmit} className="p-10 overflow-y-auto flex-1 space-y-10 custom-scrollbar">
+            <form onSubmit={handleExamSubmit} className="p-4 sm:p-6 md:p-10 overflow-y-auto flex-1 space-y-6 sm:space-y-10 custom-scrollbar">
               {/* Student Particulars */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -5671,44 +5743,50 @@ function DashboardContent() {
       )}
       {/* Receipt Modal - A4 Modern Institutional Style */}
       {showReceipt && lastReceipt && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-[900px] h-[95vh] shadow-2xl relative flex flex-col rounded-3xl overflow-hidden border-[0.5px] border-black">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-[900px] h-[95vh] shadow-2xl relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden border-[0.5px] border-black">
             {/* Receipt Controls */}
-            <div className="p-6 border-b border-red-200 flex items-center justify-between bg-white shrink-0 no-print">
+            <div className="p-4 sm:p-6 border-b border-red-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white shrink-0 no-print">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600">
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 shrink-0">
                   <FileText size={20} />
                 </div>
                 <div>
-                  <span className="text-[14px] font-black text-red-600 uppercase tracking-tighter block">Official Fee Receipt</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Institutional Document Preview</span>
+                  <span className="text-xs sm:text-[14px] font-black text-red-600 uppercase tracking-tighter block">Official Fee Receipt</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase">Institutional Document Preview</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[#002147] text-white hover:bg-black transition-all flex items-center gap-2 text-[11px] sm:text-[12px] font-black shadow-xl active:scale-95"
+                >
+                  <Printer size={16} /> PRINT
+                </button>
                 <button
                   onClick={handleDownloadReceiptPDF}
                   disabled={isDownloadingReceipt}
                   className={cn(
-                    "px-8 py-3 rounded-2xl bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-2 text-[12px] font-black shadow-xl active:scale-95",
+                    "px-5 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-2 text-[11px] sm:text-[12px] font-black shadow-xl active:scale-95",
                     isDownloadingReceipt && "opacity-50 cursor-not-allowed"
                   )}
                 >
                   {isDownloadingReceipt ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> GENERATING PDF...
+                      <Loader2 size={16} className="animate-spin" /> GENERATING...
                     </>
                   ) : (
                     <>
-                      <Download size={16} /> DOWNLOAD RECEIPT (PDF)
+                      <Download size={16} /> DOWNLOAD (PDF)
                     </>
                   )}
                 </button>
-                <button onClick={() => setShowReceipt(false)} className="p-3 rounded-2xl bg-slate-100 text-slate-400 hover:bg-slate-200 transition-colors border-[0.5px] border-slate-200"><X size={20} /></button>
+                <button onClick={() => setShowReceipt(false)} className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-100 text-slate-400 hover:bg-slate-200 transition-colors border-[0.5px] border-slate-200"><X size={20} /></button>
               </div>
             </div>
 
             {/* The A4 Receipt Container */}
-            <div className="bg-slate-800 p-8 overflow-y-auto flex-1 flex justify-center no-scrollbar">
+            <div className="bg-slate-800 p-2 sm:p-6 md:p-8 overflow-auto flex-1 flex justify-start md:justify-center no-scrollbar">
               <div
                 id="receipt-print"
                 className="bg-white font-serif border-[1px] border-black shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden text-red-700 shrink-0"
@@ -5773,54 +5851,82 @@ function DashboardContent() {
                 </div>
 
                 {/* Particulars */}
-                <div className="mt-4 space-y-4 shrink-0">
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-[1.5]">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Name of Student :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.studentName}</div>
+                {(() => {
+                  const receiptStream = lastReceipt.stream || 
+                    lastReceipt.streamBranch || 
+                    lastReceipt.branch || 
+                    lastReceipt.subcategory || 
+                    activeApp?.stream || 
+                    activeApp?.streamBranch || 
+                    activeApp?.branch || 
+                    activeApp?.subcategory || 
+                    userApplications?.find((a: any) => a.id === lastReceipt.applicationId || a.applicationId === lastReceipt.applicationId || a.courseName === lastReceipt.courseName)?.stream ||
+                    (userData?.profile as any)?.stream || 
+                    (userData?.profile as any)?.branch || 
+                    userData?.stream || 
+                    'N/A';
+
+                  return (
+                    <div className="mt-4 space-y-3 shrink-0">
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-[1.5]">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Name of Student :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{lastReceipt.studentName || userData?.fullName || 'Student'}</div>
+                        </div>
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Gender :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.gender || lastReceipt.gender || 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-[1.5]">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Father's Name :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{`${userData?.profile?.fatherFirstName || lastReceipt.fatherName || ''} ${userData?.profile?.fatherLastName || ''}`.trim() || 'N/A'}</div>
+                        </div>
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Mobile No :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.phone || userData?.phone || lastReceipt.studentPhone || 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">College Name :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase truncate max-w-full overflow-hidden">{lastReceipt.collegeName}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-[1.5]">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Course :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4 truncate">{lastReceipt.courseName}</div>
+                        </div>
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Stream / Branch :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4 truncate">{receiptStream}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-[1.5]">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.courseType || 'Reg'}</div>
+                        </div>
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear || '2026-27'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="flex items-baseline gap-4 flex-[1.5]">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo || 'Pending'}</div>
+                        </div>
+                        <div className="flex items-baseline gap-4 flex-1">
+                          <span className="text-[13px] font-bold uppercase shrink-0">Semester :</span>
+                          <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.semester || activeApp?.semester || 'N/A'}</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Gender :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.gender || 'N/A'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-[1.5]">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Father's Name :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{`${userData?.profile?.fatherFirstName || ''} ${userData?.profile?.fatherLastName || ''}`.trim() || 'N/A'}</div>
-                    </div>
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Mobile No :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4">{userData?.profile?.phone || userData?.phone || lastReceipt.studentPhone || 'N/A'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">College Name :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase truncate max-w-full overflow-hidden">{lastReceipt.collegeName}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-[1.5]">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Course :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black uppercase pl-4 truncate">{lastReceipt.courseName}</div>
-                    </div>
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Course Type :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4 uppercase">{lastReceipt.courseType || 'Reg'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-baseline gap-4 flex-[1.5]">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Roll No :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.rollNo || 'Pending'}</div>
-                    </div>
-                    <div className="flex items-baseline gap-4 flex-1">
-                      <span className="text-[13px] font-bold uppercase shrink-0">Academic Year :</span>
-                      <div className="flex-1 border-b-[2px] border-dotted border-[#fca5a5] pb-1 text-[14px] font-black pl-4">{lastReceipt.academicYear || '2026-27'}</div>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })()}
 
                 {/* Table */}
                 <div className="mt-4 border-[1.5px] border-[#dc2626] rounded-sm overflow-hidden flex-1">

@@ -403,7 +403,7 @@ function StudentLayoutContent({
         hasApplied={hasApplied}
         isExamConfigured={isExamConfigured}
       />
-      <main className="max-w-[1600px] w-full mx-auto px-4 md:px-12 pb-20 pt-6 transition-all">
+      <main className="max-w-[1600px] w-full mx-auto px-3 sm:px-6 md:px-10 lg:px-12 pb-16 md:pb-20 pt-4 md:pt-6 transition-all">
         {children}
       </main>
       <footer className="text-center py-12 opacity-30 mt-auto print:hidden">

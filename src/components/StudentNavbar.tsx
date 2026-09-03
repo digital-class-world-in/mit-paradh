@@ -78,11 +78,11 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
 
   return (
     <nav className="sticky top-0 z-40 bg-[#003366] text-white shadow-md border-b border-white/10 print:hidden">
-      <div className="max-w-full mx-auto px-3 md:px-6 h-12 flex items-center gap-2">
+      <div className="max-w-full mx-auto px-2.5 sm:px-4 md:px-6 h-12 flex items-center justify-between gap-2">
         
         {/* Branding/Logo Badge */}
         <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-85 transition-opacity" onClick={() => setActiveTab(1)}>
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-white flex items-center justify-center p-0.5">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-white flex items-center justify-center p-0.5">
             <img
               src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg"
               alt="MIT Paradh Logo"
@@ -152,7 +152,7 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
         </div>
 
         {/* User Hub */}
-        <div className="flex items-center gap-2 shrink-0 ml-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
           <button onClick={() => setActiveTab(10, 'Notice Board')} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-[#00a5a5] hover:text-white transition-all border border-white/10 relative">
             <Bell size={15} />
             <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border border-[#003366]" />
@@ -172,9 +172,10 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-all border border-white/10"
+            className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-all border border-white/10"
+            aria-label="Open Mobile Menu"
           >
-            <Menu size={20} />
+            <Menu size={19} />
           </button>
         </div>
       </div>
@@ -184,16 +185,19 @@ export default function StudentNavbar({ activeTab, setActiveTab, studentName, on
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[100] lg:hidden flex">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="relative w-4/5 max-w-sm bg-[#002147] h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <div className="relative w-[85%] max-w-sm bg-[#002147] h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-8 h-8 object-contain" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shrink-0">
+                  <img src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg" alt="Logo" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
                 </div>
-                <p className="text-sm font-black text-white tracking-tighter uppercase">MIT PARADH</p>
+                <div className="truncate">
+                  <p className="text-sm font-black text-white tracking-tighter uppercase">MIT PARADH</p>
+                  <p className="text-[11px] font-semibold text-amber-400 capitalize truncate">{studentName || 'Student'}</p>
+                </div>
               </div>
-              <button onClick={() => setIsMobileMenuOpen(false)} className="text-white/60 hover:text-white p-2">
-                <X size={24} />
+              <button onClick={() => setIsMobileMenuOpen(false)} className="text-white/60 hover:text-white p-1.5">
+                <X size={22} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">

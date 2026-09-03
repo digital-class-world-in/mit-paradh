@@ -461,21 +461,21 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
     <div className="min-h-screen bg-[#f1f5f9] flex flex-col">
       <Header />
       <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center p-4 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 py-6 sm:py-12">
         {/* Back to Home Link */}
-        <Link href="/" className="mb-8 flex items-center gap-2 text-slate-400 hover:text-[#003366] transition-colors text-xs font-bold capitalize tracking-tight">
+        <Link href="/" className="mb-6 sm:mb-8 flex items-center gap-2 text-slate-400 hover:text-[#003366] transition-colors text-xs font-bold capitalize tracking-tight">
           <X size={14} /> Back to Homepage
         </Link>
 
-        <div className="w-full max-w-[440px] bg-white shadow-xl border border-slate-200 overflow-hidden rounded-md">
+        <div className="w-full max-w-[440px] bg-white shadow-xl border border-slate-200 overflow-hidden rounded-xl">
           {/* Simple Institutional Header */}
-          <div className="bg-[#003366] px-8 py-6 text-white text-center">
+          <div className="bg-[#003366] px-5 sm:px-8 py-5 sm:py-6 text-white text-center">
             <h2 className="text-xl font-bold tracking-tight capitalize">{title}</h2>
             <p className="text-[12px] text-white/70 font-normal mt-1">{subtitle}</p>
             <p className="text-[13px] text-black font-normal capitalize tracking-normal mt-2 italic">Official Access Portal</p>
           </div>
 
-          <div className="p-8">
+          <div className="p-5 sm:p-8">
             {error && (
               <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 flex flex-col gap-3">
                 <div className="flex items-start gap-3">
@@ -617,15 +617,15 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-[400px] overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-[#003366] px-6 py-4 flex justify-between items-center text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-[#003366] px-5 sm:px-6 py-4 flex justify-between items-center text-white shrink-0">
               <h3 className="font-bold text-sm tracking-tight">Reset Password</h3>
               <button onClick={() => setShowForgotModal(false)} className="text-white/70 hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-5 sm:p-6 overflow-y-auto">
               {forgotMessage && forgotStep === 2 && forgotMessage.includes('Redirecting') ? (
                 <div className="space-y-4 text-center">
                   <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
