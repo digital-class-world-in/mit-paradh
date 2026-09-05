@@ -1848,7 +1848,8 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
           </thead>
           <tbody className="block md:table-row-group">
             {profileDocs.map((doc: any, idx: number) => {
-              const fileUrl = doc.url || userData?.profile?.[doc.key];
+              const fileUrl = doc.url || userData?.profile?.[doc.key] || userData?.[doc.key] || userData?.profileData?.[doc.key];
+              const hasFile = Boolean(fileUrl && typeof fileUrl === 'string' && fileUrl.trim() !== '' && fileUrl !== 'undefined' && fileUrl !== 'null');
               return (
                 <tr key={`p-${idx}`} className="block md:table-row bg-white md:bg-transparent border border-slate-200 md:border-none rounded-xl md:rounded-none mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none hover:bg-slate-50 transition-colors">
                   <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center text-[14px] font-bold text-slate-700">
@@ -1861,13 +1862,13 @@ const DocumentVault = ({ profileDocs, userData, customDocuments, setIsAddDocModa
                   </td>
                   <td className="flex items-center justify-between md:table-cell px-2 md:px-6 py-3 md:py-5 border-b border-slate-100 md:border-2 border-black text-center">
                     <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Status</span>
-                    <span className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 flex items-center justify-center gap-2 md:mx-auto w-fit", fileUrl ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-500 border-rose-100")}>
-                      {fileUrl ? <Check size={12} /> : <X size={12} />} {fileUrl ? 'Verified' : 'Missing'}
+                    <span className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 flex items-center justify-center gap-2 md:mx-auto w-fit", hasFile ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-500 border-rose-100")}>
+                      {hasFile ? <Check size={12} /> : <X size={12} />} {hasFile ? 'Uploaded' : 'Missing'}
                     </span>
                   </td>
                   <td className="flex items-center justify-between md:justify-center md:table-cell px-2 md:px-6 py-4 md:py-5 text-center">
                     <span className="md:hidden font-black text-[10px] text-slate-500 uppercase tracking-widest">Action</span>
-                    {fileUrl ? (
+                    {hasFile ? (
                       <div className="flex items-center justify-center gap-2 flex-wrap md:mx-auto w-fit">
                         <button
                           onClick={() => setModalPreview({ url: fileUrl, label: doc.label })}
@@ -3891,18 +3892,56 @@ function DashboardContent() {
           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
           const profileRef = ref(realtimeDb, `users/${userData.uid}/profile`);
 
+          const isHscKey = uploadingDoc.key === 'hscMarksheetUrl';
+          const isSscKey = uploadingDoc.key === 'sscMarksheetUrl';
+
           if (uploadingDoc.isQualification) {
             const quals = [...(userData.profile?.qualifications || [])];
             if (quals[uploadingDoc.qualIndex]) {
               quals[uploadingDoc.qualIndex].marksheetUrl = downloadUrl;
               quals[uploadingDoc.qualIndex].marksheetName = file.name;
-              await update(profileRef, { qualifications: quals });
+              const qualExam = (quals[uploadingDoc.qualIndex].examination || '').toLowerCase();
+              const qualUpdates: any = { qualifications: quals };
+              if (qualExam === 'hsc' || qualExam.includes('hsc') || qualExam.includes('12th')) {
+                qualUpdates.hscMarksheetUrl = downloadUrl;
+                qualUpdates.hscMarksheetUrlFileName = file.name;
+              }
+              if (qualExam === 'ssc' || qualExam.includes('ssc') || qualExam.includes('10th')) {
+                qualUpdates.sscMarksheetUrl = downloadUrl;
+                qualUpdates.sscMarksheetUrlFileName = file.name;
+              }
+              await update(profileRef, qualUpdates);
             }
           } else {
-            await update(profileRef, {
+            const updates: any = {
               [uploadingDoc.key]: downloadUrl,
               [`${uploadingDoc.key}FileName`]: file.name
-            });
+            };
+
+            const quals = [...(userData.profile?.qualifications || [])];
+            if (isHscKey) {
+              const hscIdx = quals.findIndex((q: any) => {
+                const exam = (q.examination || '').toLowerCase();
+                return exam === 'hsc' || exam.includes('hsc') || exam.includes('12th');
+              });
+              if (hscIdx !== -1) {
+                quals[hscIdx].marksheetUrl = downloadUrl;
+                quals[hscIdx].marksheetName = file.name;
+                updates.qualifications = quals;
+              }
+            } else if (isSscKey) {
+              const sscIdx = quals.findIndex((q: any) => {
+                const exam = (q.examination || '').toLowerCase();
+                return exam === 'ssc' || exam.includes('ssc') || exam.includes('10th');
+              });
+              if (sscIdx !== -1) {
+                quals[sscIdx].marksheetUrl = downloadUrl;
+                quals[sscIdx].marksheetName = file.name;
+                updates.qualifications = quals;
+              }
+            }
+
+            await update(profileRef, updates);
           }
 
           if (uploadingDoc.key === 'sscMarksheetUrl') {
@@ -3930,10 +3969,41 @@ function DashboardContent() {
                       q[uploadingDoc.qualIndex].marksheetUrl = downloadUrl;
                       q[uploadingDoc.qualIndex].marksheetName = file.name;
                       updates.qualifications = q;
+                      const qualExam = (q[uploadingDoc.qualIndex].examination || '').toLowerCase();
+                      if (qualExam === 'hsc' || qualExam.includes('hsc') || qualExam.includes('12th')) {
+                        updates.hscMarksheetUrl = downloadUrl;
+                        updates.hscMarksheetUrlFileName = file.name;
+                      }
+                      if (qualExam === 'ssc' || qualExam.includes('ssc') || qualExam.includes('10th')) {
+                        updates.sscMarksheetUrl = downloadUrl;
+                        updates.sscMarksheetUrlFileName = file.name;
+                      }
                     }
                   } else {
                     updates[uploadingDoc.key] = downloadUrl;
                     updates[`${uploadingDoc.key}FileName`] = file.name;
+                    const q = [...(inqs[inqKey].qualifications || [])];
+                    if (isHscKey) {
+                      const hscIdx = q.findIndex((item: any) => {
+                        const exam = (item.examination || '').toLowerCase();
+                        return exam === 'hsc' || exam.includes('hsc') || exam.includes('12th');
+                      });
+                      if (hscIdx !== -1) {
+                        q[hscIdx].marksheetUrl = downloadUrl;
+                        q[hscIdx].marksheetName = file.name;
+                        updates.qualifications = q;
+                      }
+                    } else if (isSscKey) {
+                      const sscIdx = q.findIndex((item: any) => {
+                        const exam = (item.examination || '').toLowerCase();
+                        return exam === 'ssc' || exam.includes('ssc') || exam.includes('10th');
+                      });
+                      if (sscIdx !== -1) {
+                        q[sscIdx].marksheetUrl = downloadUrl;
+                        q[sscIdx].marksheetName = file.name;
+                        updates.qualifications = q;
+                      }
+                    }
                   }
                   await update(ref(realtimeDb, `colleges/${app.collegeId}/frontOffice/admissionInquiries/${inqKey}`), updates);
                 }
@@ -3944,12 +4014,23 @@ function DashboardContent() {
           // Update local state for immediate feedback
           setUserData((prev: any) => {
             const newData = { ...prev };
+            if (!newData.profile) newData.profile = {};
+
             if (uploadingDoc.isQualification) {
               const quals = [...(newData.profile?.qualifications || [])];
               if (quals[uploadingDoc.qualIndex]) {
                 quals[uploadingDoc.qualIndex].marksheetUrl = downloadUrl;
                 quals[uploadingDoc.qualIndex].marksheetName = file.name;
                 newData.profile.qualifications = quals;
+                const qualExam = (quals[uploadingDoc.qualIndex].examination || '').toLowerCase();
+                if (qualExam === 'hsc' || qualExam.includes('hsc') || qualExam.includes('12th')) {
+                  newData.profile.hscMarksheetUrl = downloadUrl;
+                  newData.profile.hscMarksheetUrlFileName = file.name;
+                }
+                if (qualExam === 'ssc' || qualExam.includes('ssc') || qualExam.includes('10th')) {
+                  newData.profile.sscMarksheetUrl = downloadUrl;
+                  newData.profile.sscMarksheetUrlFileName = file.name;
+                }
               }
             } else {
               newData.profile = {
@@ -3957,6 +4038,29 @@ function DashboardContent() {
                 [uploadingDoc.key]: downloadUrl,
                 [`${uploadingDoc.key}FileName`]: file.name
               };
+
+              const quals = [...(newData.profile?.qualifications || [])];
+              if (isHscKey) {
+                const hscIdx = quals.findIndex((q: any) => {
+                  const exam = (q.examination || '').toLowerCase();
+                  return exam === 'hsc' || exam.includes('hsc') || exam.includes('12th');
+                });
+                if (hscIdx !== -1) {
+                  quals[hscIdx].marksheetUrl = downloadUrl;
+                  quals[hscIdx].marksheetName = file.name;
+                  newData.profile.qualifications = quals;
+                }
+              } else if (isSscKey) {
+                const sscIdx = quals.findIndex((q: any) => {
+                  const exam = (q.examination || '').toLowerCase();
+                  return exam === 'ssc' || exam.includes('ssc') || exam.includes('10th');
+                });
+                if (sscIdx !== -1) {
+                  quals[sscIdx].marksheetUrl = downloadUrl;
+                  quals[sscIdx].marksheetName = file.name;
+                  newData.profile.qualifications = quals;
+                }
+              }
             }
             return newData;
           });
@@ -4713,6 +4817,21 @@ function DashboardContent() {
       case 7:
         return <QuestionPaperModule exams={onlineExams} activeApp={activeApp} userData={userData} />;
       case 11: {
+        const qualifications = userData?.profile?.qualifications || userData?.qualifications || [];
+
+        const sscQual = qualifications.find((q: any) => {
+          const exam = (q.examination || '').toLowerCase();
+          return exam === 'ssc' || exam.includes('ssc') || exam.includes('10th') || exam.includes('10 th') || exam === '10';
+        });
+
+        const hscQual = qualifications.find((q: any) => {
+          const exam = (q.examination || '').toLowerCase();
+          return exam === 'hsc' || exam.includes('hsc') || exam.includes('12th') || exam.includes('12 th') || exam === '12';
+        });
+
+        const sscUrl = userData?.profile?.sscMarksheetUrl || userData?.sscMarksheetUrl || sscQual?.marksheetUrl || '';
+        const hscUrl = userData?.profile?.hscMarksheetUrl || userData?.hscMarksheetUrl || hscQual?.marksheetUrl || '';
+
         const profileDocs = [
           { label: 'Aadhar Card Front', key: 'aadhaarFrontUrl', stepId: 1 },
           { label: 'Aadhar Card Back', key: 'aadhaarBackUrl', stepId: 1 },
@@ -4722,10 +4841,27 @@ function DashboardContent() {
           { label: 'Training Certificate', key: 'trainingCertificateUrl', stepId: 6 },
           { label: 'PAN Card', key: 'panCardUrl', stepId: 8 },
           { label: 'Bank Passbook / Cheque', key: 'bankPassbookUrl', stepId: 8 },
-          { label: 'SSC Marksheet (10th Standard)', key: 'sscMarksheetUrl', stepId: 5 },
-          { label: 'HSC Marksheet (12th Standard)', key: 'hscMarksheetUrl', stepId: 5 },
-          ...(userData?.profile?.qualifications || [])
-            .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
+          { 
+            label: 'SSC Marksheet (10th Standard)', 
+            key: 'sscMarksheetUrl', 
+            url: sscUrl,
+            stepId: 5,
+            qualIndex: sscQual ? qualifications.indexOf(sscQual) : -1
+          },
+          { 
+            label: 'HSC Marksheet (12th Standard)', 
+            key: 'hscMarksheetUrl', 
+            url: hscUrl,
+            stepId: 5,
+            qualIndex: hscQual ? qualifications.indexOf(hscQual) : -1
+          },
+          ...qualifications
+            .filter((q: any) => {
+              const exam = (q.examination || '').toLowerCase();
+              const isSsc = exam === 'ssc' || exam.includes('ssc') || exam.includes('10th') || exam.includes('10 th') || exam === '10';
+              const isHsc = exam === 'hsc' || exam.includes('hsc') || exam.includes('12th') || exam.includes('12 th') || exam === '12';
+              return !isSsc && !isHsc;
+            })
             .map((q: any, idx: number) => ({
               label: `${q.examination} Marksheet`,
               url: q.marksheetUrl,

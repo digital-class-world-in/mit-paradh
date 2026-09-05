@@ -33,6 +33,7 @@ import AdmissionInquiryManager from '@/components/AdmissionInquiryManager';
 import StudentAdmissionManager from '@/components/StudentAdmissionManager';
 import FeesCollectionManager from '@/components/FeesCollectionManager';
 import StudentRegistrationManager from '@/components/StudentRegistrationManager';
+import StudentCredentialsManager from '@/components/StudentCredentialsManager';
 import ExamManager from '@/components/ExamManager';
 import PaymentSettingsManager from '@/components/PaymentSettingsManager';
 import PaymentHistoryManager from '@/components/PaymentHistoryManager';
@@ -350,6 +351,10 @@ function DashboardContent() {
 
         <div className={(activeTab === 2 || activeTab === 19) ? "block" : "hidden"}>
           {shouldRender([2, 19]) && <StudentRegistrationManager collegeId={undefined} adminUid={resolvedAdminUid} />}
+        </div>
+
+        <div className={activeTab === 27 ? "block" : "hidden"}>
+          {shouldRender([27]) && <StudentCredentialsManager collegeId={undefined} adminUid={resolvedAdminUid} />}
         </div>
 
         <div className={activeTab === 25 ? "block" : "hidden"}>

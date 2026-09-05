@@ -97,11 +97,11 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
               const appliedColleges = appList.map((a: any) => a?.collegeId).filter(Boolean);
               if (user.collegeId) appliedColleges.push(user.collegeId);
 
-              const courseTypes = appList.map((a: any) => a?.courseType).filter(Boolean);
-              const courseNames = appList.map((a: any) => a?.courseName).filter(Boolean);
-              const durations = appList.map((a: any) => a?.duration).filter(Boolean);
-              const semesters = appList.map((a: any) => a?.semester).filter(Boolean);
-              const streams = appList.map((a: any) => a?.stream).filter(Boolean);
+              const courseTypes = Array.from(new Set(appList.map((a: any) => a?.courseType).concat(user.profile?.courseType, user.courseType).filter(Boolean)));
+              const courseNames = Array.from(new Set(appList.map((a: any) => a?.courseName).concat(user.profile?.courseName, user.courseName).filter(Boolean)));
+              const durations = Array.from(new Set(appList.map((a: any) => a?.duration).concat(user.profile?.duration, user.duration).filter(Boolean)));
+              const semesters = Array.from(new Set(appList.map((a: any) => a?.semester).concat(user.profile?.semester, user.semester).filter(Boolean)));
+              const streams = Array.from(new Set(appList.map((a: any) => a?.stream || a?.branch || a?.streamName || a?.branchName).concat(user.profile?.stream, user.profile?.branch, user.stream, user.branch).filter(Boolean)));
 
               return {
                 id,
@@ -1057,14 +1057,31 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
                   {fullUserData.profile?.panCardUrl && (
                     <PreviewButton label="PAN Card" onClick={() => openImagePreview(fullUserData.profile.panCardUrl, "PAN Card")} />
                   )}
-                  {fullUserData.profile?.sscMarksheetUrl && (
-                    <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(fullUserData.profile.sscMarksheetUrl, "SSC Marksheet")} />
-                  )}
-                  {fullUserData.profile?.hscMarksheetUrl && (
-                    <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(fullUserData.profile.hscMarksheetUrl, "HSC Marksheet")} />
-                  )}
-                  {(fullUserData.qualifications || [])
-                    .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
+                  {(() => {
+                    const sscQ = (fullUserData.profile?.qualifications || fullUserData.qualifications || []).find((q: any) => {
+                      const e = (q.examination || '').toLowerCase();
+                      return e === 'ssc' || e.includes('ssc') || e.includes('10th');
+                    });
+                    const url = fullUserData.profile?.sscMarksheetUrl || fullUserData.sscMarksheetUrl || sscQ?.marksheetUrl;
+                    return url ? (
+                      <PreviewButton label="SSC Marksheet (10th)" onClick={() => openImagePreview(url, "SSC Marksheet")} />
+                    ) : null;
+                  })()}
+                  {(() => {
+                    const hscQ = (fullUserData.profile?.qualifications || fullUserData.qualifications || []).find((q: any) => {
+                      const e = (q.examination || '').toLowerCase();
+                      return e === 'hsc' || e.includes('hsc') || e.includes('12th');
+                    });
+                    const url = fullUserData.profile?.hscMarksheetUrl || fullUserData.hscMarksheetUrl || hscQ?.marksheetUrl;
+                    return url ? (
+                      <PreviewButton label="HSC Marksheet (12th)" onClick={() => openImagePreview(url, "HSC Marksheet")} />
+                    ) : null;
+                  })()}
+                  {(fullUserData.profile?.qualifications || fullUserData.qualifications || [])
+                    .filter((q: any) => {
+                      const e = (q.examination || '').toLowerCase();
+                      return !e.includes('ssc') && !e.includes('10th') && !e.includes('hsc') && !e.includes('12th');
+                    })
                     .map((q: any, i: number) =>
                       q.marksheetUrl ? (
                         <PreviewButton key={i} label={`${q.examination} Marksheet`} onClick={() => openImagePreview(q.marksheetUrl, `${q.examination} Marksheet`)} />

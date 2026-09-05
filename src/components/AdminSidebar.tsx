@@ -38,9 +38,11 @@ import {
   HelpCircle,
   AlertCircle,
   Send,
-  FileText
+  FileText,
+  KeyRound
 } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -56,6 +58,7 @@ interface SidebarProps {
 }
 
 export default function AdminSidebar({ activeTab, setActiveTab, onLogout, adminName }: SidebarProps) {
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Website Manager']);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,6 +92,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, onLogout, adminN
         { label: 'Admission list', icon: FileBadge, id: 3022 },
         { label: 'Student admission', icon: Users, id: 25 },
         { label: 'Student registration', icon: UserPlus, id: 19 },
+        { label: 'Student credentials', icon: KeyRound, id: 27, url: '/admin/dashboard/student-credentials' },
         { label: 'Leave request', icon: FileText, id: 23 },
       ]
     },
@@ -276,6 +280,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, onLogout, adminN
                         if ((sub as any).isExternal) {
                           const route = sub.label.toLowerCase().includes('staff') ? '/login/staff' : '/login/student';
                           window.open(route, '_blank');
+                        } else if ((sub as any).url) {
+                          router.push((sub as any).url);
                         } else {
                           setActiveTab(sub.id);
                         }

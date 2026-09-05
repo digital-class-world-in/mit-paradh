@@ -578,19 +578,19 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
               </button>
             </form>
 
-            {/* Quick Access for Staff/Admin */}
-            {(role === 'staff' || role === 'admin') && (
+            {/* Quick Access for Staff (Disabled for Admin) */}
+            {role === 'staff' && (
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Institutional Quick Access</p>
                 <div className="flex flex-col gap-3">
                   <button
                     onClick={() => {
-                      setEmail(role === 'admin' ? 'mitparadh@gmail.com' : 'staff@mitparadh.com');
-                      setPassword(role === 'admin' ? 'mitparadh@123' : 'staff@123');
+                      setEmail('staff@mitparadh.com');
+                      setPassword('staff@123');
                     }}
                     className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 py-3 rounded text-[11px] font-black text-[#003366] capitalize transition-all flex items-center justify-center gap-2"
                   >
-                    <ShieldCheck size={14} className="text-institutional-gold" /> Auto-Fill Master Credentials
+                    <ShieldCheck size={14} className="text-institutional-gold" /> Auto-Fill Staff Credentials
                   </button>
                 </div>
               </div>

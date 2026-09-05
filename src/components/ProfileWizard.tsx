@@ -340,9 +340,27 @@ export default function ProfileWizard({
       const unsubscribe = onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
           const globalProfile = snapshot.val();
+          const quals = globalProfile?.qualifications || [];
+          const sscQual = quals.find((q: any) => {
+            const e = (q.examination || '').toLowerCase();
+            return e === 'ssc' || e.includes('ssc') || e.includes('10th');
+          });
+          const hscQual = quals.find((q: any) => {
+            const e = (q.examination || '').toLowerCase();
+            return e === 'hsc' || e.includes('hsc') || e.includes('12th');
+          });
+          const derived: any = {};
+          if (sscQual?.marksheetUrl && !globalProfile.sscMarksheetUrl) {
+            derived.sscMarksheetUrl = sscQual.marksheetUrl;
+            derived.sscMarksheetUrlFileName = sscQual.marksheetName || 'SSC_Marksheet';
+          }
+          if (hscQual?.marksheetUrl && !globalProfile.hscMarksheetUrl) {
+            derived.hscMarksheetUrl = hscQual.marksheetUrl;
+            derived.hscMarksheetUrlFileName = hscQual.marksheetName || 'HSC_Marksheet';
+          }
           // Prioritize editingApplication details if they exist so the user sees the snapshotted details for that specific application!
           const appSpecificDetails = (editingApplication && editingApplication.firstName) ? editingApplication : {};
-          setFormData((prev: any) => ({ ...prev, ...globalProfile, ...appSpecificDetails }));
+          setFormData((prev: any) => ({ ...prev, ...derived, ...globalProfile, ...appSpecificDetails }));
         }
       });
       return () => unsubscribe();
@@ -551,7 +569,7 @@ export default function ProfileWizard({
     setEditQualIndex(index);
   };
 
-  const addQualification = () => {
+  const addQualification = async () => {
     if (!tempQual.examination || !tempQual.board || !tempQual.college || !tempQual.marksObtained || !tempQual.outOfMarks) {
       alert("Please fill mandatory qualification details marked with *");
       return;
@@ -569,10 +587,38 @@ export default function ProfileWizard({
       currentQuals.push(finalQual);
     }
 
+    const examLower = (finalQual.examination || '').toLowerCase();
+    const isHsc = examLower === 'hsc' || examLower.includes('hsc') || examLower.includes('12th');
+    const isSsc = examLower === 'ssc' || examLower.includes('ssc') || examLower.includes('10th');
+
+    const extraUpdates: any = {};
+    if (isHsc && finalQual.marksheetUrl) {
+      extraUpdates.hscMarksheetUrl = finalQual.marksheetUrl;
+      extraUpdates.hscMarksheetUrlFileName = finalQual.marksheetName || 'HSC_Marksheet';
+    }
+    if (isSsc && finalQual.marksheetUrl) {
+      extraUpdates.sscMarksheetUrl = finalQual.marksheetUrl;
+      extraUpdates.sscMarksheetUrlFileName = finalQual.marksheetName || 'SSC_Marksheet';
+    }
+
     setFormData((prev: any) => ({
       ...prev,
-      qualifications: currentQuals
+      qualifications: currentQuals,
+      ...extraUpdates
     }));
+
+    if (userId) {
+      try {
+        const userRef = ref(realtimeDb, `users/${userId}/profile`);
+        await update(userRef, {
+          qualifications: currentQuals,
+          ...extraUpdates
+        });
+      } catch (err) {
+        console.error("Error auto-syncing qualification:", err);
+      }
+    }
+
     setTempQual({
       examination: '', board: '', customBoard: '', college: '', passingDate: '',
       result: 'Pass', mode: 'Regular', marksSystem: 'Marks',
@@ -581,11 +627,36 @@ export default function ProfileWizard({
     });
   };
 
-  const removeQualification = (index: number) => {
+  const removeQualification = async (index: number) => {
     const quals = [...(formData.qualifications || [])];
+    const removed = quals[index];
     quals.splice(index, 1);
-    setFormData((prev: any) => ({ ...prev, qualifications: quals }));
+
+    const extraUpdates: any = {};
+    const examLower = (removed?.examination || '').toLowerCase();
+    if (examLower.includes('hsc') || examLower.includes('12th')) {
+      extraUpdates.hscMarksheetUrl = '';
+      extraUpdates.hscMarksheetUrlFileName = '';
+    }
+    if (examLower.includes('ssc') || examLower.includes('10th')) {
+      extraUpdates.sscMarksheetUrl = '';
+      extraUpdates.sscMarksheetUrlFileName = '';
+    }
+
+    setFormData((prev: any) => ({ ...prev, qualifications: quals, ...extraUpdates }));
     if (editQualIndex === index) setEditQualIndex(null);
+
+    if (userId) {
+      try {
+        const userRef = ref(realtimeDb, `users/${userId}/profile`);
+        await update(userRef, {
+          qualifications: quals,
+          ...extraUpdates
+        });
+      } catch (err) {
+        console.error("Error removing qualification:", err);
+      }
+    }
   };
 
   const startEditLanguage = (index: number) => {
@@ -673,13 +744,32 @@ export default function ProfileWizard({
 
     setLoading(true);
     setShowLockPopup(false);
+
     try {
-      const profileRef = ref(realtimeDb, `users/${userId}/profile`);
-      await update(profileRef, {
+      const sscQ = (formData.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'ssc' || e.includes('ssc') || e.includes('10th');
+      });
+      const hscQ = (formData.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'hsc' || e.includes('hsc') || e.includes('12th');
+      });
+      const lockUpdates: any = {
         profileLocked: true,
         lockedAt: Date.now(),
         status: 'Submitted'
-      });
+      };
+      if (sscQ?.marksheetUrl && !formData.sscMarksheetUrl) {
+        lockUpdates.sscMarksheetUrl = sscQ.marksheetUrl;
+        lockUpdates.sscMarksheetUrlFileName = sscQ.marksheetName || 'SSC_Marksheet';
+      }
+      if (hscQ?.marksheetUrl && !formData.hscMarksheetUrl) {
+        lockUpdates.hscMarksheetUrl = hscQ.marksheetUrl;
+        lockUpdates.hscMarksheetUrlFileName = hscQ.marksheetName || 'HSC_Marksheet';
+      }
+
+      const profileRef = ref(realtimeDb, `users/${userId}/profile`);
+      await update(profileRef, lockUpdates);
 
 
       // Only update the current application to be locked
@@ -1013,6 +1103,24 @@ export default function ProfileWizard({
           permTaluka: formData.taluka,
           permCity: formData.city,
         };
+      }
+
+      // If qualifications include SSC or HSC, sync them to direct fields before saving
+      const sscQ = (dataToSave.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'ssc' || e.includes('ssc') || e.includes('10th');
+      });
+      const hscQ = (dataToSave.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'hsc' || e.includes('hsc') || e.includes('12th');
+      });
+      if (sscQ?.marksheetUrl && !dataToSave.sscMarksheetUrl) {
+        dataToSave.sscMarksheetUrl = sscQ.marksheetUrl;
+        dataToSave.sscMarksheetUrlFileName = sscQ.marksheetName || 'SSC_Marksheet';
+      }
+      if (hscQ?.marksheetUrl && !dataToSave.hscMarksheetUrl) {
+        dataToSave.hscMarksheetUrl = hscQ.marksheetUrl;
+        dataToSave.hscMarksheetUrlFileName = hscQ.marksheetName || 'HSC_Marksheet';
       }
 
       // Remove undefined values early to prevent Firebase errors in appData and inquiryData

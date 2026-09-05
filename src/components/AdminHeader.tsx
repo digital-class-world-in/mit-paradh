@@ -39,12 +39,18 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
       label: 'Student info',
       id: 2,
       subItems: [
+        { label: 'Student Credentials & Passwords', url: '/admin/dashboard/student-credentials' },
         { label: 'Pending Admission', url: '/admin/dashboard/pending-admissions' },
         { label: 'Confirm Admission', url: '/admin/dashboard/confirm-admissions' },
         { label: 'Cancel Admission', id: 3023 },
         { label: 'Approved Admission', url: '/admin/dashboard/approved-admissions' },
         { label: 'Student Registration', id: 19 }
       ]
+    },
+    {
+      label: 'Student Credentials',
+      id: 27,
+      url: '/admin/dashboard/student-credentials'
     },
     {
       label: 'Exam',
@@ -162,8 +168,8 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
                 }}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-3 rounded-md font-normal text-[16px] tracking-tight transition-all duration-300 whitespace-nowrap",
-                  (activeTab === group.id || group.subItems?.some(i => i.id === activeTab))
-                    ? "text-[#5D5fb1] bg-slate-50"
+                  (activeTab === group.id || group.subItems?.some(i => i.id === activeTab) || (group.url && pathname === group.url))
+                    ? "text-[#5D5fb1] bg-slate-50 font-bold"
                     : "text-black hover:bg-slate-50 hover:text-[#5D5fb1]"
                 )}
                 title={group.label}
@@ -252,8 +258,8 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
                      }}
                      className={cn(
                        "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-bold transition-all",
-                       (activeTab === group.id || group.subItems?.some(i => i.id === activeTab))
-                         ? "text-[#5D5fb1] bg-slate-50"
+                       (activeTab === group.id || group.subItems?.some(i => i.id === activeTab) || (group.url && pathname === group.url))
+                         ? "text-[#5D5fb1] bg-slate-50 font-bold"
                          : "text-slate-700 hover:bg-slate-50 hover:text-[#5D5fb1]"
                      )}
                    >

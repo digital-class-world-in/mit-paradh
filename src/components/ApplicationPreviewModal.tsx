@@ -35,13 +35,34 @@ export default function ApplicationPreviewModal({
     { label: 'Domicile Certificate', name: formData.domicileUrlFileName },
     { label: 'Caste Certificate', name: formData.casteCertificateUrlFileName },
     { label: 'PWD Certificate', name: formData.pwdCertificateUrlFileName },
-    { label: 'SSC Marksheet (10th Standard)', name: formData.sscMarksheetUrlFileName || (formData.sscMarksheetUrl ? 'ssc_marksheet.pdf' : '') },
-    { label: 'HSC Marksheet (12th Standard)', name: formData.hscMarksheetUrlFileName || (formData.hscMarksheetUrl ? 'hsc_marksheet.pdf' : '') },
+    (() => {
+      const sscQ = (formData.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'ssc' || e.includes('ssc') || e.includes('10th');
+      });
+      return {
+        label: 'SSC Marksheet (10th Standard)',
+        name: formData.sscMarksheetUrlFileName || (formData.sscMarksheetUrl ? 'ssc_marksheet.pdf' : (sscQ?.marksheetName || (sscQ?.marksheetUrl ? 'ssc_marksheet.pdf' : '')))
+      };
+    })(),
+    (() => {
+      const hscQ = (formData.qualifications || []).find((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return e === 'hsc' || e.includes('hsc') || e.includes('12th');
+      });
+      return {
+        label: 'HSC Marksheet (12th Standard)',
+        name: formData.hscMarksheetUrlFileName || (formData.hscMarksheetUrl ? 'hsc_marksheet.pdf' : (hscQ?.marksheetName || (hscQ?.marksheetUrl ? 'hsc_marksheet.pdf' : '')))
+      };
+    })(),
     ...(formData.qualifications || [])
-      .filter((q: any) => q.examination !== 'SSC' && q.examination !== 'HSC')
-      .filter((q: any) => q.marksheetName)
+      .filter((q: any) => {
+        const e = (q.examination || '').toLowerCase();
+        return !e.includes('ssc') && !e.includes('10th') && !e.includes('hsc') && !e.includes('12th');
+      })
+      .filter((q: any) => q.marksheetName || q.marksheetUrl)
       .map((q: any) => ({
-        label: `${q.examination} Marksheet`, name: q.marksheetName
+        label: `${q.examination} Marksheet`, name: q.marksheetName || `${q.examination}_marksheet.pdf`
       })),
     { label: 'Training Certificate', name: formData.trainingCertificateUrlFileName },
     { label: 'Bank Passbook / Cheque', name: formData.bankPassbookUrlFileName },
