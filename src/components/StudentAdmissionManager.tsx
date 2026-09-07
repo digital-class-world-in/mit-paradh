@@ -702,18 +702,18 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
 
   return (
     <>
-      <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
-        <div className="bg-[#003366] rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-          <div className="relative z-10 space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
-              <Users size={14} className="text-[#003366]" /> Student Information
+      <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+        <div className="bg-[#003366] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
+          <div className="relative z-10 space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
+              <Users size={14} className="text-[#00a5a5]" /> Student Information
             </div>
-            <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Student Admission</h2>
-            <p className="text-sm font-normal text-white/60">View and manage admitted students.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight capitalize leading-tight">Student Admission</h2>
+            <p className="text-xs sm:text-sm font-normal text-white/70">View and manage admitted students.</p>
           </div>
         </div>
-        <div className="bg-white rounded-[2.5rem] border border-black shadow-sm p-8">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-6 md:p-8">
 
           {/* Filter Bar - Top */}
           <div className="mb-8 space-y-4">

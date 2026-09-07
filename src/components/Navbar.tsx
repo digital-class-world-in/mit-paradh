@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { LogOut, LayoutDashboard, ChevronDown, User, ShieldCheck, Building2 } from 'lucide-react';
+import { LogOut, LayoutDashboard, ChevronDown, User, ShieldCheck, Building2, GraduationCap, LogIn } from 'lucide-react';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -69,22 +69,32 @@ const Navbar = () => {
               {showDropdown && (
                 <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden py-2 animate-in fade-in slide-in-from-top-4 duration-300 z-[110]">
                    {[
-                     { label: 'College Login', href: '/login/college', icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                     { label: 'Staff Login', href: '/login/staff', icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                     { label: 'Student Login', href: '/login/student', icon: User, color: 'text-rose-600', bg: 'bg-rose-50' },
+                     { label: 'Student Login', href: '/login/student', icon: GraduationCap, color: 'text-amber-600', bg: 'bg-amber-50' },
+                     { label: 'College Login', href: '/login/college', icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                     { label: 'Staff Login', href: '/login/staff', icon: User, color: 'text-blue-600', bg: 'bg-blue-50' },
+                     { label: 'Admin Login', href: '/login/admin', icon: ShieldCheck, color: 'text-slate-700', bg: 'bg-slate-100' },
                    ].map((item, idx) => (
                      <Link 
                        key={idx}
                        href={item.href}
                        onClick={() => setShowDropdown(false)}
-                       className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group"
+                       className="flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50 transition-colors group"
                      >
-                        <div className={`p-2.5 rounded-xl ${item.bg} ${item.color} group-hover:scale-110 transition-transform`}>
+                        <div className={`p-2 rounded-xl ${item.bg} ${item.color} group-hover:scale-110 transition-transform`}>
                            <item.icon size={18} />
                         </div>
-                        <span className="text-[17px] font-black text-black tracking-tight">{item.label}</span>
+                        <span className="text-[15px] font-black text-black tracking-tight">{item.label}</span>
                      </Link>
                    ))}
+                   <div className="border-t border-slate-100 mt-1 pt-1 px-3">
+                     <Link
+                       href="/login"
+                       onClick={() => setShowDropdown(false)}
+                       className="flex items-center justify-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold transition-colors text-center"
+                     >
+                       <LogIn size={14} /> All Login Portals
+                     </Link>
+                   </div>
                 </div>
               )}
             </div>

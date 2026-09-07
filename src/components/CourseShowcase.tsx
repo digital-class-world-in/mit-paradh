@@ -238,27 +238,27 @@ export default function CourseShowcase() {
   );
 
   return (
-    <section className="py-12 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section className="py-8 sm:py-12 bg-white border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         {/* Row 1: Title left-aligned */}
         <div className="mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#003366] text-[11px] font-bold uppercase tracking-widest mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#003366] text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2">
             <BookOpen size={14} /> Academic Course Details
           </div>
-          <h2 className="text-[#003366] text-xl md:text-2xl font-black tracking-tight capitalize italic">
+          <h2 className="text-[#003366] text-lg sm:text-xl md:text-2xl font-black tracking-tight capitalize italic">
             Our Courses
           </h2>
         </div>
 
         {/* Row 2: Filters full-width below */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full mb-8 sm:mb-10">
           {/* Search Input */}
           <div className="relative group w-full">
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#003366] transition-colors" />
             <input
               type="text"
               placeholder="Search by course or college..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-12 pr-6 text-sm font-medium outline-none focus:bg-white focus:border-[#003366] transition-all shadow-sm"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 sm:py-3.5 pl-11 sm:pl-12 pr-4 sm:pr-6 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-[#003366] transition-all shadow-sm min-h-[46px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

@@ -793,33 +793,33 @@ export default function WebsiteManager({ mode, adminUid }: WebsiteManagerProps) 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Header */}
-      <div className="bg-[#002147] rounded-[3rem] p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#002147] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 sm:gap-8 text-left">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-start">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
                 <Zap size={14} className="text-[#00a5a5]" /> Live Website Editor
               </div>
               {dbLoaded ? (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[13px] font-bold text-emerald-400 capitalize tracking-tight">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs sm:text-[13px] font-bold text-emerald-400 capitalize tracking-tight">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Synced with Live Server
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[13px] font-bold text-amber-400 capitalize tracking-tight">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs sm:text-[13px] font-bold text-amber-400 capitalize tracking-tight">
                   <div className="w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" /> Synchronizing latest data...
                 </div>
               )}
             </div>
-            <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">
               {mode.replace(/-/g, ' ')} Page Setup
             </h2>
-            <p className="text-sm font-normal text-white/60">Configure your public portal content and publish updates in real-time.</p>
+            <p className="text-xs sm:text-sm font-normal text-white/60">Configure your public portal content and publish updates in real-time.</p>
           </div>
           <button
             onClick={handlePublish}
             disabled={saving}
-            className="bg-[#00a5a5] text-white px-10 py-5 rounded-2xl text-[11px] font-black capitalize tracking-tight hover:bg-white hover:text-[#002147] transition-all shadow-xl active:scale-95 flex items-center gap-3 disabled:opacity-50"
+            className="w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl text-xs sm:text-[11px] font-black capitalize tracking-tight bg-[#00a5a5] text-white hover:bg-white hover:text-[#002147] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 shrink-0"
           >
             {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Globe size={18} />}
             Publish Changes

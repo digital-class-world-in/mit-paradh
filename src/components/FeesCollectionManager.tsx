@@ -840,24 +840,24 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
   if (loading) return <div className="p-10 text-center text-slate-300 font-bold capitalize tracking-tight animate-pulse">Synchronizing Ledger...</div>;
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
-      <div className="bg-[#5D5fb1] rounded-[3rem] p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+    <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+      <div className="bg-[#5D5fb1] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
             <CreditCard size={14} className="text-[#00a5a5]" /> Fees Collection
           </div>
-          <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Collect Fees</h2>
-          <p className="text-sm font-normal text-white/60">Manage student tuition payments and outstanding balances.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Collect Fees</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Manage student tuition payments and outstanding balances.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border-[0.5px] border-black shadow-sm p-10 space-y-8">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border-[0.5px] border-black shadow-sm p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
          {/* Premium Tab Navigation */}
-         <div className="flex border-b-[0.5px] border-slate-200 pb-4 gap-6 no-print">
+         <div className="flex border-b-[0.5px] border-slate-200 pb-2 sm:pb-4 gap-2 sm:gap-6 no-print overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveLedgerTab('students')}
-              className={`pb-4 px-6 text-[13px] font-black uppercase tracking-wider transition-all relative flex items-center gap-2 \${
+              className={`pb-3 sm:pb-4 px-3 sm:px-6 text-xs sm:text-[13px] font-black uppercase tracking-wider transition-all relative flex items-center gap-2 shrink-0 \${
                 activeLedgerTab === 'students'
                   ? 'text-[#00a5a5]'
                   : 'text-slate-400 hover:text-black'
@@ -870,14 +870,14 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
             </button>
             <button
               onClick={() => setActiveLedgerTab('history')}
-              className={`pb-4 px-6 text-[13px] font-black uppercase tracking-wider transition-all relative flex items-center gap-2 \${
+              className={`pb-3 sm:pb-4 px-3 sm:px-6 text-xs sm:text-[13px] font-black uppercase tracking-wider transition-all relative flex items-center gap-2 shrink-0 \${
                 activeLedgerTab === 'history'
                   ? 'text-indigo-600'
                   : 'text-slate-400 hover:text-black'
               }`}
             >
               <History size={14} /> Recent Fee Collections
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600`}>
                 {allTransactions.length}
               </span>
               {activeLedgerTab === 'history' && (
@@ -888,44 +888,44 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
 
          {activeLedgerTab === 'students' && (
            <>
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-black pb-8">
-            <div className="flex items-center gap-4 flex-1 max-w-md">
-               <div className="relative flex-1">
-                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <input 
-                    type="text" 
-                    placeholder="Search Student Name..." 
-                    value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
-                    className="w-full bg-slate-50 border-[0.5px] border-black rounded-2xl py-4 pl-12 pr-6 text-[14px] font-medium text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
-                  />
-               </div>
-               {!collegeId && (
-                 <select 
-                   value={selectedCollegeId}
-                   onChange={(e) => setSelectedCollegeId(e.target.value)}
-                   className="bg-slate-50 border-[0.5px] border-black rounded-2xl px-6 py-4 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#00a5a5] transition-all"
-                 >
-                    <option value="">All Institutions</option>
-                    {availableColleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                 </select>
-               )}
-               <select
-                 value={filterCourseType}
-                 onChange={(e) => setFilterCourseType(e.target.value)}
-                 className="bg-slate-50 border-[0.5px] border-black rounded-2xl px-6 py-4 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#00a5a5] transition-all"
-               >
-                 <option value="">All Course Types</option>
-                 <option value="Regular">Regular</option>
-                 <option value="Distance">Distance</option>
-                 <option value="Professional">Professional</option>
-               </select>
-            </div>
-            <div className="flex items-center gap-3">
-               <div className="text-[13px] font-normal text-black capitalize tracking-tight bg-[#00a5a5]/10 px-4 py-2 rounded-full whitespace-nowrap">
-                 {filteredStudents.length} Records Found
-               </div>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 border-b border-black pb-6 sm:pb-8">
+             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 flex-1">
+                <div className="relative flex-1 min-w-[200px]">
+                   <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                   <input 
+                     type="text" 
+                     placeholder="Search Student Name..." 
+                     value={filterName}
+                     onChange={(e) => setFilterName(e.target.value)}
+                     className="w-full bg-slate-50 border-[0.5px] border-black rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-11 pr-4 text-xs sm:text-[14px] font-medium text-black outline-none focus:bg-white focus:border-[#00a5a5] transition-all"
+                   />
+                </div>
+                {!collegeId && (
+                  <select 
+                    value={selectedCollegeId}
+                    onChange={(e) => setSelectedCollegeId(e.target.value)}
+                    className="bg-slate-50 border-[0.5px] border-black rounded-xl sm:rounded-2xl px-4 py-3 sm:py-4 text-xs sm:text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#00a5a5] transition-all"
+                  >
+                     <option value="">All Institutions</option>
+                     {availableColleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                )}
+                <select
+                  value={filterCourseType}
+                  onChange={(e) => setFilterCourseType(e.target.value)}
+                  className="bg-slate-50 border-[0.5px] border-black rounded-xl sm:rounded-2xl px-4 py-3 sm:py-4 text-xs sm:text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#00a5a5] transition-all"
+                >
+                  <option value="">All Course Types</option>
+                  <option value="Regular">Regular</option>
+                  <option value="Distance">Distance</option>
+                  <option value="Professional">Professional</option>
+                </select>
              </div>
+             <div className="flex items-center gap-3">
+                <div className="text-xs sm:text-[13px] font-normal text-black capitalize tracking-tight bg-[#00a5a5]/10 px-4 py-2 rounded-full whitespace-nowrap">
+                  {filteredStudents.length} Records Found
+                </div>
+              </div>
           </div>
 
           <GlobalDataFilter 

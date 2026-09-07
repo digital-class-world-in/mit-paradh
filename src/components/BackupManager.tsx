@@ -136,32 +136,32 @@ export default function BackupManager({ adminUid }: { adminUid?: string }) {
   };
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500 max-w-4xl mx-auto">
-      <div className="bg-[#002147] rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden transition-all duration-500">
+    <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-8 duration-500 max-w-4xl mx-auto">
+      <div className="bg-[#002147] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white shadow-2xl relative overflow-hidden transition-all duration-500">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
             <ShieldCheck size={14} className="text-[#00a5a5]" />
             System Security
           </div>
-          <h2 className="text-4xl font-normal tracking-tighter capitalize leading-none text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tighter capitalize leading-tight text-white">
             Data Backup Manager
           </h2>
-          <p className="text-sm font-normal text-white/70 max-w-xl">
+          <p className="text-xs sm:text-sm font-normal text-white/70 max-w-xl">
             Securely export and backup your institutional data. A full backup will collect all textual data along with uploaded media files into a single ZIP archive.
           </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
         <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-indigo-50 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
-        <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-          <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center text-indigo-600 shadow-inner border border-indigo-100">
-            <Archive size={48} />
+        <div className="relative z-10 flex flex-col items-center text-center space-y-4 sm:space-y-6">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-50 rounded-2xl sm:rounded-[2rem] flex items-center justify-center text-indigo-600 shadow-inner border border-indigo-100">
+            <Archive size={36} className="sm:w-12 sm:h-12" />
           </div>
           <div className="max-w-lg space-y-2">
-            <h3 className="text-3xl font-black text-slate-800 tracking-tighter">Backup Full System</h3>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tighter">Backup Full System</h3>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
               Export all Firebase Realtime Database data as JSON and download all Firebase Storage files (images, PDFs, student documents) directly into a structured ZIP file.
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function BackupManager({ adminUid }: { adminUid?: string }) {
           <button
             onClick={handleFullSystemBackup}
             disabled={isExportingFull}
-            className="flex items-center justify-center gap-3 w-full max-w-md bg-[#5D5fb1] hover:bg-indigo-700 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-3 w-full max-w-md bg-[#5D5fb1] hover:bg-indigo-700 text-white px-6 sm:px-8 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isExportingFull ? (
               <>

@@ -442,14 +442,14 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700">
       {!collegeId && (
-        <div className="bg-[#003366] text-white py-6 px-10 rounded-[2.5rem] shadow-2xl flex items-center justify-between border-b-4 border-black flex-wrap gap-4">
-          <div className="flex items-center gap-4 flex-wrap">
+        <div className="bg-[#003366] text-white py-4 sm:py-6 px-4 sm:px-8 md:px-10 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center justify-between border-b-4 border-black flex-wrap gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap w-full lg:w-auto">
             <select
               value={selectedCollegeId}
               onChange={(e) => setSelectedCollegeId(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
+              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-xs sm:text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
             >
               <option value="" className="text-black">Filter by College</option>
               {availableColleges.map(c => (
@@ -460,31 +460,31 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
             <select
               value={filterProfileStatus}
               onChange={(e) => setFilterProfileStatus(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
+              className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-xs sm:text-[14px] font-medium capitalize tracking-tight text-white outline-none focus:bg-white/20 transition-all cursor-pointer"
             >
               <option value="" className="text-black">All Profile Statuses</option>
               <option value="Locked" className="text-black">Profile Locked</option>
               <option value="In Progress" className="text-black">In Progress</option>
             </select>
 
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search student, email, reg no..."
-                className="bg-white/10 border border-white/20 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-white placeholder-white/60 outline-none focus:bg-white/20 transition-all w-60"
+                className="bg-white/10 border border-white/20 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-white placeholder-white/60 outline-none focus:bg-white/20 transition-all w-full sm:w-60"
               />
               <User size={14} className="absolute left-3 top-2.5 text-white/60" />
             </div>
           </div>
-          <div className="flex items-center gap-4 bg-white/10 px-6 py-2 rounded-xl border border-white/20">
+          <div className="flex items-center gap-3 sm:gap-4 bg-white/10 px-4 sm:px-6 py-2 rounded-xl border border-white/20">
             <span className="text-xs font-bold text-white/80 uppercase tracking-widest">Total Students</span>
-            <span className="text-2xl font-black text-white">{totalItems}</span>
+            <span className="text-xl sm:text-2xl font-black text-white">{totalItems}</span>
           </div>
           <button
             onClick={handleExportData}
-            className="flex items-center gap-2 bg-[#00a5a5] hover:bg-[#008f8f] text-white px-6 py-3 rounded-xl font-bold uppercase tracking-tight transition-all shadow-md"
+            className="flex items-center justify-center gap-2 bg-[#00a5a5] hover:bg-[#008f8f] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-tight transition-all shadow-md w-full sm:w-auto"
           >
             <Download size={18} /> Export Data
           </button>
@@ -497,7 +497,7 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
         setFilters={setGlobalFilters}
       />
 
-      <div className="bg-white rounded-[2.5rem] border border-black shadow-xl p-8">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-xl p-4 sm:p-6 md:p-8">
         {collegeId && (
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-black text-black uppercase tracking-tight">Registered Students</h2>
@@ -704,15 +704,15 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
 
       {/* Student Details Modal */}
       {isDetailsModalOpen && fullUserData && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsDetailsModalOpen(false)} />
-          <div className="bg-[#f8fafc] w-full max-w-5xl h-[90vh] rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+          <div className="bg-[#f8fafc] w-full max-w-5xl h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
 
             {/* Header */}
-            <div className="bg-[#003366] p-8 text-white relative shrink-0">
+            <div className="bg-[#003366] p-4 sm:p-8 text-white relative shrink-0">
               <button
                 onClick={() => setIsDetailsModalOpen(false)}
-                className="absolute right-8 top-8 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all"
+                className="absolute right-4 sm:right-8 top-4 sm:top-8 w-10 h-10 sm:w-12 sm:h-12 bg-white/10 hover:bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all"
               >
                 <X size={24} />
               </button>

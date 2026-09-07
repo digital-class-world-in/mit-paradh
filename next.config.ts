@@ -24,6 +24,26 @@ const nextConfig: NextConfig = {
         destination: '/',
         permanent: false,
       },
+      {
+        source: '/student/login',
+        destination: '/login/student',
+        permanent: false,
+      },
+      {
+        source: '/admin/login',
+        destination: '/login/admin',
+        permanent: false,
+      },
+      {
+        source: '/staff/login',
+        destination: '/login/staff',
+        permanent: false,
+      },
+      {
+        source: '/college/login',
+        destination: '/login/college',
+        permanent: false,
+      },
     ];
   },
 };

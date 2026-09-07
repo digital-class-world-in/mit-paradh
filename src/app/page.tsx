@@ -120,8 +120,8 @@ export default function Home() {
 
       {/* Marquee */}
       <div className="bg-[#fff8f0] border-b border-amber-100 py-2">
-        <div className="flex items-center px-6">
-          <div className="bg-red-600 text-black text-[13px] font-bold px-3 py-1 rounded-sm capitalize tracking-tight shrink-0">
+        <div className="flex items-center px-3 sm:px-6">
+          <div className="bg-red-600 text-white text-[11px] sm:text-[13px] font-bold px-2.5 sm:px-3 py-1 rounded-sm capitalize tracking-tight shrink-0 shadow-sm">
             Announcements
           </div>
           <LiveMarquee />
@@ -132,46 +132,46 @@ export default function Home() {
       <LiveMinisters />
 
       {/* ── 3-Column Grid: Quick Nav | Notices | Sign In ── */}
-      <main className="px-6 lg:px-12 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <main className="px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col lg:grid lg:grid-cols-4 gap-6 lg:gap-8">
 
-        {/* Left Column: Quick Navigation */}
+        {/* Center Column on mobile (order-1) / Left Column on desktop: Quick Navigation */}
         <LiveQuickLinks />
 
         {/* Center Column: Important Notices */}
         <LiveNotices />
 
         {/* Right Column: Sign In Portal */}
-        <aside className="lg:col-span-1">
-          <div className="bg-white border-2 border-[#003366] rounded-xl overflow-hidden shadow-lg h-full">
+        <aside className="order-2 lg:order-3 lg:col-span-1">
+          <div className="bg-white border-2 border-[#003366] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
             <div className="bg-[#003366] p-4 text-center flex items-center justify-center gap-3">
               <UserCircle size={22} className="text-white" />
               <h3 className="text-white font-bold text-base tracking-tight">Sign In</h3>
             </div>
-            <div className="p-6 space-y-6 bg-slate-50 flex flex-col">
+            <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 bg-slate-50 flex flex-col flex-1 justify-between">
               {/* Illustration placeholder */}
               <div className="flex justify-center">
-                <div className="w-24 h-24 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
-                  <User size={40} className="text-slate-300" />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
+                  <User size={36} className="text-slate-300" />
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-bold text-slate-700 whitespace-nowrap">Existing User ?</p>
-                  <Link href="/login/student" className="bg-[#c05621] hover:bg-[#9c4221] text-white font-bold py-2 px-5 rounded-md shadow-md text-sm text-center shrink-0">
+                  <p className="text-xs sm:text-sm font-bold text-slate-700 whitespace-nowrap">Existing User ?</p>
+                  <Link href="/login/student" className="bg-[#c05621] hover:bg-[#9c4221] text-white font-bold py-2.5 px-5 rounded-md shadow-md text-xs sm:text-sm text-center shrink-0 min-h-[42px] flex items-center justify-center active:scale-95 transition-transform">
                     Sign In
                   </Link>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-bold text-slate-700 whitespace-nowrap">Not Registered ?</p>
-                  <Link href="/register" className="bg-[#c05621] hover:bg-[#9c4221] text-white font-bold py-2 px-4 rounded-md shadow-md text-sm text-center shrink-0">
+                  <p className="text-xs sm:text-sm font-bold text-slate-700 whitespace-nowrap">Not Registered ?</p>
+                  <Link href="/register" className="bg-[#c05621] hover:bg-[#9c4221] text-white font-bold py-2.5 px-4 rounded-md shadow-md text-xs sm:text-sm text-center shrink-0 min-h-[42px] flex items-center justify-center active:scale-95 transition-transform">
                     Register Here
                   </Link>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-slate-200 text-center">
-                <p className="text-sm font-semibold text-slate-600">
+                <p className="text-xs sm:text-sm font-semibold text-slate-600">
                   Having Trouble Signing In?{' '}
                   <Link href="#" className="text-blue-600 font-bold hover:underline">Click Here</Link>
                 </p>

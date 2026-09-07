@@ -240,14 +240,14 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
       {/* Header Banner */}
-      <div className="bg-[#5D5fb1] rounded-[3rem] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#5D5fb1] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 sm:gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
             <FileText size={14} className="text-[#00a5a5]" /> Examination Module
           </div>
-          <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Exam Management</h2>
-          <p className="text-sm font-normal text-white/60">Configure and schedule online assessments for students.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Exam Management</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Configure and schedule online assessments for students.</p>
         </div>
          <button 
           onClick={() => {
@@ -276,7 +276,7 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
             }]);
             setIsModalOpen(true);
           }}
-          className="relative z-10 bg-white text-[#5D5fb1] px-10 py-5 rounded-2xl text-[11px] font-black capitalize tracking-tight shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center gap-3"
+          className="relative z-10 bg-white text-[#5D5fb1] w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl text-xs sm:text-[11px] font-black capitalize tracking-tight shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center justify-center gap-3 shrink-0"
         >
           <Plus size={20} strokeWidth={3} /> Create New Exam
         </button>
@@ -294,7 +294,7 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
       )}
       
       {filteredExams.length > 0 ? (
-        <div className="bg-white rounded-[3rem] border border-black shadow-sm overflow-hidden p-8">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
            <div className="overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse border border-black">
                 <thead>
@@ -374,10 +374,10 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
            </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] border border-black shadow-sm p-20 text-center">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm p-8 sm:p-14 md:p-20 text-center">
           <div className="flex flex-col items-center gap-6 text-slate-300">
-            <div className="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center border border-black shadow-inner">
-              <FileText size={48} className="opacity-20" />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-slate-50 flex items-center justify-center border border-black shadow-inner">
+              <FileText size={40} className="opacity-20" />
             </div>
             <div className="space-y-2">
               <p className="text-sm font-normal tracking-normal capitalize text-black">No Exams Scheduled</p>
@@ -389,24 +389,24 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
 
       {/* Create Exam Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-white w-full max-w-6xl max-h-[90vh] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+          <div className="bg-white w-full max-w-6xl max-h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="p-8 border-b border-black flex items-center justify-between bg-white shrink-0">
-               <h3 className="text-xl font-black text-slate-800 capitalize tracking-tight">
+            <div className="p-4 sm:p-8 border-b border-black flex items-center justify-between bg-white shrink-0">
+               <h3 className="text-lg sm:text-xl font-black text-slate-800 capitalize tracking-tight">
                 {examForm.id ? 'Edit Online Examination' : 'Setup Online Examination'}
               </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Modal Body - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-10 space-y-10 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 space-y-6 sm:space-y-10 no-scrollbar">
               {/* Form Section */}
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {!collegeId && (

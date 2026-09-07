@@ -299,18 +299,18 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="bg-[#002147] rounded-[3rem] p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden transition-all duration-500">
+      <div className="bg-[#002147] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden transition-all duration-500">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 sm:gap-8">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
               <FileText size={14} className="text-[#00a5a5]" /> Academic Control
             </div>
-            <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Exam Form Management</h2>
-            <p className="text-sm font-normal text-white/60">Configure exam registration and monitor student form submissions.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Exam Form Management</h2>
+            <p className="text-xs sm:text-sm font-normal text-white/60">Configure exam registration and monitor student form submissions.</p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full md:w-auto">
             <button 
               onClick={() => {
                 setSelectedCourseType('');
@@ -331,15 +331,15 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                 });
                 setIsCreateModalOpen(true);
               }}
-              className="bg-[#00a5a5] text-white px-8 py-4 rounded-2xl text-[12px] font-black capitalize tracking-tight shadow-xl hover:bg-white hover:text-[#002147] transition-all flex items-center gap-3 active:scale-95 whitespace-nowrap"
+              className="bg-[#00a5a5] text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-[12px] font-black capitalize tracking-tight shadow-xl hover:bg-white hover:text-[#002147] transition-all flex items-center justify-center gap-3 active:scale-95 whitespace-nowrap"
             >
               <Plus size={20} strokeWidth={3} /> Configure Exam
             </button>
 
             {!collegeId && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <select 
-                  className="bg-white/10 border border-white/20 rounded-2xl py-4 pl-6 pr-12 text-sm font-bold text-white outline-none focus:bg-white/20 transition-all appearance-none cursor-pointer min-w-[280px]"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-4 sm:pl-6 pr-10 sm:pr-12 text-xs sm:text-sm font-bold text-white outline-none focus:bg-white/20 transition-all appearance-none cursor-pointer sm:min-w-[240px]"
                   value={selectedCollegeId}
                   onChange={(e) => setSelectedCollegeId(e.target.value)}
                 >
@@ -348,7 +348,7 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
                     <option key={c.id} value={c.id} className="text-black">{c.name}</option>
                   ))}
                 </select>
-                <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-[#00a5a5] pointer-events-none" />
+                <ChevronDown size={18} className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-[#00a5a5] pointer-events-none" />
               </div>
             )}
           </div>
@@ -358,10 +358,10 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
       {selectedCollegeId ? (
         <div className="space-y-6">
           {/* Configured Exams Table */}
-          <div className="bg-white rounded-[2.5rem] border border-black shadow-sm overflow-hidden p-8 mt-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm overflow-hidden p-4 sm:p-6 md:p-8 mt-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-6">
               <div className="space-y-1">
-                <h3 className="text-2xl font-black tracking-tighter capitalize">Configured Exam Form</h3>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tighter capitalize">Configured Exam Form</h3>
                 <p className="text-xs text-slate-500 font-medium">Active and scheduled exam configurations by course, stream, and student criteria.</p>
               </div>
             </div>
@@ -491,14 +491,14 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] border-4 border-slate-200 shadow-xl p-32 text-center">
-          <div className="flex flex-col items-center gap-6 text-slate-300">
-            <div className="w-24 h-24 rounded-[2.5rem] bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
-              <ShieldCheck size={48} className="opacity-20" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl border-4 border-slate-200 shadow-xl p-8 sm:p-16 md:p-24 text-center">
+          <div className="flex flex-col items-center gap-4 sm:gap-6 text-slate-300">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
+              <ShieldCheck size={36} className="opacity-20 sm:w-12 sm:h-12" />
             </div>
             <div className="space-y-2">
-              <p className="text-xl font-black tracking-tighter text-slate-400 uppercase">Selection Required</p>
-              <p className="text-sm text-slate-400 max-w-xs mx-auto">Please select an institutional ledger to begin examination form audit.</p>
+              <p className="text-lg sm:text-xl font-black tracking-tighter text-slate-400 uppercase">Selection Required</p>
+              <p className="text-xs sm:text-sm text-slate-400 max-w-xs mx-auto">Please select an institutional ledger to begin examination form audit.</p>
             </div>
           </div>
         </div>
@@ -506,21 +506,21 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
 
       {/* Create Exam Form Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsCreateModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-            <div className="bg-[#002147] p-10 text-white relative shrink-0">
+          <div className="bg-white w-full max-w-4xl rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
+            <div className="bg-[#002147] p-5 sm:p-8 md:p-10 text-white relative shrink-0">
               <button 
                 onClick={() => setIsCreateModalOpen(false)}
-                className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors"
+                className="absolute right-4 sm:right-8 top-4 sm:top-8 text-white/50 hover:text-white transition-colors"
               >
                 <X size={24} />
               </button>
-              <div className="w-16 h-16 bg-[#00a5a5] rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-                 <Settings size={32} />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#00a5a5] rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-xl">
+                 <Settings size={24} className="sm:w-8 sm:h-8" />
               </div>
-              <h3 className="text-3xl font-black tracking-tighter capitalize">Configure Exam Form</h3>
-              <p className="text-[13px] font-normal text-white/60 capitalize tracking-normal mt-2">Set up registration parameters, branch filtering, and student targeting.</p>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tighter capitalize">Configure Exam Form</h3>
+              <p className="text-xs sm:text-[13px] font-normal text-white/60 capitalize tracking-normal mt-1 sm:mt-2">Set up registration parameters, branch filtering, and student targeting.</p>
             </div>
 
             <form onSubmit={(e) => { handleUpdateSettings(e); setIsCreateModalOpen(false); }} className="p-10 space-y-8 overflow-y-auto flex-1 custom-scrollbar">

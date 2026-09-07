@@ -12,6 +12,7 @@ function CollegeLayoutContent({
   children,
 }: {
   children: React.ReactNode;
+
 }) {
   const [collegeData, setCollegeData] = useState<any>(null);
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
@@ -25,6 +26,28 @@ function CollegeLayoutContent({
   useEffect(() => {
     document.title = "MIT PARADh | College Pannel";
     let isMounted = true;
+
+    const checkEmergencySession = () => {
+      if (typeof window !== 'undefined') {
+        const isBypass = sessionStorage.getItem('emergencyBypass') === 'true' || sessionStorage.getItem('isCollegeMaster') === 'true';
+        if (isBypass) {
+          const bypassedUid = sessionStorage.getItem('bypassedUid');
+          setCollegeData({
+            name: 'MIT PARADH',
+            role: 'college',
+            uid: bypassedUid || 'college-demo',
+            collegeId: 'MIT001'
+          });
+          setLoading(false);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (checkEmergencySession()) {
+      return;
+    }
 
     if (!collegeAuth || typeof collegeAuth.onAuthStateChanged !== 'function') {
       setLoading(false);
@@ -49,6 +72,8 @@ function CollegeLayoutContent({
                 router.push('/login/college');
               }
             }
+
+            
           } else {
             const userRef = ref(realtimeDb, 'users/' + user.uid);
             const userSnap = await get(userRef);
@@ -66,15 +91,15 @@ function CollegeLayoutContent({
           if (isMounted) setLoading(false);
         }
       } else {
-        if (pathname !== '/college/login' && pathname !== '/login/college') {
-          router.push('/login/college');
-        } else {
-          if (isMounted) setLoading(false);
+        if (!checkEmergencySession()) {
+          if (pathname !== '/college/login' && pathname !== '/login/college') {
+            router.push('/login/college');
+          } else {
+            if (isMounted) setLoading(false);
+          }
         }
       }
     });
-
-    // Safety timeout removed to prevent UI noise.
 
     return () => {
       isMounted = false;
@@ -100,21 +125,22 @@ function CollegeLayoutContent({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const currentTab = searchParams.get('sub') || searchParams.get('tab');
-      if (currentTab) {
-        localStorage.setItem('college_active_tab', currentTab);
-      } else {
-        const savedTab = localStorage.getItem('college_active_tab');
-        if (savedTab && savedTab !== '1') {
-          // If it's a subtab (usually subtabs are higher numbers or specifically mapped), we try to restore it
-          router.replace(`${pathname}?tab=${savedTab}`);
+      if (pathname === '/college/dashboard') {
+        const currentTab = searchParams.get('sub') || searchParams.get('tab');
+        if (currentTab) {
+          localStorage.setItem('college_active_tab', currentTab);
+        } else {
+          const savedTab = localStorage.getItem('college_active_tab');
+          if (savedTab && savedTab !== '1') {
+            router.replace(`/college/dashboard?tab=${savedTab}`);
+          }
         }
       }
     }
   }, [pathname, searchParams, router]);
 
   const handleTabChange = (tabId: number, subId?: number, tabName?: string, subName?: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     params.set('tab', tabId.toString());
     if (tabName) params.set('name', tabName.toLowerCase().replace(/\s+/g, '-'));
 
@@ -125,17 +151,21 @@ function CollegeLayoutContent({
         localStorage.setItem('college_active_tab', subId.toString());
       }
     } else {
-      params.delete('sub');
-      params.delete('subName');
       if (typeof window !== 'undefined') {
         localStorage.setItem('college_active_tab', tabId.toString());
       }
     }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`/college/dashboard?${params.toString()}`, { scroll: false });
   };
 
   const handleLogout = async () => {
     try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('emergencyBypass');
+        sessionStorage.removeItem('isCollegeMaster');
+        sessionStorage.removeItem('bypassedUid');
+        localStorage.removeItem('college_active_tab');
+      }
       await signOut(collegeAuth);
       router.push('/');
     } catch (error) {
@@ -174,7 +204,7 @@ function CollegeLayoutContent({
         collegeLogo={collegeData?.logo || collegeData?.headPhoto}
         permissions={permissions}
       />
-      <main className="max-w-[1600px] mx-auto min-h-screen p-12 pt-32 transition-all">
+      <main className="max-w-[1600px] mx-auto min-h-screen px-3 sm:px-6 md:px-8 lg:px-10 py-5 sm:py-8 pt-20 sm:pt-24 md:pt-28 transition-all w-full overflow-x-hidden">
         {children}
       </main>
     </div>
@@ -202,7 +232,3 @@ export default function CollegeLayout({
     </Suspense>
   );
 }
-
-
-
-

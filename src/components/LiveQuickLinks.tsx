@@ -137,7 +137,7 @@ export default function LiveQuickLinks() {
 
   if (loading && quickLinks.length === 0) {
     return (
-      <aside className="lg:col-span-1 space-y-4 animate-pulse">
+      <aside className="order-3 lg:order-1 lg:col-span-1 space-y-4 animate-pulse">
         <div className="bg-[#003366]/80 text-white p-4 rounded-t-lg font-bold text-sm capitalize tracking-tight flex items-center gap-3">
           <FileText size={16} /> Quick Navigation
         </div>
@@ -155,11 +155,11 @@ export default function LiveQuickLinks() {
 
   if (quickLinks.length === 0) {
     return (
-      <aside className="lg:col-span-1 space-y-4">
+      <aside className="order-3 lg:order-1 lg:col-span-1 space-y-4">
         <div className="bg-[#003366] text-white p-4 rounded-t-lg font-bold text-sm capitalize tracking-tight flex items-center gap-3">
           <FileText size={16} /> Quick Navigation
         </div>
-        <div className="border border-slate-200 bg-white p-8 text-center text-slate-400 text-xs shadow-sm rounded-b-lg">
+        <div className="border border-slate-200 bg-white p-6 sm:p-8 text-center text-slate-400 text-xs shadow-sm rounded-b-lg">
           No links configured.
         </div>
       </aside>
@@ -167,11 +167,11 @@ export default function LiveQuickLinks() {
   }
 
   return (
-    <aside className="lg:col-span-1 space-y-4">
+    <aside className="order-3 lg:order-1 lg:col-span-1 space-y-4">
       <div className="bg-[#003366] text-white p-4 rounded-t-lg font-bold text-sm capitalize tracking-tight flex items-center gap-3">
         <FileText size={16} /> Quick Navigation
       </div>
-      <div className="border border-slate-200 bg-white divide-y divide-slate-100 shadow-sm rounded-b-lg">
+      <div className="border border-slate-200 bg-white divide-y divide-slate-100 shadow-sm rounded-b-lg overflow-hidden">
         {quickLinks.map((link, i) => {
           const isExpanded = expandedIdx === i;
           const hasSubLinks = Array.isArray(link.subLinks) && link.subLinks.length > 0;
@@ -179,7 +179,7 @@ export default function LiveQuickLinks() {
             <div key={i} className="group">
               <button
                 onClick={() => setExpandedIdx(isExpanded ? null : i)}
-                className="w-full flex items-center justify-between gap-4 p-4 hover:bg-slate-50 hover:text-[#003366] transition-colors text-sm font-bold text-slate-700 text-left"
+                className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 min-h-[48px] hover:bg-slate-50 hover:text-[#003366] transition-colors text-xs sm:text-sm font-bold text-slate-700 text-left active:bg-slate-100"
               >
                 <span className="flex items-center gap-3">
                   <LinkIcon size={16} className="opacity-50 text-[#003366] shrink-0" />

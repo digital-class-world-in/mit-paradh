@@ -1222,13 +1222,13 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="bg-[#003366] rounded-[3rem] p-12 text-white flex flex-col lg:flex-row items-center justify-between gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#003366] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 sm:gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4 text-center lg:text-left">
-          <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Course Management</h2>
-          <p className="text-sm font-normal text-white/60">Configure and manage the academic program registry.</p>
-          <div className="flex flex-wrap justify-center lg:justify-start gap-3 pt-2">
-            <span className="bg-white/10 text-white border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Course Management</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Configure and manage the academic program registry.</p>
+          <div className="flex flex-wrap justify-start gap-2 sm:gap-3 pt-1 sm:pt-2">
+            <span className="bg-white/10 text-white border border-white/20 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
               <BookOpen size={13} /> Total Courses: {courses.length}
             </span>
             {filteredCourses.length !== courses.length && (
@@ -1430,7 +1430,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
       </div>
 
       {filteredCourses.length > 0 ? (
-        <div className="bg-white rounded-[3rem] border border-black shadow-sm overflow-hidden p-8">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
           <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border border-black">
               <thead>
@@ -1535,7 +1535,7 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] border border-black shadow-xl p-20 text-center">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-xl p-8 sm:p-14 md:p-20 text-center">
           <div className="flex flex-col items-center gap-6 text-slate-300">
             <BookOpen size={80} className="opacity-10" />
             <div className="space-y-2">
@@ -1986,16 +1986,16 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
         </div>
       )}
 
-      {/* Assign to College Modal */}
+      {/* College Selection Modal for Import */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/70 backdrop-blur-md" onClick={() => !isImporting && setIsImportModalOpen(false)} />
 
-          <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-teal-600 p-10 text-white relative">
+          <div className="bg-white w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-teal-600 p-5 sm:p-8 md:p-10 text-white relative">
               <button
                 onClick={() => setIsImportModalOpen(false)}
-                className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors"
+                className="absolute right-4 sm:right-8 top-4 sm:top-8 text-white/50 hover:text-white transition-colors"
                 disabled={isImporting}
               >
                 <X size={24} />

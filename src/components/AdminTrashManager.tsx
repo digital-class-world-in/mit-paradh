@@ -179,18 +179,18 @@ const AdminTrashManager = ({ adminUid }: { adminUid?: string }) => {
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
-      <div className="bg-[#002147] rounded-[3rem] p-12 text-white border-b-8 border-black shadow-2xl relative overflow-hidden">
+      <div className="bg-[#002147] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white border-b-8 border-black shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize">
             <Trash2 size={14} className="text-[#00a5a5]" /> System Infrastructure
           </div>
-          <h2 className="text-4xl font-black tracking-tighter leading-none italic capitalize">Trash Bin</h2>
-          <p className="text-sm font-normal text-white/60">Manage deleted or rejected institutional records.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-tight italic capitalize">Trash Bin</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Manage deleted or rejected institutional records.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-[3rem] border border-black shadow-xl p-8">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-xl p-4 sm:p-6 md:p-8">
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse border border-black">
             <thead>

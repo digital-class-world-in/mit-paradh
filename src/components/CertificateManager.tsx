@@ -41,28 +41,28 @@ export default function CertificateManager({ collegeId }: { collegeId: string | 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
       {/* Header Banner */}
-      <div className="bg-[#5D5fb1] rounded-[3rem] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#5D5fb1] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 sm:gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
             <Award size={14} className="text-[#00a5a5]" /> Certification Module
           </div>
-          <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Transfer Certificates</h2>
-          <p className="text-sm font-normal text-white/60">Issue and manage institutional transfer certificates for students.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Transfer Certificates</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Issue and manage institutional transfer certificates for students.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="relative z-10 bg-white text-[#5D5fb1] px-10 py-5 rounded-2xl text-[11px] font-black capitalize tracking-tight shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center gap-3"
+          className="relative z-10 bg-white text-[#5D5fb1] w-full md:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl text-xs sm:text-[11px] font-black capitalize tracking-tight shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center justify-center gap-3 shrink-0"
         >
           <Plus size={20} strokeWidth={3} /> Create Certificate
         </button>
       </div>
 
       {/* List / Placeholder */}
-      <div className="bg-white rounded-[3rem] border border-slate-200 shadow-sm p-20 text-center">
-        <div className="flex flex-col items-center gap-6 text-slate-300">
-          <div className="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
-            <FileText size={48} className="opacity-20" />
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm p-8 sm:p-14 md:p-20 text-center">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 text-slate-300">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
+            <FileText size={36} className="opacity-20 sm:w-12 sm:h-12" />
           </div>
           <div className="space-y-2">
             <p className="text-sm font-normal tracking-normal capitalize text-black">No Certificates Issued</p>
@@ -73,11 +73,11 @@ export default function CertificateManager({ collegeId }: { collegeId: string | 
 
       {/* Create TC Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+          <div className="bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="bg-[#5D5fb1] p-10 text-white relative shrink-0">
+            <div className="bg-[#5D5fb1] p-5 sm:p-8 md:p-10 text-white relative shrink-0">
                <button 
                  onClick={() => setIsModalOpen(false)}
                  className="absolute right-8 top-10 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all"

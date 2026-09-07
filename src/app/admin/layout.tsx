@@ -149,7 +149,7 @@ function AdminLayoutContent({
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <AdminHeader activeTab={activeTab} setActiveTab={handleTabChange} onLogout={handleLogout} adminName="MIT PARADH" />
-      <main className="max-w-[1600px] mx-auto min-h-screen p-12 pt-32 transition-all">
+      <main className="max-w-[1600px] mx-auto min-h-screen px-3 sm:px-6 md:px-8 lg:px-10 py-5 sm:py-8 pt-20 sm:pt-24 md:pt-28 transition-all">
         {children}
       </main>
     </div>

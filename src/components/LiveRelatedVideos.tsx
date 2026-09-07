@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { realtimeDb } from '@/lib/firebase';
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -33,35 +33,58 @@ const getYouTubeId = (input: string) => {
   return null;
 };
 
-const HorizontalSection = ({ title, children, showMore = true }: any) => (
-  <div className="bg-white border-t border-slate-200 py-8">
-    <div className="px-6 lg:px-12">
-      <h2 className="text-[#003366] text-xl md:text-2xl font-black mb-6 tracking-tight capitalize italic">
-        {title}
-      </h2>
+const HorizontalSection = ({ title, children, showMore = true }: any) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-      <div className="relative group">
-        <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex">
-          <ChevronLeft size={24} />
-        </button>
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
-        <div className="flex gap-5 overflow-x-auto no-scrollbar pb-4 snap-x">
-          {children}
+  return (
+    <div className="bg-white border-t border-slate-200 py-6 sm:py-8">
+      <div className="px-4 sm:px-6 lg:px-12">
+        <h2 className="text-[#003366] text-lg sm:text-xl md:text-2xl font-black mb-4 sm:mb-6 tracking-tight capitalize italic">
+          {title}
+        </h2>
+
+        <div className="relative group">
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 lg:-translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex items-center justify-center transition-colors"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div 
+            ref={scrollRef}
+            className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory scroll-smooth"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {children}
+          </div>
+
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 lg:translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex items-center justify-center transition-colors"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
 
-        <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex">
-          <ChevronRight size={24} />
-        </button>
+        {showMore && (
+          <div className="text-right pt-2">
+            <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-800">See more...</Link>
+          </div>
+        )}
       </div>
-
-      {showMore && (
-        <div className="text-right pt-2">
-          <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-800">See more...</Link>
-        </div>
-      )}
     </div>
-  </div>
-);
+  );
+};
 
 export default function LiveRelatedVideos() {
   const [videos, setVideos] = useState<any[]>([]);
@@ -99,9 +122,9 @@ export default function LiveRelatedVideos() {
   if (loading && videos.length === 0) {
     return (
       <HorizontalSection title="Related Videos" showMore={false}>
-        <div className="w-full flex gap-5 overflow-x-auto no-scrollbar pb-4 snap-x animate-pulse">
+        <div className="w-full flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 snap-x animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="min-w-[280px] md:min-w-[340px] snap-center shrink-0 space-y-3">
+            <div key={i} className="w-[82vw] max-w-[340px] sm:w-[320px] md:w-[360px] snap-center shrink-0 space-y-3">
               <div className="w-full aspect-video bg-slate-200 rounded-lg" />
               <div className="h-4 bg-slate-100 rounded w-3/4 mx-auto" />
             </div>
@@ -130,7 +153,7 @@ export default function LiveRelatedVideos() {
         }
         
         return (
-          <div key={i} className="min-w-[280px] md:min-w-[340px] snap-center group shrink-0">
+          <div key={i} className="w-[82vw] max-w-[340px] sm:w-[320px] md:w-[360px] snap-center group shrink-0">
             <div className="w-full aspect-video bg-[#1a1a2e] rounded-lg relative overflow-hidden mb-3 shadow-md">
               {videoId ? (
                 <iframe
@@ -148,7 +171,7 @@ export default function LiveRelatedVideos() {
                 </div>
               )}
             </div>
-            <p className="text-center text-sm font-semibold text-slate-600 px-2">{vid.description}</p>
+            <p className="text-center text-xs sm:text-sm font-semibold text-slate-600 px-2 line-clamp-2">{vid.description}</p>
           </div>
         );
       })}

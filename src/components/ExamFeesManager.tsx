@@ -115,21 +115,21 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="bg-[#002147] rounded-[3rem] p-12 text-white border-b-8 border-[#ff9f1c] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#002147] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white border-b-8 border-[#ff9f1c] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 sm:gap-8">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
               <CreditCard size={14} className="text-[#ff9f1c]" /> Financial & Exam Audit
             </div>
-            <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Exam Fees & Form Submissions</h2>
-            <p className="text-sm font-normal text-white/60">Audit student examination details, verify payment screenshots, and approve or reject submissions.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter capitalize leading-tight">Exam Fees & Form Submissions</h2>
+            <p className="text-xs sm:text-sm font-normal text-white/60">Audit student examination details, verify payment screenshots, and approve or reject submissions.</p>
           </div>
 
           {!collegeId && (
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <select 
-                className="bg-white/10 border border-white/20 rounded-2xl py-4 pl-6 pr-12 text-sm font-bold text-white outline-none focus:bg-white/20 transition-all appearance-none cursor-pointer min-w-[280px]"
+                className="w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-4 sm:pl-6 pr-10 sm:pr-12 text-xs sm:text-sm font-bold text-white outline-none focus:bg-white/20 transition-all appearance-none cursor-pointer sm:min-w-[240px]"
                 value={selectedCollegeId}
                 onChange={(e) => setSelectedCollegeId(e.target.value)}
               >
@@ -138,7 +138,7 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
                   <option key={c.id} value={c.id} className="text-black">{c.name}</option>
                 ))}
               </select>
-              <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-[#ff9f1c] pointer-events-none" />
+              <ChevronDown size={18} className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-[#ff9f1c] pointer-events-none" />
             </div>
           )}
         </div>
@@ -146,18 +146,18 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
 
       {selectedCollegeId ? (
         <div className="space-y-6">
-          <div className="bg-white rounded-[3rem] shadow-2xl border border-black overflow-hidden">
-            <div className="p-10 border-b border-black flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/50">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-black overflow-hidden">
+            <div className="p-4 sm:p-6 md:p-10 border-b border-black flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 sm:gap-6 bg-slate-50/50">
               <div className="space-y-1">
-                <h3 className="text-2xl font-black tracking-tighter capitalize">Exam Submissions Audit</h3>
-                <p className="text-[13px] font-medium text-slate-400 capitalize">Audit student exam particulars, payment proofs, and approve or reject forms.</p>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tighter capitalize">Exam Submissions Audit</h3>
+                <p className="text-xs sm:text-[13px] font-medium text-slate-400 capitalize">Audit student exam particulars, payment proofs, and approve or reject forms.</p>
               </div>
               <div className="relative w-full md:w-96">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input 
                   type="text" 
                   placeholder="Search student, course, stream, or college..."
-                  className="w-full bg-white border border-black rounded-2xl py-4 pl-14 pr-6 text-sm font-normal outline-none focus:border-[#ff9f1c] transition-all"
+                  className="w-full bg-white border border-black rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-xs sm:text-sm font-normal outline-none focus:border-[#ff9f1c] transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -289,14 +289,14 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] border border-black shadow-xl p-32 text-center">
-          <div className="flex flex-col items-center gap-6 text-slate-300">
-            <div className="w-24 h-24 rounded-[2.5rem] bg-slate-50 flex items-center justify-center border border-black shadow-inner">
-              <ShieldCheck size={48} className="opacity-20" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-xl p-8 sm:p-16 md:p-24 text-center">
+          <div className="flex flex-col items-center gap-4 sm:gap-6 text-slate-300">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-slate-50 flex items-center justify-center border border-black shadow-inner">
+              <ShieldCheck size={36} className="opacity-20 sm:w-12 sm:h-12" />
             </div>
             <div className="space-y-2">
-              <p className="text-xl font-black tracking-tighter text-slate-400 uppercase">Selection Required</p>
-              <p className="text-sm text-slate-400 max-w-xs mx-auto">Please select an institutional ledger to begin fee audit.</p>
+              <p className="text-lg sm:text-xl font-black tracking-tighter text-slate-400 uppercase">Selection Required</p>
+              <p className="text-xs sm:text-sm text-slate-400 max-w-xs mx-auto">Please select an institutional ledger to begin fee audit.</p>
             </div>
           </div>
         </div>
@@ -304,21 +304,21 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
 
       {/* View Full Submission Details Modal */}
       {selectedSubmissionDetails && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/70 backdrop-blur-sm" onClick={() => setSelectedSubmissionDetails(null)} />
-          <div className="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-            <div className="bg-[#002147] p-8 text-white flex items-center justify-between shrink-0">
+          <div className="bg-white w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
+            <div className="bg-[#002147] p-4 sm:p-8 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#00a5a5] rounded-2xl flex items-center justify-center">
-                  <FileText size={24} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#00a5a5] rounded-xl sm:rounded-2xl flex items-center justify-center">
+                  <FileText size={20} className="sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">Student Exam Form Details</h3>
-                  <p className="text-xs text-white/60 font-medium">Session {selectedSubmissionDetails.academicYear || '2026-2027'}</p>
+                  <h3 className="text-base sm:text-xl font-black uppercase tracking-tight">Student Exam Form Details</h3>
+                  <p className="text-[11px] sm:text-xs text-white/60 font-medium">Session {selectedSubmissionDetails.academicYear || '2026-2027'}</p>
                 </div>
               </div>
               <button onClick={() => setSelectedSubmissionDetails(null)} className="text-white/60 hover:text-white p-2">
-                <X size={24} />
+                <X size={20} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 

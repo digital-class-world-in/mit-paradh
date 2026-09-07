@@ -58,37 +58,37 @@ function cn(...inputs: ClassValue[]) {
 // --- Reusable ERP Components ---
 
 const Widget = ({ icon: Icon, label, value, trend, color }: any) => (
-  <div className="bg-white p-6 rounded-3xl border-2 border-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-between group overflow-hidden relative">
+  <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-between group overflow-hidden relative">
     <div className={`absolute top-0 right-0 w-16 h-16 ${color} opacity-5 rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform`} />
-    <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-2xl bg-white shadow-sm border border-slate-200 ${color.replace('bg-', 'text-')}`}>
-        <Icon size={20} />
+    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+      <div className={`p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white shadow-sm border border-slate-200 shrink-0 ${color.replace('bg-', 'text-')}`}>
+        <Icon size={18} className="sm:w-5 sm:h-5" />
       </div>
-      <div>
-        <p className="text-[15px] font-medium tracking-tight text-black mb-0.5">{label}</p>
-        <p className="text-xl font-bold text-slate-800 tracking-tight">{value}</p>
+      <div className="min-w-0">
+        <p className="text-xs sm:text-[13px] font-bold tracking-tight text-slate-500 truncate mb-0.5">{label}</p>
+        <p className="text-lg sm:text-xl font-black text-slate-800 tracking-tight truncate">{value}</p>
       </div>
     </div>
-    <div className="text-[13px] font-normal text-black bg-emerald-50 px-2 py-1 rounded-md">{trend}</div>
+    <div className="text-[11px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md shrink-0 ml-2">{trend}</div>
   </div>
 );
 
 const ModuleCard = ({ title, desc, icon: Icon, onClick }: any) => (
   <div
     onClick={onClick}
-    className="glass-effect p-8 rounded-[2rem] border-2 border-white/50 interactive-card cursor-pointer group flex flex-col justify-between h-full"
+    className="bg-white p-5 sm:p-6 lg:p-7 rounded-2xl sm:rounded-[2rem] border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-[#5D5fb1]/40 interactive-card cursor-pointer group flex flex-col justify-between h-full transition-all duration-300"
   >
-    <div className="flex justify-between items-start mb-6">
-      <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-        <Icon size={28} />
+    <div className="flex justify-between items-start mb-4 sm:mb-6">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#5D5fb1] group-hover:scale-110 transition-transform">
+        <Icon size={24} className="sm:w-7 sm:h-7" />
       </div>
-      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-slate-400">→</span>
+      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-slate-400 text-sm">→</span>
       </div>
     </div>
     <div>
-      <h4 className="text-lg font-semibold text-slate-800 tracking-tighter  mb-1 ">{title}</h4>
-      <p className="text-xs font-medium text-slate-400 leading-relaxed">{desc}</p>
+      <h4 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight mb-1 group-hover:text-[#5D5fb1] transition-colors">{title}</h4>
+      <p className="text-xs font-medium text-slate-500 leading-relaxed line-clamp-2">{desc}</p>
     </div>
   </div>
 );
@@ -298,20 +298,20 @@ function DashboardContent() {
     return (
       <div className="relative">
         <div className={activeTab === 1 ? "block" : "hidden"}>
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-white rounded-3xl p-10 shadow-xl border-t-8 border-[#5d5fb1] relative overflow-hidden group">
-              <div className="relative z-10 space-y-3">
-                <div className="flex items-center gap-3 text-[#5d5fb1] font-semibold text-[20px] tracking-tight">
-                  <Award size={16} />  Welcome, Mit Paradh
+          <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-500">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg border-t-4 sm:border-t-8 border-[#5d5fb1] relative overflow-hidden group">
+              <div className="relative z-10 space-y-2 sm:space-y-3">
+                <div className="flex items-center gap-2 sm:gap-3 text-[#5d5fb1] font-bold text-lg sm:text-xl md:text-2xl tracking-tight">
+                  <Award size={20} className="sm:w-6 sm:h-6 shrink-0" /> Welcome, Mit Paradh
                 </div>
-                <p className="text-slate-400 font-medium text-xs max-w-md  border-l-4 border-slate-200 pl-4 py-1">
+                <p className="text-slate-500 font-medium text-xs sm:text-sm max-w-md border-l-4 border-slate-200 pl-3 sm:pl-4 py-1">
                   "Change is the end result of all true learning."
                 </p>
               </div>
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#5d5fb1]/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#5d5fb1]/5 rounded-full blur-3xl pointer-events-none" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 md:gap-6">
               <Widget icon={FileText} label="Pending Admission" value={stats.admissionList.toLocaleString()} trend="+12%" color="bg-indigo-600" />
               <Widget icon={GraduationCap} label="Approved Admission" value={stats.totalAdmissions.toLocaleString()} trend="+8%" color="bg-purple-600" />
               <Widget icon={UserPlus} label="Student Registration" value={stats.studentRegistrations.toLocaleString()} trend="+5%" color="bg-teal-600" />
@@ -320,11 +320,11 @@ function DashboardContent() {
               <Widget icon={BookOpen} label="Online Examination" value={'Active'} trend="Live" color="bg-rose-600" />
             </div>
 
-            <div className="bg-slate-50/50 p-10 rounded-[3rem] border border-slate-200 shadow-inner">
-              <h3 className="text-2xl font-semibold text-slate-800 tracking-tighter  mb-8  flex items-center gap-3">
-                <Zap size={24} className="text-amber-500 fill-amber-500" /> System Management Modules
+            <div className="bg-slate-50/70 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-[2.5rem] border border-slate-200 shadow-inner">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 tracking-tight mb-5 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                <Zap size={22} className="text-amber-500 fill-amber-500 shrink-0" /> System Management Modules
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <ModuleCard title="Academic Registry" desc="Monitor curriculum deployment and course analytics." icon={BookOpen} onClick={() => router.push('?tab=4')} />
                 <ModuleCard title="Human Resources" desc="Manage staff profiles, payroll and attendance." icon={Users} onClick={() => router.push('?tab=3')} />
                 <ModuleCard title="Financial Center" desc="Secure ledger management and fee tracking." icon={CreditCard} onClick={() => router.push('?tab=70')} />
@@ -447,24 +447,24 @@ function DashboardContent() {
 
         <div className={(activeTab === 200 || activeTab === 201) ? "block" : "hidden"}>
           {shouldRender([200, 201]) && (
-            <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700">
               {/* Contextual Header with Filter */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-[#5D5fb1] rounded-2xl flex items-center justify-center text-white shadow-xl">
-                    <CreditCard size={28} />
+              <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+                <div className="flex items-center gap-3 sm:gap-5">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#5D5fb1] rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
+                    <CreditCard size={24} className="sm:w-7 sm:h-7" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black tracking-tighter text-slate-800">Online Payments</h3>
-                    <p className="text-[13px] font-medium text-slate-400 capitalize">Institutional Gateway Configuration</p>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-800">Online Payments</h3>
+                    <p className="text-xs sm:text-[13px] font-medium text-slate-400 capitalize">Institutional Gateway Configuration</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                  <div className="relative flex-1 sm:flex-initial">
+                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <select
-                      className="bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-8 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-[#5D5fb1] transition-all cursor-pointer appearance-none shadow-sm"
+                      className="w-full sm:w-auto bg-slate-50 border border-slate-200 rounded-xl py-2.5 sm:py-3 pl-11 pr-8 text-xs sm:text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-[#5D5fb1] transition-all cursor-pointer appearance-none shadow-sm min-h-[42px]"
                       value={selectedCollegeId}
                       onChange={(e) => setSelectedCollegeId(e.target.value)}
                     >
@@ -478,7 +478,7 @@ function DashboardContent() {
                   {selectedCollegeId && (
                     <button
                       onClick={() => setSelectedCollegeId('')}
-                      className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200"
+                      className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 self-end sm:self-auto"
                       title="Clear Selection"
                     >
                       <X size={18} />
@@ -488,41 +488,41 @@ function DashboardContent() {
               </div>
 
               {selectedCollegeId ? (
-                <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-500">
+                <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-bottom-8 duration-500">
                   {/* Internal Tabs & Back Action */}
-                  <div className="flex items-center justify-between border-b border-slate-200">
-                    <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-between border-b border-slate-200 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-3 sm:gap-6 shrink-0">
                       <button
                         onClick={() => setSelectedCollegeId('')}
-                        className="flex items-center gap-2 text-[13px] font-black uppercase tracking-widest text-slate-400 hover:text-[#5D5fb1] transition-all pb-4 group"
+                        className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-[13px] font-black uppercase tracking-widest text-slate-400 hover:text-[#5D5fb1] transition-all pb-3 sm:pb-4 group whitespace-nowrap min-h-[40px]"
                       >
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                         Back to Institutions
                       </button>
-                      <div className="w-px h-4 bg-slate-200 mb-4" />
+                      <div className="w-px h-4 bg-slate-200 mb-3 sm:mb-4 shrink-0" />
                       <button
                         onClick={() => setPaymentSubTab('settings')}
                         className={cn(
-                          "pb-4 px-2 text-[13px] font-black uppercase tracking-widest transition-all relative",
+                          "pb-3 sm:pb-4 px-2 text-xs sm:text-[13px] font-black uppercase tracking-widest transition-all relative whitespace-nowrap min-h-[40px]",
                           paymentSubTab === 'settings' ? "text-[#5D5fb1]" : "text-slate-400 hover:text-slate-600"
                         )}
                       >
                         Gateway Settings
-                        {paymentSubTab === 'settings' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#5D5fb1] rounded-t-full" />}
+                        {paymentSubTab === 'settings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-[#5D5fb1] rounded-t-full" />}
                       </button>
                       <button
                         onClick={() => setPaymentSubTab('history')}
                         className={cn(
-                          "pb-4 px-2 text-[13px] font-black uppercase tracking-widest transition-all relative",
+                          "pb-3 sm:pb-4 px-2 text-xs sm:text-[13px] font-black uppercase tracking-widest transition-all relative whitespace-nowrap min-h-[40px]",
                           paymentSubTab === 'history' ? "text-[#5D5fb1]" : "text-slate-400 hover:text-slate-600"
                         )}
                       >
                         Transaction History
-                        {paymentSubTab === 'history' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#5D5fb1] rounded-t-full" />}
+                        {paymentSubTab === 'history' && <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-[#5D5fb1] rounded-t-full" />}
                       </button>
                     </div>
 
-                    <div className="pb-4">
+                    <div className="pb-3 sm:pb-4 hidden sm:block">
                       <span className="text-[11px] font-black text-slate-300 uppercase tracking-[0.2em]">Active Selection</span>
                     </div>
                   </div>
@@ -536,11 +536,11 @@ function DashboardContent() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center justify-between mb-4">
+                <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-500">
+                  <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="text-lg font-black text-slate-800 tracking-tighter">Global Payment Requests</h4>
-                      <p className="text-[13px] font-medium text-slate-400">View and verify incoming payments across all registered colleges</p>
+                      <h4 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">Global Payment Requests</h4>
+                      <p className="text-xs sm:text-[13px] font-medium text-slate-400">View and verify incoming payments across all registered colleges</p>
                     </div>
                   </div>
                   <PaymentHistoryManager collegeId="" adminUid={resolvedAdminUid} />
@@ -557,25 +557,25 @@ function DashboardContent() {
 
         <div className={activeTab === 23 ? "block" : "hidden"}>
           {shouldRender([23]) && (
-            <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
-              <div className="bg-[#003366] rounded-[3rem] p-12 text-white border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-                <div className="relative z-10 space-y-4 text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+            <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+              <div className="bg-[#003366] rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-10 md:p-12 text-white border-b-8 border-[#00a5a5] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-3 sm:space-y-4 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
                     <FileText size={14} className="text-[#00a5a5]" /> Student Services
                   </div>
-                  <h2 className="text-4xl font-black tracking-tighter capitalize leading-none">Leave Request</h2>
-                  <p className="text-sm font-normal text-white/60">Manage and track student leave applications.</p>
+                  <h2 className="text-2xl sm:text-4xl font-black tracking-tight capitalize leading-none">Leave Request</h2>
+                  <p className="text-xs sm:text-sm font-normal text-white/70">Manage and track student leave applications.</p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-[3rem] border-4 border-slate-200 shadow-xl p-20 text-center">
-                <div className="flex flex-col items-center gap-6 text-slate-300">
-                  <div className="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
-                    <FileText size={48} className="opacity-20" />
+              <div className="bg-white rounded-2xl sm:rounded-[2.5rem] border-2 sm:border-4 border-slate-200 shadow-xl p-8 sm:p-14 md:p-16 text-center">
+                <div className="flex flex-col items-center gap-4 sm:gap-6 text-slate-300">
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-200 shadow-inner">
+                    <FileText size={36} className="opacity-20 sm:w-12 sm:h-12" />
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-normal tracking-normal capitalize text-black">Leave Request Module</p>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <p className="text-sm sm:text-base font-bold tracking-normal capitalize text-slate-800">Leave Request Module</p>
                     <p className="text-xs text-slate-400 max-w-xs mx-auto">The leave management system is being configured for automated processing.</p>
                   </div>
                   <div className="flex gap-2">
@@ -586,7 +586,6 @@ function DashboardContent() {
                 </div>
               </div>
             </div>
-
           )}
         </div>
       </div>

@@ -85,10 +85,10 @@ export const Header = () => {
       `}} />
 
       {/* Top Recognition and Invocation Bar (Black Line) */}
-      <div className="w-full bg-[#0a0a0a] text-white pt-2 pb-1.5 px-3 sm:px-4 md:px-10 border-b border-white/5 select-none text-[10px] sm:text-[11px] md:text-sm font-semibold overflow-hidden">
+      <div className="w-full bg-[#0a0a0a] text-white pt-2 pb-1.5 px-3 sm:px-6 md:px-10 border-b border-white/5 select-none text-[10px] sm:text-[11px] md:text-sm font-semibold">
         <div className="max-w-7xl mx-auto flex flex-col gap-1.5">
           {/* Line 1: Left | Center | Right */}
-          <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-1.5 w-full">
+          <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 w-full">
             <span className="text-amber-400 font-extrabold tracking-wide shrink-0 text-[10px] sm:text-[11px] md:text-xs">
               महाराष्ट्र शासन मान्यता प्राप्त
             </span>
@@ -102,13 +102,39 @@ export const Header = () => {
               <span className="text-zinc-700 font-normal hidden sm:inline">|</span>
               {/* Accessibility Controls */}
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <button onClick={() => handleFontChange('decrease')} className="hover:text-amber-400 transition-colors px-1 text-[10px] sm:text-[11px] font-bold text-zinc-300" title="Decrease Font Size">A-</button>
+                <button 
+                  onClick={() => handleFontChange('decrease')} 
+                  className="hover:text-amber-400 transition-colors px-1.5 py-0.5 rounded text-[11px] font-bold text-zinc-300 min-h-[26px] min-w-[24px] flex items-center justify-center hover:bg-white/10" 
+                  title="Decrease Font Size"
+                  aria-label="Decrease Font Size"
+                >
+                  A-
+                </button>
                 <span className="text-zinc-700 font-normal">|</span>
-                <button onClick={() => handleFontChange('reset')} className="hover:text-amber-400 transition-colors px-1 text-[11px] sm:text-[12px] font-bold text-zinc-300" title="Reset Font Size">A</button>
+                <button 
+                  onClick={() => handleFontChange('reset')} 
+                  className="hover:text-amber-400 transition-colors px-1.5 py-0.5 rounded text-[12px] font-bold text-zinc-300 min-h-[26px] min-w-[24px] flex items-center justify-center hover:bg-white/10" 
+                  title="Reset Font Size"
+                  aria-label="Reset Font Size"
+                >
+                  A
+                </button>
                 <span className="text-zinc-700 font-normal">|</span>
-                <button onClick={() => handleFontChange('increase')} className="hover:text-amber-400 transition-colors px-1 text-[12px] sm:text-[13px] font-bold text-zinc-300" title="Increase Font Size">A+</button>
+                <button 
+                  onClick={() => handleFontChange('increase')} 
+                  className="hover:text-amber-400 transition-colors px-1.5 py-0.5 rounded text-[13px] font-bold text-zinc-300 min-h-[26px] min-w-[24px] flex items-center justify-center hover:bg-white/10" 
+                  title="Increase Font Size"
+                  aria-label="Increase Font Size"
+                >
+                  A+
+                </button>
                 <span className="text-zinc-700 font-normal">|</span>
-                <button onClick={toggleContrast} className="hover:text-amber-400 transition-colors p-0.5 text-zinc-300" title="Toggle Contrast">
+                <button 
+                  onClick={toggleContrast} 
+                  className="hover:text-amber-400 transition-colors p-1 rounded text-zinc-300 min-h-[26px] min-w-[24px] flex items-center justify-center hover:bg-white/10" 
+                  title="Toggle Contrast"
+                  aria-label="Toggle High Contrast"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 17.657l.707.707M6.343 6.343l.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -117,16 +143,22 @@ export const Header = () => {
             </div>
           </div>
           {/* Line 2: Institution name — center aligned with helpline */}
-          <div className="flex flex-col sm:flex-row justify-between items-center text-center text-[10px] sm:text-[10.5px] md:text-[12.5px] text-white/90 font-bold leading-snug border-t border-white/5 pt-1.5 gap-1">
-            <div className="flex items-center gap-1 text-[10px] md:text-[12px]">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-center text-[10px] sm:text-[10.5px] md:text-[12.5px] text-white/90 font-bold leading-snug border-t border-white/5 pt-1.5 gap-1.5">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] md:text-[12px] shrink-0">
               <span className="text-[#a1a1aa] font-medium">Helpline:</span>
               {loading && !helpline ? (
                 <span className="inline-block h-3 w-20 bg-zinc-800 animate-pulse rounded" />
               ) : (
-                <span className="text-amber-400 font-bold tracking-wider">{helpline}</span>
+                <a 
+                  href={`tel:${helpline}`} 
+                  className="text-amber-400 hover:text-amber-300 font-bold tracking-wider hover:underline transition-colors"
+                  title="Call Helpline"
+                >
+                  {helpline}
+                </a>
               )}
             </div>
-            <div className="flex-1 text-center md:pr-24 text-[10px] sm:text-[11px] md:text-[12px] line-clamp-1 sm:line-clamp-none">
+            <div className="flex-1 text-center md:pr-16 text-[10px] sm:text-[11px] md:text-[12px] px-1">
               महाविष्णू ग्रामीण विकास व शैक्षणिक बहु उद्देशीय संस्था धामणगांव ( धाड ) द्वारा संचलित.
             </div>
           </div>
@@ -134,12 +166,12 @@ export const Header = () => {
       </div>
 
       {/* Main Branding Header */}
-      <header className="bg-white px-3 sm:px-4 md:px-10 py-3 sm:py-4 md:py-6 border-b-[3px] border-[#003366] shadow-sm">
+      <header className="bg-white px-4 sm:px-6 md:px-10 py-3 sm:py-4 md:py-6 border-b-[3px] border-[#003366] shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 md:gap-6">
           
           {/* Institute Logo */}
           <div className="shrink-0 flex items-center justify-center">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-[96px] md:w-[96px] rounded-full overflow-hidden border-2 border-[#003366] shadow-md bg-white flex items-center justify-center p-1">
+            <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-[96px] md:w-[96px] rounded-full overflow-hidden border-2 border-[#003366] shadow-md bg-white flex items-center justify-center p-1 hover:scale-105 transition-transform duration-300">
               <img
                 src="https://ik.imagekit.io/gnzjd77mb/WhatsApp%20Image%202026-04-23%20at%2014.44.57.jpeg"
                 alt="Mahalaxmi Nursing And Technical Institute Paradh Logo"
@@ -149,14 +181,14 @@ export const Header = () => {
           </div>
 
           {/* Middle Typography */}
-          <div className="flex-1 text-center flex flex-col items-center gap-0.5 sm:gap-1">
-            <h2 className="text-[10px] sm:text-[11px] md:text-[13px] font-bold text-[#334155] tracking-wide leading-tight">
+          <div className="flex-1 text-center flex flex-col items-center gap-1 sm:gap-1.5 px-2">
+            <h2 className="text-[10px] sm:text-xs md:text-[13px] font-bold text-[#334155] tracking-wide leading-tight">
               Affiliated By Government Of Maharashtra &nbsp;|&nbsp; Affiliated By Government of India
             </h2>
-            <h3 className="text-[10px] sm:text-[11px] md:text-[14px] font-semibold text-[#475569] tracking-normal leading-snug max-w-[28rem] md:max-w-none">
+            <h3 className="text-[10px] sm:text-[11.5px] md:text-[14px] font-semibold text-[#475569] tracking-normal leading-snug max-w-[32rem] md:max-w-none">
               Mahavishnu Gramin Vikas V Shaikshanik Bahu Uddeshiy Sanstha Dhamangaon (Dhad) Dwara Sanchalit....
             </h3>
-            <h1 className="text-[13px] sm:text-[16px] md:text-[22px] font-black text-[#0f52ba] tracking-tight leading-tight uppercase max-w-[26rem] md:max-w-none font-sans">
+            <h1 className="text-sm sm:text-base md:text-xl lg:text-2xl font-black text-[#0f52ba] tracking-tight leading-snug sm:leading-tight uppercase max-w-[30rem] md:max-w-none font-sans">
               Mahalaxmi Nursing And Technical Institute Paradh Bk, Goregaon
             </h1>
           </div>

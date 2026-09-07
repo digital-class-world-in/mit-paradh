@@ -225,21 +225,21 @@ const CollegeListManager = ({ adminUid }: { adminUid?: string }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="bg-[#003366] rounded-[3rem] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
+      <div className="bg-[#003366] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 sm:gap-8 border-b-8 border-[#00a5a5] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize">
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize">
             <Building2 size={14} className="text-[#00a5a5]" /> Institutional Registry
           </div>
-          <h2 className="text-4xl font-black tracking-tighter leading-none">College Management</h2>
-          <p className="text-sm font-normal text-white/60">Manage affiliated institutions and their access profiles.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-tight">College Management</h2>
+          <p className="text-xs sm:text-sm font-normal text-white/60">Manage affiliated institutions and their access profiles.</p>
         </div>
-        <button onClick={() => { setIsEditing(false); setIsModalOpen(true); }} className="relative z-10 bg-white text-[#003366] px-10 py-5 rounded-2xl text-[11px] font-black capitalize shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center gap-3">
+        <button onClick={() => { setIsEditing(false); setIsModalOpen(true); }} className="relative z-10 bg-white text-[#003366] w-full md:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl text-xs sm:text-[11px] font-black capitalize shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center justify-center gap-3 shrink-0">
           <Plus size={20} strokeWidth={3} /> Register College
         </button>
       </div>
 
-      <div className="bg-white rounded-[3rem] border border-black shadow-xl p-8">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-xl p-4 sm:p-6 md:p-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse border border-black">
             <thead>
@@ -293,17 +293,17 @@ const CollegeListManager = ({ adminUid }: { adminUid?: string }) => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => !isSubmitting && setIsModalOpen(false)} />
-          <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-[#003366] p-10 text-white flex items-center justify-between">
+          <div className="bg-white w-full max-w-4xl rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="bg-[#003366] p-4 sm:p-8 md:p-10 text-white flex items-center justify-between">
               <div>
-                <h3 className="text-3xl font-black tracking-tighter">{isEditing ? 'Update Institution' : 'Register Institution'}</h3>
-                <p className="text-sm font-normal text-white/60">Configure college profile and access.</p>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">{isEditing ? 'Update Institution' : 'Register Institution'}</h3>
+                <p className="text-xs sm:text-sm font-normal text-white/60">Configure college profile and access.</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl"><X size={32} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl"><X size={24} className="sm:w-8 sm:h-8" /></button>
             </div>
-            <form onSubmit={handleAddCollege} className="p-12 overflow-y-auto space-y-8 no-scrollbar">
+            <form onSubmit={handleAddCollege} className="p-4 sm:p-8 md:p-12 overflow-y-auto space-y-6 sm:space-y-8 no-scrollbar">
               {error && <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold border border-red-100">{error}</div>}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="md:col-span-2 flex flex-wrap gap-8 p-6 bg-slate-50 rounded-3xl border border-black shadow-sm">

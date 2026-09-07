@@ -1,36 +1,59 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { realtimeDb } from '@/lib/firebase';
 import { Building2, BarChart3, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-const HorizontalSection = ({ title, children, showMore = true }: any) => (
-  <div className="bg-white border-t border-slate-200 py-8">
-    <div className="px-6 lg:px-12">
-      <h2 className="text-[#003366] text-xl md:text-2xl font-black mb-6 tracking-tight capitalize italic">
-        {title}
-      </h2>
-      <div className="relative group">
-        <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex">
-          <ChevronLeft size={24} />
-        </button>
-        <div className="flex gap-5 overflow-x-auto no-scrollbar pb-4 snap-x">
-          {children}
+const HorizontalSection = ({ title, children, showMore = true }: any) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="bg-white border-t border-slate-200 py-6 sm:py-8">
+      <div className="px-4 sm:px-6 lg:px-12">
+        <h2 className="text-[#003366] text-lg sm:text-xl md:text-2xl font-black mb-4 sm:mb-6 tracking-tight capitalize italic">
+          {title}
+        </h2>
+        <div className="relative group">
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 lg:-translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex items-center justify-center transition-colors"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div 
+            ref={scrollRef}
+            className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory scroll-smooth"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {children}
+          </div>
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 lg:translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex items-center justify-center transition-colors"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
-        <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white border border-slate-200 p-2 rounded-full shadow-lg z-10 text-slate-400 hover:text-[#003366] hidden md:flex">
-          <ChevronRight size={24} />
-        </button>
+        {showMore && (
+          <div className="text-right pt-2">
+            <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-800">See more...</Link>
+          </div>
+        )}
       </div>
-      {showMore && (
-        <div className="text-right pt-2">
-          <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-800">See more...</Link>
-        </div>
-      )}
     </div>
-  </div>
-);
+  );
+};
 
 const DEFAULT_HIGHER_ED = [
   { name: 'Ratan Tata Maharashtra State Skill University', title: 'Ratan Tata Maharashtra State Skill University', subtitle: '' },
@@ -102,8 +125,8 @@ export default function LiveOpportunities() {
       <div className="animate-pulse space-y-8">
         <HorizontalSection title="Higher Education Opportunities" showMore={false}>
           {[1, 2, 3].map((i) => (
-            <div key={i} className="min-w-[240px] md:min-w-[300px] snap-center bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex items-center gap-4 shrink-0">
-              <div className="w-14 h-14 shrink-0 border border-slate-100 rounded-full bg-slate-100" />
+            <div key={i} className="w-[80vw] max-w-[300px] sm:w-[280px] md:w-[320px] snap-center bg-white border border-slate-200 rounded-lg p-4 sm:p-5 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 border border-slate-100 rounded-full bg-slate-100" />
               <div className="flex-1 space-y-2">
                 <div className="h-4 bg-slate-200 rounded w-3/4" />
                 <div className="h-3 bg-slate-100 rounded w-1/2" />
@@ -125,14 +148,14 @@ export default function LiveOpportunities() {
               finalUrl = 'https://' + finalUrl;
             }
             return (
-              <div key={i} className="min-w-[240px] md:min-w-[300px] snap-center bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex items-center gap-4 hover:border-blue-400 transition-colors cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
-                <div className="w-14 h-14 shrink-0 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50">
-                  <Building2 size={28} className="text-[#003366]" />
+              <div key={i} className="w-[80vw] max-w-[300px] sm:w-[280px] md:w-[320px] snap-center bg-white border border-slate-200 rounded-lg p-4 sm:p-5 shadow-sm flex items-center gap-3.5 sm:gap-4 hover:border-blue-400 transition-colors cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
+                <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50">
+                  <Building2 size={24} className="text-[#003366] sm:w-7 sm:h-7" />
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">{ed.title}</h4>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2">{ed.title}</h4>
                   {ed.description && (
-                    <p className={`text-xs mt-1 ${ed.link ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>{ed.description}</p>
+                    <p className={`text-[11px] sm:text-xs mt-1 truncate ${ed.link ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>{ed.description}</p>
                   )}
                 </div>
               </div>
@@ -149,14 +172,14 @@ export default function LiveOpportunities() {
               finalUrl = 'https://' + finalUrl;
             }
             return (
-              <div key={i} className="min-w-[260px] md:min-w-[340px] snap-center bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex items-center gap-5 hover:border-amber-400 cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
-                <div className="w-14 h-14 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
-                  <BarChart3 size={26} className="text-[#003366]" />
+              <div key={i} className="w-[82vw] max-w-[340px] sm:w-[300px] md:w-[340px] snap-center bg-white border border-slate-200 rounded-lg p-4 sm:p-5 shadow-sm flex items-center gap-3.5 sm:gap-5 hover:border-amber-400 cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
+                  <BarChart3 size={24} className="text-[#003366] sm:w-6 sm:h-6" />
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">{app.title}</h4>
-                  {app.company && <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">{app.company}</p>}
-                  {app.description && <p className={`text-[11px] mt-1 ${app.link ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>{app.description}</p>}
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2">{app.title}</h4>
+                  {app.company && <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 truncate">{app.company}</p>}
+                  {app.description && <p className={`text-[11px] mt-1 truncate ${app.link ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>{app.description}</p>}
                 </div>
               </div>
             );
@@ -172,14 +195,14 @@ export default function LiveOpportunities() {
               finalUrl = 'https://' + finalUrl;
             }
             return (
-              <div key={i} className="min-w-[260px] md:min-w-[340px] snap-center bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex items-center gap-5 hover:border-emerald-500 cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
-                <div className="w-14 h-14 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
-                  <ShieldCheck size={26} className="text-[#003366]" />
+              <div key={i} className="w-[82vw] max-w-[340px] sm:w-[300px] md:w-[340px] snap-center bg-white border border-slate-200 rounded-lg p-4 sm:p-5 shadow-sm flex items-center gap-3.5 sm:gap-5 hover:border-emerald-500 cursor-pointer shrink-0" onClick={() => finalUrl !== '#' && window.open(finalUrl, '_blank', 'noopener,noreferrer')}>
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
+                  <ShieldCheck size={24} className="text-[#003366] sm:w-6 sm:h-6" />
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">{ent.title}</h4>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2">{ent.title}</h4>
                   {ent.description && (
-                    <p className={`text-xs mt-1 ${ent.link ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>{ent.description}</p>
+                    <p className={`text-[11px] sm:text-xs mt-1 truncate ${ent.link ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>{ent.description}</p>
                   )}
                 </div>
               </div>

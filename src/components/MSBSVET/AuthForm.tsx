@@ -12,9 +12,10 @@ import {
 } from '@/lib/firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from 'firebase/auth';
 import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
-import { User, Lock, Eye, EyeOff, AlertCircle, X, ChevronRight, Loader2, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, AlertCircle, X, ChevronRight, Loader2, ShieldCheck, CheckCircle2, GraduationCap, Building2, ArrowRight } from 'lucide-react';
 import { Header } from '@/components/MSBSVET/Header';
 import { Navbar } from '@/components/MSBSVET/Navbar';
+import LiveFooter from '@/components/LiveFooter';
 
 interface AuthFormProps {
   title: string;
@@ -457,30 +458,70 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
     </div>
   );
 
+  const roleConfig = {
+    student: {
+      icon: GraduationCap,
+      badge: 'Student & Academic Portal',
+      label: 'Enrollment ID or Email',
+      placeholder: 'Enrollment ID or Email',
+    },
+    college: {
+      icon: Building2,
+      badge: 'College & Branch Portal',
+      label: 'College Code / Email',
+      placeholder: 'College Email or Branch ID',
+    },
+    staff: {
+      icon: User,
+      badge: 'Faculty & Teacher Portal',
+      label: 'Staff ID or Email',
+      placeholder: 'Staff Email or Employee ID',
+    },
+    admin: {
+      icon: ShieldCheck,
+      badge: 'Board Administrator Portal',
+      label: 'Admin Email ID',
+      placeholder: 'mitparadh@gmail.com',
+    },
+  }[role];
+
+  const RoleIcon = roleConfig.icon;
+
   return (
-    <div className="min-h-screen bg-[#f1f5f9] flex flex-col">
-      <Header />
-      <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 py-6 sm:py-12">
+    <div className="min-h-screen bg-[#f1f5f9] flex flex-col justify-between font-sans">
+      <div>
+        <Header />
+        <Navbar />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-6 py-6 sm:py-10 w-full">
         {/* Back to Home Link */}
-        <Link href="/" className="mb-6 sm:mb-8 flex items-center gap-2 text-slate-400 hover:text-[#003366] transition-colors text-xs font-bold capitalize tracking-tight">
+        <Link 
+          href="/" 
+          className="mb-4 sm:mb-5 inline-flex items-center gap-2 text-slate-500 hover:text-[#003366] transition-colors text-xs font-bold capitalize tracking-tight px-3 py-1.5 rounded-lg hover:bg-slate-200/60 min-h-[36px]"
+        >
           <X size={14} /> Back to Homepage
         </Link>
 
-        <div className="w-full max-w-[440px] bg-white shadow-xl border border-slate-200 overflow-hidden rounded-xl">
-          {/* Simple Institutional Header */}
-          <div className="bg-[#003366] px-5 sm:px-8 py-5 sm:py-6 text-white text-center">
-            <h2 className="text-xl font-bold tracking-tight capitalize">{title}</h2>
-            <p className="text-[12px] text-white/70 font-normal mt-1">{subtitle}</p>
-            <p className="text-[13px] text-black font-normal capitalize tracking-normal mt-2 italic">Official Access Portal</p>
+        <div className="w-full max-w-[420px] bg-white shadow-xl border border-slate-200 overflow-hidden rounded-2xl sm:rounded-3xl">
+          {/* Institutional Header */}
+          <div className="bg-gradient-to-br from-[#002244] via-[#003366] to-[#001833] px-4 sm:px-8 py-5 sm:py-6 text-white text-center relative overflow-hidden">
+            <div className="w-12 h-12 rounded-2xl mx-auto mb-2.5 flex items-center justify-center shadow-inner bg-white/10 backdrop-blur-sm border border-white/20">
+              <RoleIcon size={24} className="text-amber-300" />
+            </div>
+            <h2 className="text-lg sm:text-xl font-black tracking-tight capitalize text-white">{title}</h2>
+            <p className="text-[11.5px] sm:text-[12px] text-white/80 font-medium mt-1 max-w-xs mx-auto leading-relaxed">{subtitle}</p>
+            <span className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-0.5 rounded-full bg-white/10 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-white/10">
+              <ShieldCheck size={12} /> {roleConfig.badge}
+            </span>
           </div>
 
-          <div className="p-5 sm:p-8">
+          <div className="p-4 sm:p-7">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 flex flex-col gap-3">
-                <div className="flex items-start gap-3">
-                  <AlertCircle size={16} className="text-red-600 mt-0.5" />
-                  <p className="text-[11px] font-bold text-red-700 capitalize leading-relaxed">{error}</p>
+              <div className="bg-red-50 border-l-4 border-red-500 p-3.5 sm:p-4 mb-5 rounded-r-lg flex flex-col gap-2.5">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle size={16} className="text-red-600 mt-0.5 shrink-0" />
+                  <p className="text-[11px] sm:text-xs font-bold text-red-700 leading-relaxed">{error}</p>
                 </div>
                 {error.includes("Network error") && (
                   <button
@@ -491,7 +532,7 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
                         router.push(`/${role}/dashboard`);
                       }
                     }}
-                    className="ml-7 text-[10px] bg-red-600 text-white px-3 py-1.5 rounded font-black hover:bg-red-700 transition-colors w-fit shadow-sm uppercase tracking-wider"
+                    className="ml-6 text-[10px] bg-red-600 text-white px-3 py-1.5 rounded font-black hover:bg-red-700 transition-colors w-fit shadow-sm uppercase tracking-wider"
                   >
                     Force Open Dashboard (Emergency Bypass)
                   </button>
@@ -499,29 +540,29 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">
-                  {role === 'admin' ? 'email id' : 'Enrollment ID / Email'}
+            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-4.5">
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-[13px] font-bold text-slate-800 capitalize tracking-tight pl-0.5">
+                  {roleConfig.label}
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     name="username"
-                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#003366] focus:bg-white p-3.5 pl-12 text-sm text-slate-700 outline-none transition-all rounded font-bold"
-                    placeholder={role === 'student' ? "Enter Enrollment ID or Email" : "Enter Email ID"}
+                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#003366] focus:bg-white py-3 sm:py-3.5 pl-10 sm:pl-11 pr-4 text-[15px] sm:text-sm text-slate-700 outline-none transition-all rounded-xl font-bold min-h-[46px] shadow-sm"
+                    placeholder={roleConfig.placeholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="username"
                   />
-                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label className="text-[13px] font-normal text-black capitalize tracking-tight pl-1">Password</label>
+                  <label className="text-xs sm:text-[13px] font-bold text-slate-800 capitalize tracking-tight pl-0.5">Password</label>
                   {role === 'student' && (
                     <button
                       type="button"
@@ -534,7 +575,7 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
                         setNewPassword('');
                         setConfirmPassword('');
                       }}
-                      className="text-[11px] font-bold text-[#003366] hover:underline"
+                      className="text-[11px] font-bold text-[#003366] hover:text-amber-600 hover:underline transition-colors"
                     >
                       Forgot Password?
                     </button>
@@ -544,33 +585,34 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
-                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#003366] focus:bg-white p-3.5 pl-12 pr-12 text-sm text-slate-700 outline-none transition-all rounded"
+                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#003366] focus:bg-white py-3 sm:py-3.5 pl-10 sm:pl-11 pr-11 text-[15px] sm:text-sm text-slate-700 outline-none transition-all rounded-xl min-h-[46px] shadow-sm"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
                   />
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-[#003366] hover:bg-black text-white font-bold py-4 rounded text-xs capitalize tracking-normal transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+                className="w-full bg-[#003366] hover:bg-[#002244] active:scale-[0.99] text-white font-black py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all disabled:opacity-70 flex items-center justify-center gap-2.5 min-h-[48px] shadow-md hover:shadow-lg mt-2"
                 disabled={loading}
               >
                 {loading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    Validating...
+                    Validating Credentials...
                   </>
                 ) : (
                   'Log In to Portal'
@@ -578,60 +620,115 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
               </button>
             </form>
 
-            {/* Quick Access for Staff (Disabled for Admin) */}
+            {/* Quick Access for Staff and College */}
+            {role === 'college' && (
+              <div className="mt-5 pt-4 border-t border-slate-200">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 text-center">Institutional Quick Access</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem('isCollegeMaster', 'true');
+                    sessionStorage.setItem('emergencyBypass', 'true');
+                    router.push('/college/dashboard');
+                  }}
+                  className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2.5 rounded-lg text-[11px] font-black text-[#00a5a5] capitalize transition-all flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <ShieldCheck size={14} className="text-[#00a5a5]" /> Demo College Portal Access
+                </button>
+              </div>
+            )}
+
             {role === 'staff' && (
-              <div className="mt-6 pt-6 border-t border-slate-200">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Institutional Quick Access</p>
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => {
-                      setEmail('staff@mitparadh.com');
-                      setPassword('staff@123');
-                    }}
-                    className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 py-3 rounded text-[11px] font-black text-[#003366] capitalize transition-all flex items-center justify-center gap-2"
-                  >
-                    <ShieldCheck size={14} className="text-institutional-gold" /> Auto-Fill Staff Credentials
-                  </button>
-                </div>
+              <div className="mt-5 pt-4 border-t border-slate-200">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 text-center">Institutional Quick Access</p>
+                <button
+                  onClick={() => {
+                    setEmail('staff@mitparadh.com');
+                    setPassword('staff@123');
+                  }}
+                  className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2.5 rounded-lg text-[11px] font-black text-[#003366] capitalize transition-all flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <ShieldCheck size={14} className="text-amber-500" /> Auto-Fill Staff Demo
+                </button>
               </div>
             )}
 
             {role === 'student' && (
-              <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-                <p className="text-[13px] font-bold text-black capitalize tracking-tight mb-4">New Student?</p>
+              <div className="mt-5 pt-4 border-t border-slate-200 text-center">
+                <p className="text-xs sm:text-[13px] font-bold text-slate-700 capitalize tracking-tight mb-1.5">New Student Admission?</p>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#8b0000] hover:underline capitalize tracking-wide"
+                  className="inline-flex items-center gap-1.5 text-xs font-black text-[#c05621] hover:text-[#9c4221] hover:underline capitalize min-h-[36px]"
                 >
                   Go to Registration Center <ChevronRight size={14} />
                 </Link>
               </div>
             )}
+
+            {/* Quick Switch to Other Portals */}
+            <div className="mt-5 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2.5 px-0.5">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Switch Portal
+                </p>
+                <Link href="/login" className="text-[11px] font-bold text-[#003366] hover:text-amber-600 transition-colors flex items-center gap-1">
+                  All Portals <ChevronRight size={12} />
+                </Link>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
+                {role !== 'student' && (
+                  <Link href="/login/student" className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-800 hover:border-amber-300 text-[11px] font-bold text-slate-700 border border-slate-200 transition-all min-h-[38px] flex items-center justify-center text-center">
+                    Student
+                  </Link>
+                )}
+                {role !== 'college' && (
+                  <Link href="/login/college" className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 text-[11px] font-bold text-slate-700 border border-slate-200 transition-all min-h-[38px] flex items-center justify-center text-center">
+                    College / Branch
+                  </Link>
+                )}
+                {role !== 'staff' && (
+                  <Link href="/login/staff" className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 text-[11px] font-bold text-slate-700 border border-slate-200 transition-all min-h-[38px] flex items-center justify-center text-center">
+                    Staff
+                  </Link>
+                )}
+                {role !== 'admin' && (
+                  <Link href="/login/admin" className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-slate-100 hover:text-[#003366] hover:border-[#003366]/40 text-[11px] font-bold text-slate-700 border border-slate-200 transition-all min-h-[38px] flex items-center justify-center text-center">
+                    Admin
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="bg-slate-50 py-4 text-center border-t border-slate-200">
-            <p className="text-[9px] font-bold text-slate-300 capitalize tracking-tight">© MIT Institutional ERP 4.0</p>
+          <div className="bg-slate-50 py-3 text-center border-t border-slate-200">
+            <p className="text-[9.5px] font-bold text-slate-400 capitalize tracking-tight">© MIT Institutional ERP 4.0</p>
           </div>
         </div>
       </div>
 
+      <LiveFooter />
+
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="bg-[#003366] px-5 sm:px-6 py-4 flex justify-between items-center text-white shrink-0">
               <h3 className="font-bold text-sm tracking-tight">Reset Password</h3>
-              <button onClick={() => setShowForgotModal(false)} className="text-white/70 hover:text-white transition-colors">
+              <button 
+                onClick={() => setShowForgotModal(false)} 
+                className="text-white/70 hover:text-white p-1 rounded transition-colors"
+                aria-label="Close modal"
+              >
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5 sm:p-6 overflow-y-auto">
+            <div className="p-4 sm:p-6 overflow-y-auto">
               {forgotMessage && forgotStep === 2 && forgotMessage.includes('Redirecting') ? (
-                <div className="space-y-4 text-center">
-                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <CheckCircle2 size={32} />
+                <div className="space-y-4 text-center py-4">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle2 size={28} />
                   </div>
-                  <p className="text-[13px] font-bold text-emerald-700">{forgotMessage}</p>
+                  <p className="text-xs sm:text-[13px] font-bold text-emerald-700">{forgotMessage}</p>
                 </div>
               ) : (
                 <form onSubmit={handleForgotPassword} className="space-y-4">
@@ -639,7 +736,7 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
                   {forgotStep === 2 && <p className="text-[12px] text-emerald-600 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={16} /> Verified! Enter your new password below.</p>}
 
                   {forgotError && (
-                    <div className="bg-red-50 text-red-600 text-[11px] font-bold p-3 rounded border border-red-200 flex gap-2 items-start">
+                    <div className="bg-red-50 text-red-600 text-[11px] font-bold p-3 rounded-lg border border-red-200 flex gap-2 items-start">
                       <AlertCircle size={14} className="mt-0.5 shrink-0" />
                       {forgotError}
                     </div>
@@ -647,37 +744,37 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
 
                   {forgotStep === 1 ? (
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-500 uppercase">Email Address</label>
+                      <label className="text-[11px] font-bold text-slate-600 uppercase">Email Address</label>
                       <input
                         type="email"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
                         required
-                        className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2.5 text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium"
-                        placeholder="e.g. student@example.com"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-[15px] sm:text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium min-h-[44px]"
+                        placeholder="student@example.com"
                       />
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-500 uppercase">New Password</label>
+                        <label className="text-[11px] font-bold text-slate-600 uppercase">New Password</label>
                         <input
                           type="password"
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
                           required
-                          className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2.5 text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-[15px] sm:text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium min-h-[44px]"
                           placeholder="••••••••"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-500 uppercase">Confirm Password</label>
+                        <label className="text-[11px] font-bold text-slate-600 uppercase">Confirm Password</label>
                         <input
                           type="password"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
-                          className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2.5 text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-[15px] sm:text-sm outline-none focus:border-[#003366] focus:bg-white transition-all font-medium min-h-[44px]"
                           placeholder="••••••••"
                         />
                       </div>
@@ -687,7 +784,7 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
                   <button
                     type="submit"
                     disabled={forgotLoading || (forgotStep === 1 ? !forgotEmail : (!newPassword || !confirmPassword))}
-                    className="w-full bg-[#003366] text-white py-3 rounded text-xs font-bold hover:bg-black transition-colors disabled:opacity-70 flex justify-center items-center gap-2 mt-2"
+                    className="w-full bg-[#003366] hover:bg-[#002244] text-white py-3 rounded-lg text-xs font-bold transition-colors disabled:opacity-70 flex justify-center items-center gap-2 mt-2 min-h-[44px]"
                   >
                     {forgotLoading ? <Loader2 size={16} className="animate-spin" /> : null}
                     {forgotStep === 1 ? 'Verify Email' : 'Update Password'}

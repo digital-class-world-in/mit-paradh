@@ -300,15 +300,15 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
   if (loading) return <div className="p-20 text-center animate-pulse font-semibold text-slate-300 tracking-tight">Loading staff directory...</div>;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 relative">
-      <div className="bg-[#003366] text-white py-8 px-10 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 relative">
+      <div className="bg-[#003366] text-white py-5 sm:py-8 px-4 sm:px-8 md:px-10 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
         <div className="flex items-center gap-5">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20">
             <Users size={28} />
           </div>
           <div>
             <h3 className="text-2xl font-black tracking-tighter">Staff Directory</h3>
-            <p className="text-[13px] font-normal text-black tracking-tight capitalize">{collegeId ? 'Institutional human resources' : 'Global human resources management'}</p>
+            <p className="text-[13px] font-normal text-white/80 tracking-tight capitalize">{collegeId ? 'Institutional human resources' : 'Global human resources management'}</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -316,7 +316,7 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
             <select
               value={selectedCollege}
               onChange={(e) => setSelectedCollege(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-[13px] font-normal text-black outline-none focus:bg-white/20 transition-all w-full md:w-48 capitalize cursor-pointer"
+              className="bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-[13px] font-normal text-white outline-none focus:bg-white/20 transition-all w-full md:w-48 capitalize cursor-pointer"
             >
               <option value="" className="text-black">All Colleges</option>
               {colleges.map(c => (
@@ -329,7 +329,7 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
             <input
               type="text"
               placeholder="Search staff..."
-              className="bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-6 text-[13px] font-normal text-black outline-none focus:bg-white/20 transition-all w-full"
+              className="bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-6 text-[13px] font-normal text-white placeholder:text-white/60 outline-none focus:bg-white/20 transition-all w-full"
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
             />
@@ -344,7 +344,7 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
               >
                 Previous
               </button>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-white/90">
                 Page {currentPage} of {Math.max(1, Math.ceil(filteredStaff.length / PAGE_SIZE))}
               </span>
               <button
@@ -366,7 +366,7 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-black shadow-xl p-8">
+      <div className="bg-white rounded-2xl sm:rounded-[2.5rem] border border-black shadow-xl p-4 sm:p-6 md:p-8">
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse border border-black">
             <thead>
@@ -535,20 +535,20 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
 
       {/* Edit Staff Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)} />
-          <div className="relative w-full max-w-5xl bg-[#f8fafc] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-            <div className="p-8 bg-[#003366] text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center"><Edit2 size={24} /></div>
+          <div className="relative w-full max-w-5xl bg-[#f8fafc] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-300">
+            <div className="p-4 sm:p-8 bg-[#003366] text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center"><Edit2 size={20} className="sm:w-6 sm:h-6" /></div>
                 <div>
-                  <h3 className="text-xl font-black capitalize tracking-tight">Edit Staff Details</h3>
-                  <p className="text-[13px] font-normal text-black uppercase tracking-widest">{selectedStaff?.firstName} {selectedStaff?.lastName}</p>
+                  <h3 className="text-lg sm:text-xl font-black capitalize tracking-tight">Edit Staff Details</h3>
+                  <p className="text-xs sm:text-[13px] font-normal text-black uppercase tracking-widest">{selectedStaff?.firstName} {selectedStaff?.lastName}</p>
                 </div>
               </div>
-              <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={24} /></button>
+              <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 space-y-6 sm:space-y-8 no-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <InputField label="First Name" value={editForm.firstName} onChange={(v: string) => setEditForm({ ...editForm, firstName: v })} />
                 <InputField label="Last Name" value={editForm.lastName} onChange={(v: string) => setEditForm({ ...editForm, lastName: v })} />
@@ -610,20 +610,20 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
 
       {/* Add Staff Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-[#002147]/60 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)} />
-          <div className="relative w-full max-w-5xl bg-[#f8fafc] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-            <div className="p-8 bg-[#003366] text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center"><Users size={24} /></div>
+          <div className="relative w-full max-w-5xl bg-[#f8fafc] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-300">
+            <div className="p-4 sm:p-8 bg-[#003366] text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center"><Users size={20} className="sm:w-6 sm:h-6" /></div>
                 <div>
-                  <h3 className="text-xl font-black capitalize tracking-tight">Register New Staff</h3>
-                  <p className="text-[13px] font-normal text-black uppercase tracking-widest">{collegeId ? 'Institutional human resources' : 'Global HR Management'}</p>
+                  <h3 className="text-lg sm:text-xl font-black capitalize tracking-tight">Register New Staff</h3>
+                  <p className="text-xs sm:text-[13px] font-normal text-black uppercase tracking-widest">{collegeId ? 'Institutional human resources' : 'Global HR Management'}</p>
                 </div>
               </div>
-              <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={24} /></button>
+              <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 space-y-6 sm:space-y-8 no-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <InputField label="First Name" value={addForm.firstName} onChange={(v: string) => setAddForm({ ...addForm, firstName: v })} />
                 <InputField label="Last Name" value={addForm.lastName} onChange={(v: string) => setAddForm({ ...addForm, lastName: v })} />

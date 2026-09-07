@@ -1204,21 +1204,21 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
   }
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+    <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-8 duration-500">
       <div className={cn(
-        "rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden transition-all duration-500",
+        "rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white shadow-xl relative overflow-hidden transition-all duration-500",
         mode === 'inquiry' ? "bg-[#5D5fb1]" : "bg-[#002147]"
       )}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative z-10 space-y-4 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[13px] font-normal capitalize tracking-tight">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
+        <div className="relative z-10 space-y-3 sm:space-y-4 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-[13px] font-normal capitalize tracking-tight">
             {mode === 'inquiry' ? <PhoneCall size={14} className="text-[#00a5a5]" /> : mode === 'cancelled' ? <XCircle size={14} className="text-red-400" /> : <FileBadge size={14} className="text-[#00a5a5]" />}
             {mode === 'inquiry' ? 'Front Office' : mode === 'cancelled' ? 'Cancellation Registry' : 'Student Registry'}
           </div>
-          <h2 className="text-4xl font-normal tracking-tighter capitalize leading-none text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight capitalize leading-tight text-white">
             {mode === 'inquiry' ? 'Admission Inquiry' : mode === 'cancelled' ? 'Cancel Admission' : 'Admission List'}
           </h2>
-          <p className="text-sm font-normal text-white/70">
+          <p className="text-xs sm:text-sm font-normal text-white/70">
             {mode === 'inquiry'
               ? 'Monitor and manage incoming admission requests from candidates.'
               : mode === 'cancelled'
@@ -1228,21 +1228,21 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-black shadow-sm overflow-hidden p-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <h3 className="text-2xl font-bold text-black capitalize tracking-tight">Student Application List</h3>
-          <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 sm:mb-8 gap-4">
+          <h3 className="text-xl sm:text-2xl font-bold text-black capitalize tracking-tight">Student Application List</h3>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
             <input
               type="text"
-              placeholder="Search by name, email, phone, reg no, roll no..."
+              placeholder="Search by name, email, phone, reg no..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black tracking-tight outline-none focus:border-[#003366] transition-all min-w-[300px]"
+              className="w-full sm:w-auto sm:min-w-[240px] bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-[14px] font-medium text-black tracking-tight outline-none focus:border-[#003366] transition-all min-h-[42px]"
             />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all"
+              className="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#003366] transition-all min-h-[42px]"
             >
               <option value="All">All Statuses</option>
               <option value="Accepted">Accepted / Verified</option>
@@ -1254,7 +1254,7 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
               <select
                 value={selectedCollegeId}
                 onChange={(e) => setSelectedCollegeId(e.target.value)}
-                className="bg-slate-50 border border-black rounded-xl px-4 py-2 text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#5D5fb1] transition-all"
+                className="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-[14px] font-medium text-black capitalize tracking-tight outline-none focus:border-[#5D5fb1] transition-all min-h-[42px]"
               >
                 <option value="">All Colleges</option>
                 {availableColleges.map(c => (
@@ -1262,15 +1262,15 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
                 ))}
               </select>
             )}
-            <div className="text-[13px] font-normal text-black capitalize tracking-tight bg-[#5D5fb1]/10 px-4 py-2 rounded-full whitespace-nowrap">
-              {filteredInquiries.length} Total Requests
+            <div className="text-xs sm:text-[13px] font-bold text-slate-700 capitalize tracking-tight bg-[#5D5fb1]/10 px-3.5 py-2 rounded-xl whitespace-nowrap text-center">
+              {filteredInquiries.length} Requests
             </div>
             <button
               onClick={handleExportData}
               disabled={isProcessing}
-              className="flex items-center gap-2 bg-[#00a5a5] hover:bg-[#008f8f] text-white px-6 py-2 rounded-full text-[13px] font-bold uppercase tracking-tight transition-all shadow-md disabled:opacity-50"
+              className="flex items-center justify-center gap-2 bg-[#00a5a5] hover:bg-[#008f8f] text-white px-5 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold uppercase tracking-tight transition-all shadow-md disabled:opacity-50 min-h-[42px]"
             >
-              <Download size={16} /> {isProcessing ? 'Exporting...' : 'Export Data'}
+              <Download size={15} /> {isProcessing ? 'Exporting...' : 'Export Data'}
             </button>
           </div>
         </div>

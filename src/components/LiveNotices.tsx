@@ -140,13 +140,13 @@ export default function LiveNotices() {
 
   if (loading && notices.length === 0) {
     return (
-      <section className="lg:col-span-2 animate-pulse">
+      <section className="order-1 lg:order-2 lg:col-span-2 animate-pulse">
         <div className="border border-slate-200 shadow-sm rounded-lg overflow-hidden bg-white h-full">
           <div className="bg-[#003366]/80 p-4 text-white font-bold text-sm capitalize tracking-tight flex items-center justify-between">
             <span className="flex items-center gap-3"><FileText size={18} /> Important Notices</span>
             <span className="h-4 bg-slate-200/50 rounded w-12" />
           </div>
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex gap-4 pb-4 border-b border-slate-100 last:border-0">
                 <div className="w-2.5 h-2.5 bg-slate-200 rounded-full mt-1.5 shrink-0" />
@@ -163,13 +163,13 @@ export default function LiveNotices() {
   }
 
   return (
-    <section className="lg:col-span-2">
+    <section className="order-1 lg:order-2 lg:col-span-2">
       <div className="border border-slate-200 shadow-sm rounded-lg overflow-hidden bg-white h-full">
         <div className="bg-[#003366] p-4 text-white font-bold text-sm capitalize tracking-tight flex items-center justify-between">
           <span className="flex items-center gap-3"><FileText size={18} /> Important Notices</span>
-          <Link href="#" className="text-xs text-amber-400 hover:text-amber-300 font-semibold">View All</Link>
+          <Link href="#" className="text-xs text-amber-400 hover:text-amber-300 font-semibold min-h-[32px] flex items-center px-2">View All</Link>
         </div>
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           {notices.map((n, i) => {
             let finalUrl = n.fileUrl || '#';
             if (

@@ -541,27 +541,27 @@ export default function CredentialManager({ collegeId, type, adminUid }: Credent
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-10 p-12 m-12">
+    <div className="max-w-[1600px] mx-auto space-y-6 sm:space-y-8">
       {/* Header Banner */}
-      <div className={`bg-gradient-to-r ${type === 'marksheet' ? 'from-[#002147] to-[#003366]' : 'from-[#5D5fb1] to-[#4e50a1]'} rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden border-b-8 border-[#00a5a5]`}>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-black uppercase tracking-[0.2em]">
+      <div className={`bg-gradient-to-r ${type === 'marksheet' ? 'from-[#002147] to-[#003366]' : 'from-[#5D5fb1] to-[#4e50a1]'} rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-white shadow-xl relative overflow-hidden border-b-8 border-[#00a5a5]`}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-8">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em]">
               {type === 'marksheet' ? <FileText size={14} className="text-[#00a5a5]" /> : <Award size={14} className="text-[#00a5a5]" />}
               {type === 'marksheet' ? 'Marksheet Management' : 'Course Certification'}
             </div>
-            <h2 className="text-5xl font-black tracking-tighter leading-none">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
               {type === 'marksheet' ? 'Academic Transcripts' : 'Official Certificates'}
             </h2>
-            <p className="text-lg font-medium text-white/70 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base font-medium text-white/70 max-w-xl leading-relaxed">
               Generate and manage verified institutional {type === 'marksheet' ? 'marksheets' : 'course certificates'} for confirmed students.
             </p>
           </div>
           <div className="flex items-center gap-4">
-             <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 text-center min-w-[160px]">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1">Total Eligible</p>
-                <p className="text-4xl font-black">{students.length}</p>
+             <div className="bg-white/10 backdrop-blur-md p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-white/20 text-center min-w-[140px] sm:min-w-[160px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Total Eligible</p>
+                <p className="text-2xl sm:text-4xl font-black">{students.length}</p>
              </div>
              <button 
                className="bg-white text-slate-800 px-10 py-6 rounded-[2rem] text-[12px] font-black uppercase tracking-widest shadow-2xl hover:bg-teal-50 hover:scale-105 transition-all flex items-center gap-3 border-b-4 border-[#00a5a5]"
