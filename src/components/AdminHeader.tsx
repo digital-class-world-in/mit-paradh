@@ -189,7 +189,7 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
         </div>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden xl:flex flex-1 items-center justify-center gap-1 mx-2 overflow-x-auto no-scrollbar">
+        <div className="hidden xl:flex flex-1 items-center justify-center gap-1 mx-2 flex-wrap">
           {menuItems.map((group, idx) => (
             <div key={idx} className="relative group/nav">
               <button

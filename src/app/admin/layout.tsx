@@ -108,7 +108,7 @@ function AdminLayoutContent({
     if (typeof window !== 'undefined') {
       localStorage.setItem('admin_active_tab', finalTab.toString());
     }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`/admin/dashboard?${params.toString()}`, { scroll: false });
   };
 
   const handleLogout = async () => {

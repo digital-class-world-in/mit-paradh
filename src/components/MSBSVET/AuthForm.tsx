@@ -489,7 +489,7 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] flex flex-col justify-between font-sans">
-      <div>
+      <div className="hidden md:block">
         <Header />
         <Navbar />
       </div>
@@ -706,7 +706,9 @@ export const AuthFormContent = ({ title, subtitle, role }: AuthFormProps) => {
         </div>
       </div>
 
-      <LiveFooter />
+      <div className="hidden md:block">
+        <LiveFooter />
+      </div>
 
       {/* Forgot Password Modal */}
       {showForgotModal && (

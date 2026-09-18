@@ -81,8 +81,10 @@ const portals = [
 export default function CentralLoginPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-      <Header />
-      <Navbar />
+      <div className="hidden md:block">
+        <Header />
+        <Navbar />
+      </div>
 
       <main className="flex-1 py-6 sm:py-10 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Institutional Hero Banner */}
@@ -186,7 +188,9 @@ export default function CentralLoginPage() {
         </div>
       </main>
 
-      <LiveFooter />
+      <div className="hidden md:block">
+        <LiveFooter />
+      </div>
     </div>
   );
 }

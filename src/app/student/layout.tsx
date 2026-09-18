@@ -11,7 +11,7 @@ import { Header } from '@/components/MSBSVET/Header';
 const cleanDataForCache = (data: any): any => {
   if (!data || typeof data !== 'object') return data;
   try {
-    const cleaned = JSON.parse(JSON.stringify(data));
+    const cleaned = JSON.parse(JSON.stringify(data));    
     const stripBase64 = (item: any) => {
       if (!item || typeof item !== 'object') return;
       for (const key in item) {
@@ -164,7 +164,8 @@ function StudentLayoutContent({
         const userSnap = await get(userRef);
 
         if (userSnap.exists()) {
-          // ── NORMAL STUDENT ──
+          // ── NORMAL STUDENT ──                    
+          
           unsubUser = onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.val();
@@ -244,6 +245,8 @@ function StudentLayoutContent({
             console.error("Optimized colleges search failed in layout", e);
           }
           
+
+
           if (foundStudent && foundCollegeId) {
             console.log("[student/layout] Manual student found in college:", foundCollegeId);
             const manualStudentRef = ref(realtimeDb, `colleges/${foundCollegeId}/students/${currentUid}`);
@@ -329,8 +332,7 @@ function StudentLayoutContent({
       } else {
         router.push('/login/student');
       }
-    });
-
+    });                            
     return () => {
       unsubscribe();
       cleanupLayoutListeners();

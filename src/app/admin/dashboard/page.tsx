@@ -131,7 +131,7 @@ function DashboardContent() {
     totalAdmissions: 0,
     studentRegistrations: 0,
     totalInquiries: 0,
-    websiteVisitors: 1248,
+    websiteInquiries: 0,
     todayFees: 0
   });
 
@@ -179,13 +179,19 @@ function DashboardContent() {
         let admList = 0;
         let totalAdm = 0;
         let totalInq = 0;
+        let webInq = 0;
         let fees = 0;
         const today = new Date().toISOString().split('T')[0];
 
         Object.entries(collegesData).forEach(([id, data]: [string, any]) => {
           if (data?.frontOffice?.admissionInquiries) {
-            admList += Object.keys(data.frontOffice.admissionInquiries).length;
-            totalInq += Object.keys(data.frontOffice.admissionInquiries).length;
+            Object.values(data.frontOffice.admissionInquiries).forEach((inq: any) => {
+              admList++;
+              totalInq++;
+              if (inq?.source === 'Website') {
+                webInq++;
+              }
+            });
           }
           if (data?.studentAdmissions) {
             totalAdm += Object.keys(data.studentAdmissions).length;
@@ -205,6 +211,7 @@ function DashboardContent() {
           admissionList: admList,
           totalAdmissions: totalAdm,
           totalInquiries: totalInq,
+          websiteInquiries: webInq,
           todayFees: fees
         }));
       } else {
@@ -214,6 +221,7 @@ function DashboardContent() {
           admissionList: 0,
           totalAdmissions: 0,
           totalInquiries: 0,
+          websiteInquiries: 0,
           todayFees: 0
         }));
       }
@@ -316,7 +324,7 @@ function DashboardContent() {
               <Widget icon={GraduationCap} label="Approved Admission" value={stats.totalAdmissions.toLocaleString()} trend="+8%" color="bg-purple-600" />
               <Widget icon={UserPlus} label="Student Registration" value={stats.studentRegistrations.toLocaleString()} trend="+5%" color="bg-teal-600" />
               <Widget icon={Users} label="Total Inquiry" value={stats.totalInquiries.toLocaleString()} trend="+15%" color="bg-blue-600" />
-              <Widget icon={Globe} label="Website Inquiry" value={stats.websiteVisitors.toLocaleString()} trend="Live" color="bg-emerald-600" />
+              <Widget icon={Globe} label="Website Inquiry" value={stats.websiteInquiries.toLocaleString()} trend="Live" color="bg-emerald-600" />
               <Widget icon={BookOpen} label="Online Examination" value={'Active'} trend="Live" color="bg-rose-600" />
             </div>
 
