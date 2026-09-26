@@ -53,11 +53,11 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
       label: 'Student info',
       id: 2,
       subItems: [
-        { label: 'Student Credentials & Passwords', url: '/admin/dashboard/student-credentials' },
-        { label: 'Pending Admission', url: '/admin/dashboard/pending-admissions' },
-        { label: 'Confirm Admission', url: '/admin/dashboard/confirm-admissions' },
+        { label: 'Student Credentials', id: 27 },
+        { label: 'Pending Admission', id: 3024 },
+        { label: 'Confirm Admission', id: 3022 },
         { label: 'Cancel Admission', id: 3023 },
-        { label: 'Approved Admission', url: '/admin/dashboard/approved-admissions' },
+        { label: 'Approved Admission', id: 25 },
         { label: 'Student Registration', id: 19 }
       ]
     },
@@ -68,12 +68,12 @@ export default function AdminHeader({ activeTab, setActiveTab, onLogout, adminNa
     },
     {
       label: 'Exam',
-      id: 600,
+      id: 120,
       subItems: [
-        { label: 'Exam List', id: 601 },
-        { label: 'Create Online Exam', id: 602 },
-        { label: 'Exam Form', id: 603 },
-        { label: 'Exam Fees', id: 604 }
+        { label: 'Exam List', id: 120 },
+        { label: 'Create Online Exam', id: 121 },
+        { label: 'Exam Form', id: 122 },
+        { label: 'Exam Fees', id: 123 }
       ]
     },
     {

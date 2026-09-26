@@ -367,8 +367,69 @@ const StaffRegistryManager = ({ collegeId, adminUid }: StaffRegistryManagerProps
       </div>
 
       <div className="bg-white rounded-2xl sm:rounded-[2.5rem] border border-black shadow-xl p-4 sm:p-6 md:p-8">
-        <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse border border-black">
+        <div className="md:hidden flex flex-col gap-4">
+          {filteredStaff.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((staff, index) => (
+            <div key={staff.id} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+              <div className="flex items-start gap-3 border-b border-slate-100 pb-3">
+                <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden border border-black shrink-0">
+                  {staff.photo ? <img src={staff.photo} className="w-full h-full object-cover" /> : <User size={20} className="text-slate-300" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <p className="text-[15px] font-bold text-slate-800 capitalize leading-none mb-1 truncate">{staff.firstName} {staff.lastName}</p>
+                    <span className="text-[10px] font-bold text-slate-400 shrink-0 ml-2">#{((currentPage - 1) * PAGE_SIZE) + index + 1}</span>
+                  </div>
+                  <p className="text-[12px] text-slate-500 font-normal truncate">{staff.email}</p>
+                  <p className="text-[11px] font-bold text-slate-600 mt-1">ID: {staff.employeeId}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between items-center text-[12px] font-bold">
+                  <span className="text-slate-500">Department</span>
+                  <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded capitalize">{staff.department}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] font-bold">
+                  <span className="text-slate-500">Designation</span>
+                  <span className="text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 capitalize">{staff.designation}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] font-bold">
+                  <span className="text-slate-500">College</span>
+                  <span className="text-slate-800">{staff.collegeName}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] font-bold">
+                  <span className="text-slate-500">Joining Date</span>
+                  <span className="text-slate-800">{staff.joiningDate || '-'}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t-2 border-slate-100 justify-end">
+                {!staff.collegeId && !collegeId && (
+                  <button onClick={() => handleAssignClick(staff)} className="p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all border border-orange-100 shadow-sm" title="Assign to College">
+                    <LinkIcon size={14} />
+                  </button>
+                )}
+                <button onClick={() => handlePermClick(staff)} className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm flex items-center gap-1 text-[11px] font-bold">
+                  <ShieldCheck size={14} /> Perms
+                </button>
+                <button onClick={() => handleEditClick(staff)} className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all border border-blue-100 shadow-sm flex items-center gap-1 text-[11px] font-bold">
+                  <Edit2 size={14} /> Edit
+                </button>
+                <button onClick={() => handleDeleteStaff(staff)} className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 shadow-sm">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {filteredStaff.length === 0 && (
+            <div className="py-12 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+              <p className="text-[13px] font-medium text-slate-500">No staff members found matching criteria.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse border border-black min-w-[950px]">
             <thead>
               <tr className="bg-slate-50 border-b border-black whitespace-nowrap">
                 <th className="px-4 py-5 text-[14px] font-normal text-black capitalize tracking-tight text-center border-r border-black">Sr.No</th>

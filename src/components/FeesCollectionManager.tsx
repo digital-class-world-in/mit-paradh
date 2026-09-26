@@ -934,7 +934,97 @@ export default function FeesCollectionManager({ collegeId, adminUid }: { college
             setFilters={setGlobalFilters} 
           />
 
-          <div className="overflow-x-auto no-scrollbar">
+          <div className="md:hidden flex flex-col gap-4 mb-4">
+            {finalFilteredStudents.length > 0 ? finalFilteredStudents.map((s, i) => {
+              const total = parseFloat(s.fees?.toString().replace(/,/g, '') || '0');
+              const basePaid = parseFloat(s.paidFees?.toString().replace(/,/g, '') || '0');
+              const studentTrans = allTransactions.filter(t => (t.studentId === s.id || t.studentId === s.applicationId) && t.collegeId === s.collegeId);
+              const transactionSum = studentTrans.reduce((sum, t) => sum + parseFloat(t.amount?.toString().replace(/,/g, '') || '0'), 0);
+              const paid = Math.max(basePaid, transactionSum);
+              const outstanding = total - paid;
+              const name = s.studentName || `${s.firstName || ''} ${s.lastName || ''}`;
+
+              const pendingPay = onlinePayments.find(p => 
+                p.status === 'Pending' && 
+                (p.applicationId === s.applicationId || (p.studentUid === s.studentUid && p.courseName === s.courseName && p.courseType === s.courseType))
+              );
+
+              return (
+                <div key={`${s.id}-${i}`} className="bg-white p-4 rounded-xl border border-black shadow-sm flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-[#00a5a5]">
+                         <User size={18} />
+                      </div>
+                      <div>
+                        <span className="text-[12px] font-bold text-slate-500">#{i + 1}</span>
+                        <p className="text-[15px] font-bold text-black mt-0.5 capitalize">{name}</p>
+                        <p className="text-[12px] font-bold text-slate-400 capitalize tracking-tight">{s.collegeName}</p>
+                      </div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-black uppercase border-[0.5px] border-indigo-100 shadow-sm">
+                       {s.courseType || 'Reg'}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-1 border-t border-slate-100 pt-2 mt-1">
+                     <div className="flex justify-between items-center">
+                       <span className="text-[13px] font-bold text-black capitalize">{s.courseName}</span>
+                     </div>
+                     <div className="text-[12px] font-bold text-slate-600 mt-1 flex gap-2">
+                       <span>{s.duration || 'N/A'}</span> &bull; <span>{s.semester || 'N/A'}</span> &bull; <span>{s.streamBranch || s.stream || s.branch || 'N/A'}</span>
+                     </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 text-[13px] font-medium border-t border-slate-100 pt-2 pb-1">
+                     <div className="flex justify-between">
+                        <span className="text-slate-500">Total Fees</span>
+                        <span className="text-black font-bold">₹{total.toLocaleString()}</span>
+                     </div>
+                     <div className="flex justify-between">
+                        <span className="text-slate-500">Paid Fees</span>
+                        <span className="text-emerald-500 font-bold">₹{paid.toLocaleString()}</span>
+                     </div>
+                     <div className="flex justify-between bg-slate-50 p-2 rounded-lg mt-1">
+                        <span className="font-bold text-black">Outstanding</span>
+                        <span className={`font-black ${outstanding > 0 ? 'text-red-500' : 'text-emerald-500'}`}>₹{outstanding.toLocaleString()}</span>
+                     </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-2 pt-3 border-t border-slate-200">
+                    {pendingPay ? (
+                      <button 
+                        onClick={() => handleProcessOpen(s, pendingPay)}
+                        className="flex-1 bg-amber-500 text-black px-4 py-2 rounded-xl text-[13px] font-black capitalize shadow-sm hover:bg-amber-600 transition-all flex items-center justify-center gap-2"
+                      >
+                         <Check size={16} /> Collect
+                      </button>
+                    ) : (
+                      <button 
+                         onClick={() => { setSelectedStudent(s); setIsCollectModalOpen(true); }}
+                         className="flex-1 bg-[#00a5a5] text-white px-4 py-2 rounded-xl text-[13px] font-black capitalize border border-black shadow-sm hover:bg-black transition-all flex items-center justify-center gap-2"
+                       >
+                          Collect Fee
+                       </button>
+                    )}
+                    <button 
+                      onClick={() => handleHistoryOpen(s)}
+                      className="p-2 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all border border-indigo-100 flex items-center justify-center font-bold text-[13px] px-4 gap-2"
+                    >
+                       <History size={16} /> History
+                    </button>
+                  </div>
+                </div>
+              );
+            }) : (
+               <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+                 <CreditCard size={32} className="opacity-20 mx-auto mb-2" />
+                 <p className="text-[13px] font-normal text-black capitalize">No fee records synchronized</p>
+               </div>
+            )}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border-[0.5px] border-black">
                <thead>
                   <tr className="bg-slate-50/50 border-b border-r border-black">

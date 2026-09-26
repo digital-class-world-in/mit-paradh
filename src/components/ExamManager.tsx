@@ -295,7 +295,83 @@ export default function ExamManager({ collegeId, defaultCreate, adminUid }: { co
       
       {filteredExams.length > 0 ? (
         <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
-           <div className="overflow-x-auto no-scrollbar">
+           <div className="md:hidden flex flex-col gap-4 mb-4">
+            {filteredExams.length > 0 ? filteredExams.map((exam, idx) => (
+              <div key={exam.id} className="bg-white p-4 rounded-xl border border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[12px] font-bold text-slate-500">#{idx + 1}</span>
+                    <p className="text-[15px] font-bold text-black mt-0.5 capitalize">{exam.examName || exam.examTitle || 'N/A'}</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-200 shadow-sm">
+                    {exam.courseType}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1 border-t border-slate-100 pt-2 mt-1">
+                   <span className="text-[13px] font-bold text-black capitalize">{exam.course}</span>
+                   <div className="text-[12px] font-medium text-slate-600 mt-1 flex gap-2">
+                     <span>{exam.startDate}</span> &bull; <span>{exam.startTime}</span>
+                   </div>
+                </div>
+
+                <div className="flex flex-col gap-1 text-[13px] font-medium border-t border-slate-100 pt-2 pb-1">
+                   <div className="flex justify-between items-center">
+                     <span className="text-slate-500">Target Questions</span>
+                     <span className="text-[#00a5a5] font-black">{exam.totalQuestions || '0'}</span>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-slate-500">Questions Added</span>
+                     <span className="font-bold">{exam.questions?.length || 0}</span>
+                   </div>
+                   <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg mt-1">
+                     <span className="text-slate-500 text-[12px]">Created</span>
+                     <span className="text-black font-medium text-[12px]">{exam.publishedAt ? new Date(exam.publishedAt).toLocaleDateString('en-GB') : 'N/A'}</span>
+                   </div>
+                </div>
+
+                <div className="flex gap-2 mt-2 pt-3 border-t border-slate-200">
+                   <button 
+                     onClick={() => {
+                       setExamForm(exam);
+                       setQuestions(exam.questions || []);
+                       setIsModalOpen(true);
+                     }}
+                     className="flex-1 p-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                   >
+                     <Edit2 size={16} /> Edit
+                   </button>
+                   <button 
+                     onClick={() => {
+                       setSelectedExamForResults(exam);
+                       fetchSubmissions(exam.id);
+                     }}
+                     className="flex-1 p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                   >
+                     <Eye size={16} /> Results
+                   </button>
+                   <button 
+                     onClick={() => {
+                       if (window.confirm('Are you sure you want to delete this exam?')) {
+                         const examRef = getDbRef(`colleges/${collegeId || examForm.collegeId}/onlineExams/${exam.id}`);
+                         set(examRef, null);
+                       }
+                     }}
+                     className="flex-1 p-2 rounded-xl bg-red-50 text-red-500 border border-red-100 hover:bg-red-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                   >
+                     <Trash2 size={16} /> Delete
+                   </button>
+                </div>
+              </div>
+            )) : (
+               <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+                 <FileText size={32} className="opacity-20 mx-auto mb-2" />
+                 <p className="text-[13px] font-normal text-black capitalize">No Exams Scheduled</p>
+               </div>
+            )}
+           </div>
+
+           <div className="hidden md:block overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse border border-black">
                 <thead>
                    <tr className="bg-slate-50/50 border-b border-black whitespace-nowrap">

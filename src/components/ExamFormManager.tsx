@@ -366,8 +366,98 @@ export default function ExamFormManager({ collegeId, adminUid }: ExamFormManager
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse border border-black">
+            <div className="md:hidden flex flex-col gap-4">
+              {courseExamConfigs.map((config, idx) => {
+                const studentTargetCount = config.targetAudience === 'custom' && Array.isArray(config.selectedStudentIds) 
+                  ? `${config.selectedStudentIds.length} Custom Student(s)`
+                  : 'All Students';
+
+                return (
+                  <div key={idx} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                    <div className="flex justify-between items-start border-b-2 border-slate-100 pb-3">
+                      <div>
+                        <span className="text-[12px] font-bold text-slate-500">#{idx + 1}</span>
+                        <p className="text-[15px] font-bold text-slate-800 mt-0.5 capitalize leading-tight">{config.courseName}</p>
+                        <p className="text-[11px] font-bold text-slate-500 mt-1">
+                          {config.stream ? config.stream : 'All Streams'} &bull; <span className="text-indigo-600">{config.courseType || 'Reg'}</span>
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="text-[14px] font-black text-emerald-600">₹{config.fees || '0'}</span>
+                        <span className={cn(
+                           "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
+                           config.registrationOpen ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"
+                        )}>
+                           {config.registrationOpen ? 'OPEN' : 'CLOSED'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 pt-1">
+                      <div className="flex justify-between items-center text-[12px] font-bold">
+                        <span className="text-slate-500">Academic Year</span>
+                        <span className="text-slate-800">{config.academicYear || '2026-2027'}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[12px] font-bold">
+                        <span className="text-slate-500">Target Students</span>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded text-[10px] border",
+                          config.targetAudience === 'custom' ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-blue-50 text-blue-700 border-blue-200"
+                        )}>
+                          {studentTargetCount}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-[12px] font-bold">
+                        <span className="text-slate-500">Exam Date</span>
+                        <span className="text-slate-800">{config.examDate ? new Date(config.examDate).toLocaleDateString() : 'TBA'}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[12px] font-bold">
+                        <span className="text-slate-500">Last Date</span>
+                        <span className="text-slate-800">{config.lastDate ? new Date(config.lastDate).toLocaleDateString() : 'TBA'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-2 pt-3 border-t-2 border-slate-100">
+                      <button 
+                        onClick={() => {
+                          setSelectedCourseType(config.courseType || '');
+                          setSelectedCourse(config.courseName || '');
+                          setSelectedStream(config.stream || '');
+                          setTargetAudience(config.targetAudience || 'all');
+                          setSelectedStudentIds(config.selectedStudentIds || []);
+                          setExamSettings(config);
+                          setIsCreateModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 text-[11px] font-bold flex items-center gap-1.5"
+                      >
+                        <Edit2 size={12} /> Edit
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to delete this configuration?')) {
+                            const configRef = ref(realtimeDb, `colleges/${selectedCollegeId}/examConfigurations/${config.id}`);
+                            set(configRef, null).then(() => {
+                              alert('Configuration deleted successfully.');
+                            });
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-100 text-[11px] font-bold flex items-center gap-1.5"
+                      >
+                        <X size={12} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {courseExamConfigs.length === 0 && (
+                <div className="p-8 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+                  <p className="text-[13px] font-medium text-slate-500">No exam configurations assigned yet.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse border border-black min-w-[900px]">
                 <thead>
                   <tr className="bg-slate-50 text-[14px] font-black text-black uppercase tracking-widest border-b border-black">
                     <th className="px-4 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center w-16">Sr No.</th>

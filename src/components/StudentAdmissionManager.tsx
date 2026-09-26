@@ -774,7 +774,92 @@ export default function StudentAdmissionManager({ collegeId, adminUid }: { colle
             setFilters={setGlobalFilters}
           />
 
-          <div className="overflow-x-auto no-scrollbar">
+          <div className="md:hidden flex flex-col gap-4 mb-4">
+          {paginatedAdmissions.length > 0 ? paginatedAdmissions.map((adm, i) => {
+            const p = adm.profileData || {};
+            const studentName = `${p.firstName || adm.firstName || ''} ${p.middleName || adm.middleName || ''} ${p.lastName || adm.lastName || ''}`.trim() || adm.studentName || 'No Name';
+            const studentEmail = adm.studentEmail || p.email || 'No Email';
+            const studentPhone = adm.studentPhone || p.phone || adm.phone || 'No Phone';
+
+            return (
+              <div key={adm.id || i} className="bg-white p-4 rounded-xl border border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-black shrink-0 overflow-hidden border border-black shadow-sm">
+                      {adm.photo || p.photoUrl ? (
+                        <img src={adm.photo || p.photoUrl} className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={18} />
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-[12px] font-bold text-slate-500">#{i + 1}</span>
+                      <p className="text-[15px] font-bold text-black mt-0.5 capitalize">{studentName}</p>
+                      <p className="text-[12px] font-medium text-slate-600 mt-0.5">{adm.regNo || adm.manualRegNo || 'PENDING'}</p>
+                    </div>
+                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[12px] font-black tracking-tight capitalize border shadow-sm ${adm.isActive !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                    {adm.isActive !== false ? 'Active' : 'Deactive'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1 border-t border-slate-100 pt-2 mt-1">
+                   <div className="flex justify-between items-center">
+                     <span className="text-[13px] font-medium text-black capitalize">{adm.courseName}</span>
+                     <span className="text-[11px] font-black text-indigo-500 capitalize tracking-tight bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                        {adm.courseType || 'Reg'}
+                     </span>
+                   </div>
+                   {!collegeId && (
+                     <div className="text-[12px] font-medium text-slate-600 mt-1 flex items-center gap-1"><Landmark size={12}/> {adm.collegeName || 'N/A'}</div>
+                   )}
+                </div>
+
+                <div className="flex flex-col gap-1 text-[12px] text-black font-medium border-t border-slate-100 pt-2">
+                   <div className="flex items-center gap-2"><Phone size={12} className="text-[#00a5a5]" /> {studentPhone}</div>
+                   <div className="flex items-center gap-2"><Mail size={12} className="text-[#00a5a5]" /> {studentEmail}</div>
+                   <div className="text-emerald-600 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded mt-1">Pass: {adm.password || '********'}</div>
+                   <div className="text-slate-500 text-[11px] mt-1">
+                     {(() => {
+                        const dateVal = adm.processedAt || adm.admissionDate;
+                        if (!dateVal) return 'N/A';
+                        const d = new Date(dateVal);
+                        return `${d.toLocaleDateString()} | ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+                      })()}
+                   </div>
+                </div>
+
+                <div className="flex gap-2 mt-2 pt-3 border-t border-slate-200">
+                   <button
+                     onClick={() => handleProcessOpen(adm)}
+                     className="flex-1 flex items-center justify-center gap-2 p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100 font-bold text-[13px]"
+                   >
+                     <Eye size={16} /> View
+                   </button>
+                   <button
+                     onClick={() => handleEditOpen(adm)}
+                     className="flex-1 flex items-center justify-center gap-2 p-2 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all border border-amber-100 font-bold text-[13px]"
+                   >
+                     <Edit2 size={16} /> Edit
+                   </button>
+                   <button
+                     onClick={() => handleDelete(adm)}
+                     className="flex-1 flex items-center justify-center gap-2 p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-rose-100 font-bold text-[13px]"
+                   >
+                     <Trash2 size={16} /> Delete
+                   </button>
+                </div>
+              </div>
+            );
+          }) : (
+             <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+               <Users size={32} className="opacity-20 mx-auto mb-2" />
+               <p className="text-[13px] font-normal text-black capitalize">No admissions found</p>
+             </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse border border-black">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-black">

@@ -92,7 +92,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, onLogout, adminN
         { label: 'Admission list', icon: FileBadge, id: 3022 },
         { label: 'Student admission', icon: Users, id: 25 },
         { label: 'Student registration', icon: UserPlus, id: 19 },
-        { label: 'Student credentials', icon: KeyRound, id: 27, url: '/admin/dashboard/student-credentials' },
+        { label: 'Student credentials', icon: KeyRound, id: 27 },
         { label: 'Leave request', icon: FileText, id: 23 },
       ]
     },

@@ -651,8 +651,164 @@ export default function CredentialManager({ collegeId, type, adminUid }: Credent
 
       {/* Main Table */}
       <div className="bg-white rounded-[3rem] border border-black shadow-xl overflow-hidden">
-        <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse border border-black">
+        <div className="md:hidden flex flex-col gap-4 p-4">
+          {activeTab === 'eligible' ? (
+            filteredStudents.map((student, index) => (
+              <div key={student.id} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[12px] font-bold text-slate-500">#{index + 1}</span>
+                    <p className="text-[15px] font-bold text-slate-800 mt-0.5 capitalize">{student.studentName}</p>
+                    <p className="text-[11px] font-medium text-slate-400">{student.studentEmail}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-black text-[#5D5fb1] uppercase tracking-widest bg-[#5D5fb1]/5 px-2 py-0.5 rounded">
+                      {student.courseType}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1 border-t-2 border-slate-100 pt-2 mt-1">
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">College</span>
+                     <span className="text-indigo-600">{student.collegeName || 'MIT PARADH'}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Course</span>
+                     <span className="text-slate-800">{student.courseName}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Admission Date</span>
+                     <span className="text-slate-800">{student.admissionDate ? new Date(student.admissionDate).toLocaleDateString() : 'N/A'}</span>
+                   </div>
+                </div>
+
+                <div className="flex gap-2 mt-2 pt-3 border-t-2 border-slate-100 justify-end">
+                   <button 
+                     onClick={() => {
+                       handleOpenCreate(student);
+                       setIsPreviewMode(true);
+                     }}
+                     className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
+                   ><Eye size={16} /></button>
+                   <button 
+                     onClick={() => {
+                       handleOpenCreate(student);
+                       setIsPreviewMode(false);
+                     }}
+                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-sm ${type === 'marksheet' ? 'bg-[#002147] text-white' : 'bg-[#5D5fb1] text-white'}`}
+                   >
+                     {type === 'marksheet' ? <FileText size={14} /> : <Award size={14} />} Generate
+                   </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            filteredRecords.map((record, index) => (
+              <div key={record.id} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[12px] font-bold text-slate-500">#{index + 1}</span>
+                    <p className="text-[15px] font-bold text-slate-800 mt-0.5 capitalize">{record.studentName}</p>
+                    <p className="text-[11px] font-medium text-slate-400">Roll: {record.rollNumber}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[13px] font-black text-[#002147] tracking-tight text-right">
+                       <span className="text-[10px] text-slate-400 block mb-0.5">{type === 'marksheet' ? 'Marksheet No' : 'Cert No'}</span>
+                       {record.marksheetNo}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1 border-t-2 border-slate-100 pt-2 mt-1">
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Course</span>
+                     <span className="text-slate-800 capitalize">{record.course} <span className="text-indigo-600 ml-1">({record.courseType})</span></span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">College</span>
+                     <span className="text-indigo-600">{availableColleges.find(c => c.id === record.collegeId)?.name || 'Institutional'}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Generated</span>
+                     <span className="text-slate-800">{new Date(record.generatedAt).toLocaleDateString()}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Student Panel Status</span>
+                     <div className="flex items-center gap-2">
+                        <span className={record.isVisible ? 'text-[#00a5a5]' : 'text-slate-400'}>{record.isVisible ? 'Published' : 'Hidden'}</span>
+                        <button 
+                          onClick={() => handleToggleVisibility(record)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all focus:outline-none shadow-inner ${record.isVisible ? 'bg-[#00a5a5]' : 'bg-slate-200'}`}
+                        >
+                          <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-all shadow-md ${record.isVisible ? 'translate-x-5' : 'translate-x-1'}`} />
+                        </button>
+                     </div>
+                   </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t-2 border-slate-100 justify-end">
+                   <button 
+                     onClick={() => {
+                       const student = students.find(s => s.regNo === record.regNo || s.rollNumber === record.rollNumber);
+                       setEditingRecordId(record.id);
+                       if (student) {
+                         setSelectedStudent(student);
+                         const freshPhoto = student.photo || student.photoUrl || student.profileData?.photoUrl || student.profile?.photoUrl || '';
+                         const freshSign = student.signature || student.signatureUrl || student.profileData?.signUrl || student.profile?.signUrl || student.signUrl || student.profileData?.signatureUrl || student.profileData?.sign || '';
+                         setMarksheetForm({...record, profilePhoto: record.profilePhoto || freshPhoto, signature: record.signature || freshSign});
+                       } else {
+                         setMarksheetForm(record);
+                       }
+                       setSubjects(record.subjects);
+                       setIsPreviewMode(true);
+                       setIsModalOpen(true);
+                     }}
+                     className="p-2 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 text-[11px] font-bold flex items-center gap-1"
+                   ><Eye size={14} /> Preview</button>
+                   <button 
+                     onClick={() => {
+                       setMarksheetForm(record);
+                       setEditingRecordId(record.id);
+                       setSubjects(record.subjects);
+                       setIsPreviewMode(false);
+                       setIsModalOpen(true);
+                     }}
+                     className="p-2 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 text-[11px] font-bold flex items-center gap-1"
+                   ><Edit2 size={14} /> Edit</button>
+                   <button 
+                     onClick={() => {
+                       if (isGenerating || downloadingId) return;
+                       handleDownloadPDF(record);
+                     }}
+                     disabled={isGenerating || downloadingId === record.id}
+                     className={`p-2 rounded-lg border text-[11px] font-bold flex items-center gap-1 ${(isGenerating || downloadingId === record.id) ? 'bg-slate-100 text-slate-400 border-slate-200 opacity-50' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}
+                   >
+                     {downloadingId === record.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} DL
+                   </button>
+                   <button 
+                     onClick={async () => {
+                       if (confirm(`Are you sure you want to delete this issued ${type}?`)) {
+                         const recordRef = ref(realtimeDb, `colleges/${record.collegeId}/generatedCredentials/${record.id}`);
+                         await set(recordRef, null);
+                         alert(`${type === 'marksheet' ? 'Marksheet' : 'Certificate'} deleted successfully.`);
+                       }
+                     }}
+                     className="p-2 rounded-lg bg-rose-50 text-rose-600 border border-rose-100"
+                   ><Trash2 size={14} /></button>
+                </div>
+              </div>
+            ))
+          )}
+          {((activeTab === 'eligible' && filteredStudents.length === 0) || (activeTab === 'issued' && filteredRecords.length === 0)) && (
+            <div className="p-8 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+               <p className="text-[13px] font-medium text-slate-500">No Records Found matching your current filters.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse border border-black min-w-[1100px]">
             <thead>
               <tr className="bg-slate-50 border-b border-black whitespace-nowrap">
                 <th className="px-4 py-5 text-[14px] font-medium text-black capitalize tracking-tight border-r border-black text-center">Sr No.</th>

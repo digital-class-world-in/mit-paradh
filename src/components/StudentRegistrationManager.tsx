@@ -506,7 +506,78 @@ export default function StudentRegistrationManager({ collegeId, adminUid }: { co
             </div>
           </div>
         )}
-        <div className="overflow-x-auto">
+        <div className="md:hidden flex flex-col gap-4 mb-4">
+          {paginatedRegistrations.length > 0 ? paginatedRegistrations.map((reg, index) => (
+            <div key={reg.id} className="bg-white p-4 rounded-xl border border-black shadow-sm flex flex-col gap-3">
+              <div className="flex justify-between items-start">
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center border border-black overflow-hidden shrink-0">
+                    {reg.photoUrl ? (
+                      <img src={reg.photoUrl} className="w-full h-full object-cover" alt="" />
+                    ) : (
+                      <User size={18} className="text-slate-300" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-[12px] font-bold text-slate-500">#{startIndex + index + 1}</span>
+                    <p className="text-[15px] font-bold text-black mt-0.5 capitalize">{`${reg.firstName || ''} ${reg.middleName || ''} ${reg.lastName || ''}`.trim()}</p>
+                    <p className="text-[11px] font-bold text-[#003366] mt-0.5">AUTO REG: {reg.regNo}</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-semibold border border-emerald-100 shadow-sm">
+                  SUBMITTED
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-1 text-[13px] font-medium border-t border-slate-100 pt-2 pb-1">
+                 <div className="flex justify-between items-center">
+                   <span className="text-slate-500">DOB & Gender</span>
+                   <span className="text-black font-bold">{reg.dateOfBirth || 'N/A'} &bull; <span className={reg.gender === 'Male' ? 'text-blue-500' : 'text-rose-500'}>{reg.gender || 'N/A'}</span></span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-slate-500">Mobile Number</span>
+                   <span className="text-[#00a5a5] font-black">{reg.phone || 'N/A'}</span>
+                 </div>
+                 <div className="flex flex-col gap-1 mt-1 p-2 bg-slate-50 rounded-lg">
+                   <span className="text-[12px] text-black font-medium flex items-center gap-1.5"><Mail size={12} className="text-slate-400" /> {reg.email || 'N/A'}</span>
+                   <span className="text-[12px] text-black font-medium flex items-center gap-1.5"><Lock size={12} className="text-slate-400" /> <span className="font-mono">{reg.password || 'N/A'}</span></span>
+                 </div>
+                 <div className="flex justify-between items-center mt-1">
+                   <span className="text-slate-500 text-[12px]">Date</span>
+                   <span className="text-black font-medium text-[12px]">{reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('en-IN') : 'N/A'}</span>
+                 </div>
+              </div>
+
+              <div className="flex gap-2 mt-2 pt-3 border-t border-slate-200">
+                <button
+                  onClick={() => handleViewDetails(reg.id)}
+                  className="flex-1 p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                >
+                  <Eye size={16} /> View
+                </button>
+                <button
+                  onClick={() => handleEditOpen(reg.id)}
+                  className="flex-1 p-2 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                >
+                  <Edit2 size={16} /> Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteRegistration(reg.id)}
+                  className="flex-1 p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all font-bold text-[13px] flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </div>
+            </div>
+          )) : (
+             <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+               <UserPlus size={32} className="opacity-20 mx-auto mb-2" />
+               <p className="text-[13px] font-normal text-black capitalize">No registrations found</p>
+             </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse border border-black">
             <thead>
               <tr className="bg-slate-50/50 border-b border-r border-black whitespace-nowrap">

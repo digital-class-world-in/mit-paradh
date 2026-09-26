@@ -164,8 +164,99 @@ export default function ExamFeesManager({ collegeId, adminUid }: ExamFeesManager
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse border-b border-black">
+            <div className="md:hidden flex flex-col gap-4 p-4">
+              {filteredSubmissions.map((sub, index) => (
+                <div key={sub.id} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                  <div className="flex justify-between items-start border-b-2 border-slate-100 pb-3">
+                    <div>
+                      <span className="text-[12px] font-bold text-slate-500">#{index + 1}</span>
+                      <p className="text-[15px] font-bold text-slate-800 mt-0.5 capitalize leading-tight">{sub.studentName}</p>
+                      <p className="text-[11px] font-bold text-indigo-600 mt-0.5">Reg: {sub.studentId || sub.regNo || 'N/A'}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-[15px] font-black text-[#ff9f1c]">₹{sub.fees}</span>
+                      <div className={cn(
+                        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest",
+                        sub.status === 'Verified' ? "bg-emerald-100 text-emerald-700" :
+                        sub.status === 'Rejected' ? "bg-rose-100 text-rose-700" :
+                        "bg-amber-100 text-amber-700"
+                      )}>
+                        {sub.status || 'Pending'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <div className="flex justify-between items-center text-[12px] font-bold">
+                      <span className="text-slate-500">Course</span>
+                      <span className="text-slate-800 capitalize">
+                        {sub.courseName} <span className="text-amber-700 bg-amber-50 px-1 py-0.5 rounded ml-1 text-[10px]">{sub.courseType}</span>
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[12px] font-bold">
+                      <span className="text-slate-500">Stream</span>
+                      <span className="text-slate-800">{sub.stream || sub.branch || sub.streamBranch || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[12px] font-bold">
+                      <span className="text-slate-500">College</span>
+                      <span className="text-slate-800 capitalize">{sub.collegeName}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[12px] font-bold">
+                      <span className="text-slate-500">Date</span>
+                      <span className="text-slate-800">
+                        {new Date(sub.submittedAt).toLocaleDateString()} <span className="text-slate-400 font-medium ml-1">{new Date(sub.submittedAt).toLocaleTimeString()}</span>
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[12px] font-bold">
+                      <span className="text-slate-500">UTR / Trans No</span>
+                      <span className="text-slate-800 font-mono text-[11px]">{sub.utrId || 'N/A'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t-2 border-slate-100 justify-end">
+                    <button 
+                      onClick={() => setSelectedSubmissionDetails(sub)}
+                      className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-[#002147] hover:text-white transition-all shadow-sm flex items-center gap-1.5 text-[11px] font-bold"
+                    >
+                      <Eye size={14} /> View
+                    </button>
+                    {sub.screenshot && (
+                       <button 
+                         onClick={() => setPreviewImage(sub.screenshot)}
+                         className="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm flex items-center gap-1.5 text-[11px] font-bold"
+                       >
+                         <CreditCard size={14} /> Proof
+                       </button>
+                    )}
+                    <button 
+                      onClick={() => handleStatusUpdate(sub.id, 'Verified')}
+                      disabled={sub.status === 'Verified'}
+                      className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm font-black text-[11px] uppercase disabled:opacity-30 flex items-center gap-1"
+                    >
+                      <Check size={14} /> Verify
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setRejectingSubmission(sub);
+                        setRejectionRemark('');
+                      }}
+                      disabled={sub.status === 'Rejected'}
+                      className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 shadow-sm font-black text-[11px] uppercase disabled:opacity-30 flex items-center gap-1"
+                    >
+                      <X size={14} /> Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {filteredSubmissions.length === 0 && (
+                <div className="p-8 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+                  <p className="text-[13px] font-medium text-slate-500">No fee submissions found.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse border-b border-black min-w-[1200px]">
                 <thead>
                   <tr className="bg-slate-50 text-[14px] font-black text-black uppercase tracking-widest border-b border-black">
                     <th className="px-6 py-5 border-r border-black text-center">Sr No</th>

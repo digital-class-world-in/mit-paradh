@@ -55,6 +55,9 @@ export default function Home() {
   ];
 
 
+  
+
+
 
   const successStories = [
     { name: 'NITIN SURESH BEDEKAR', role: 'ELECTRICAL MAINTENANCE', company: 'WIPRO PARI ROBOTICS KHANDALA', year: '2024' },

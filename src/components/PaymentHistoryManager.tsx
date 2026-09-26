@@ -201,7 +201,99 @@ export default function PaymentHistoryManager({ collegeId, adminUid }: PaymentHi
 
       {/* Transactions Table */}
       <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden p-4">
-         <div className="overflow-x-auto">
+         <div className="md:hidden flex flex-col gap-4">
+            {filteredPayments.map((p, idx) => (
+               <div key={p.id} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                  <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                           <User size={16} />
+                        </div>
+                        <div>
+                           <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-slate-400">#{idx + 1}</span>
+                              <p className="text-[14px] font-medium text-slate-800 tracking-tight leading-none truncate max-w-[150px]">{p.studentName}</p>
+                           </div>
+                           <p className="text-[11px] font-normal text-slate-400 uppercase mt-1">{p.courseName || 'General Fee'}</p>
+                        </div>
+                     </div>
+                     <div className="text-right flex flex-col items-end">
+                        <span className="text-[15px] font-medium text-emerald-600 tracking-tighter">₹{parseFloat(p.amount).toLocaleString()}</span>
+                        <div className={cn(
+                           "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium uppercase tracking-widest border mt-1",
+                           p.status === 'Approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                           p.status === 'Rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                           "bg-amber-50 text-amber-600 border-amber-100"
+                        )}>
+                           {p.status === 'Pending Verification' ? 'Pending' : p.status}
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                     {!collegeId && (
+                        <div className="flex justify-between items-center text-[12px]">
+                           <span className="font-bold text-slate-500">Institution</span>
+                           <span className="font-bold text-slate-700">{p.collegeName || 'N/A'}</span>
+                        </div>
+                     )}
+                     <div className="flex justify-between items-center text-[12px]">
+                        <span className="font-bold text-slate-500">Date</span>
+                        <span className="font-medium text-slate-600">
+                           {new Date(p.submittedAt).toLocaleDateString()} <span className="text-slate-400 ml-1">{new Date(p.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </span>
+                     </div>
+                     <div className="flex justify-between items-center text-[12px]">
+                        <span className="font-bold text-slate-500">UTR / TXN</span>
+                        <span className="font-mono font-medium text-slate-600 text-right">
+                           {p.utrId || 'NO UTR'}
+                           <span className="block text-[10px] font-normal text-slate-400 font-sans">Payer: {p.relationship}</span>
+                        </span>
+                     </div>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-2 pt-3 border-t border-slate-100">
+                     <div>
+                        {(p.screenshotUrl || p.screenshot) ? (
+                           <button 
+                             onClick={() => window.open(p.screenshotUrl || p.screenshot, '_blank')}
+                             className="px-3 py-1.5 rounded-lg bg-slate-100 text-[#002147] hover:bg-[#5D5fb1] hover:text-white transition-all shadow-sm flex items-center gap-1.5 text-[10px] font-black uppercase"
+                           >
+                              <Eye size={12} /> View SS
+                           </button>
+                        ) : (
+                           <span className="text-[10px] font-medium text-slate-400">No screenshot</span>
+                        )}
+                     </div>
+                     <div className="flex items-center gap-2">
+                        {p.status !== 'Approved' && (
+                           <button 
+                             onClick={() => handleUpdateStatus(p, 'Approved')}
+                             className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 flex items-center gap-1.5 text-[11px] font-bold"
+                           >
+                              <CheckCircle2 size={14} /> Approve
+                           </button>
+                        )}
+                        {p.status !== 'Rejected' && (
+                           <button 
+                             onClick={() => handleUpdateStatus(p, 'Rejected')}
+                             className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-rose-100 flex items-center gap-1.5 text-[11px] font-bold"
+                           >
+                              <XCircle size={14} /> Reject
+                           </button>
+                        )}
+                     </div>
+                  </div>
+               </div>
+            ))}
+            {filteredPayments.length === 0 && (
+               <div className="py-12 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+                  <p className="text-[13px] font-bold text-slate-400">No transactions found matching your criteria.</p>
+               </div>
+            )}
+         </div>
+
+         <div className="hidden md:block overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse min-w-[1000px] border border-black">
                <thead>
                   <tr className="bg-[#002147] text-[14px] font-black text-white uppercase tracking-widest border-b border-black">

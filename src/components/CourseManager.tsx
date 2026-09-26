@@ -1431,8 +1431,71 @@ const CourseManager = ({ collegeId, adminUid }: CourseManagerProps) => {
 
       {filteredCourses.length > 0 ? (
         <div className="bg-white rounded-2xl sm:rounded-3xl border border-black shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse border border-black">
+          <div className="md:hidden flex flex-col gap-4">
+            {paginatedCourses.map((course, idx) => (
+              <div key={`${course.source}-${course.id}`} className="bg-white p-4 rounded-xl border-2 border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                   <div>
+                     <span className="text-[12px] font-bold text-slate-500">#{startIndex + idx + 1}</span>
+                     <p className="text-[15px] font-bold text-slate-800 mt-0.5 capitalize">{course.course_name}</p>
+                     {course.course_faculty && (
+                        <p className="text-[12px] font-semibold text-slate-500">Faculty: {course.course_faculty}</p>
+                     )}
+                   </div>
+                   <div className="flex flex-col items-end gap-1">
+                     <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase border border-indigo-100">
+                        {course.course_type || course.type || '—'}
+                     </span>
+                     <div className="flex items-center gap-1 text-slate-500 font-bold text-[11px] mt-1">
+                       <Timer size={12} className="text-[#00a5a5]" /> {course.duration || '—'}
+                     </div>
+                   </div>
+                </div>
+
+                <div className="flex flex-col gap-1 border-t-2 border-slate-100 pt-2 mt-1">
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">College</span>
+                     <span className="text-slate-800 text-right">
+                        {course.source === 'Website' ? (
+                          <span className="text-amber-600">Home Page Setup</span>
+                        ) : course.source === 'College' ? (
+                          <span className="text-[#00a5a5]">{course.collegeName || 'Unknown College'}</span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                     </span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Stream/Branch</span>
+                     <span className="text-slate-800">{course.subcategory || course.stream || course.branch || '—'}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[12px] font-bold">
+                     <span className="text-slate-500">Semester</span>
+                     <span className="text-slate-800">{course.semester || '—'}</span>
+                   </div>
+                </div>
+
+                <div className="flex gap-2 mt-2 pt-3 border-t-2 border-slate-100 justify-end">
+                   <button
+                     onClick={() => handleEditCourse(course)}
+                     className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all shadow-sm border border-amber-100 text-xs font-bold flex items-center gap-1.5"
+                   ><Edit2 size={12} /> Edit</button>
+                   <button
+                     onClick={() => handleDeleteCourse(course)}
+                     className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm border border-red-100 text-xs font-bold flex items-center gap-1.5"
+                   ><Trash2 size={12} /> Delete</button>
+                </div>
+              </div>
+            ))}
+            {paginatedCourses.length === 0 && (
+              <div className="p-8 text-center bg-slate-50 border-2 border-slate-200 rounded-xl">
+                 <p className="text-[13px] font-medium text-slate-500">No courses match the current filters.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto no-scrollbar">
+            <table className="w-full text-left border-collapse border border-black min-w-[950px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-black whitespace-nowrap">
                   <th className="px-6 py-5 text-[14px] font-normal text-black capitalize tracking-tight border-r border-black text-center">Sr Number</th>

@@ -1283,7 +1283,92 @@ export default function AdmissionInquiryManager({ collegeId, collegeName, mode =
           />
         </div>
 
-        <div className="overflow-x-auto no-scrollbar">
+        <div className="md:hidden flex flex-col gap-4 mb-4">
+          {Array.isArray(paginatedInquiries) && paginatedInquiries.length > 0 ? (
+            paginatedInquiries.map((inq, i) => (
+              <div key={inq.id} className="bg-white p-4 rounded-xl border border-black shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[12px] font-bold text-slate-500">#{startIndex + i + 1}</span>
+                    <p className="text-[15px] font-bold text-black mt-1 capitalize">{`${inq.firstName || ''} ${inq.middleName || ''} ${inq.lastName || ''}`.trim() || inq.studentName || 'N/A'}</p>
+                    <p className="text-[12px] font-medium text-slate-600 mt-0.5">{inq.collegeName || collegeName || 'N/A'}</p>
+                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[12px] font-black tracking-tight capitalize border border-black ${inq.status === 'Accepted' || inq.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600' :
+                        inq.status === 'Rejected' ? 'bg-red-50 text-red-600' :
+                          inq.status === 'Unlocked' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                            inq.status === 'Updated' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                              (inq.profileLocked || inq.isLocked) ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
+                                'bg-amber-50 text-amber-500'
+                        }`}>
+                    {(inq.profileLocked || inq.isLocked) && inq.status !== 'Updated' ? 'LOCKED' : inq.status || 'New'}
+                  </span>
+                </div>
+                
+                <div className="flex flex-col gap-1 border-t border-slate-100 pt-2">
+                   <div className="flex justify-between items-center">
+                     <span className="text-[13px] font-medium text-black capitalize">{inq.courseName}</span>
+                     <span className="text-[11px] font-black text-indigo-500 capitalize tracking-tight bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                        {inq.courseType || inq.applicationType || 'Reg'}
+                     </span>
+                   </div>
+                   {(inq.duration || inq.semester || inq.stream) && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {inq.duration && <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-500 uppercase">{inq.duration}</span>}
+                        {inq.semester && <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-500 uppercase">{inq.semester}</span>}
+                        {inq.stream && <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-500 uppercase">{inq.stream}</span>}
+                      </div>
+                   )}
+                </div>
+
+                <div className="flex flex-col gap-1 text-[12px] text-black font-medium border-t border-slate-100 pt-2">
+                   <div className="flex items-center gap-2"><Phone size={12} className="text-[#00a5a5]" /> {inq.studentPhone || 'N/A'}</div>
+                   <div className="flex items-center gap-2"><Mail size={12} className="text-[#00a5a5]" /> {inq.studentEmail || 'N/A'}</div>
+                   <div className="text-slate-500 text-[11px] mt-1">
+                     {(() => {
+                        const dateVal = inq.appliedAt || inq.date;
+                        if (!dateVal) return 'N/A';
+                        const d = new Date(dateVal);
+                        return `${d.toLocaleDateString()} | ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+                      })()}
+                   </div>
+                </div>
+
+                <div className="flex gap-2 mt-2 pt-3 border-t border-slate-200">
+                  {mode === 'pending' ? (
+                    <button
+                      onClick={() => handleProcessClick(inq)}
+                      className="flex-1 flex items-center justify-center gap-2 bg-[#5D5fb1] text-white px-4 py-2 rounded-xl text-[13px] font-bold capitalize tracking-tight hover:bg-black transition-all shadow-sm border border-black"
+                    >
+                      <PenTool size={14} /> Process
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleProcessClick(inq)}
+                        className="flex-1 flex items-center justify-center gap-2 p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-black font-bold text-[13px]"
+                      >
+                        <Eye size={16} /> Preview
+                      </button>
+                      <button
+                        onClick={() => handleDeleteInquiry(inq)}
+                        className="flex-1 flex items-center justify-center gap-2 p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-black font-bold text-[13px]"
+                      >
+                        <Trash2 size={16} /> Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+             <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+               <Mail size={32} className="opacity-20 mx-auto mb-2" />
+               <p className="text-[13px] font-normal text-black capitalize">No inquiries found</p>
+             </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse border border-black">
             <thead>
               <tr className="bg-slate-50/50 border-b border-black">

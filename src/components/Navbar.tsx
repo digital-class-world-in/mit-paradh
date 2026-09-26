@@ -99,15 +99,15 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="flex items-center gap-2 text-[17px] font-black text-black hover:text-black tracking-tight transition-colors bg-white/5 px-5 py-3 rounded-xl border border-white/10">
-                <LayoutDashboard size={14} className="text-institutional-gold" /> Dashboard
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/dashboard" className="flex items-center gap-2 text-[15px] sm:text-[17px] font-black text-black hover:text-black tracking-tight transition-colors bg-white/5 px-3 py-2 sm:px-5 sm:py-3 rounded-xl border border-white/10">
+                <LayoutDashboard size={14} className="text-institutional-gold" /> <span className="hidden sm:inline">Dashboard</span>
               </Link>
               <button 
                 onClick={handleLogout}
-                className="bg-red-600 text-black px-8 py-3 rounded-xl text-[17px] font-black tracking-tight shadow-lg shadow-red-900/20 hover:bg-red-700 transition-all flex items-center gap-2 active:scale-95"
+                className="bg-red-600 text-black px-3 py-2 sm:px-8 sm:py-3 rounded-xl text-[15px] sm:text-[17px] font-black tracking-tight shadow-lg shadow-red-900/20 hover:bg-red-700 transition-all flex items-center gap-2 active:scale-95"
               >
-                <LogOut size={14} /> Sign out
+                <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
           )}
