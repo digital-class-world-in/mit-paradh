@@ -2,61 +2,41 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useInstituteData } from "@/hooks/use-institute-data"
-import { useSEO } from "@/hooks/use-seo"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
+import { ref, onValue } from "firebase/database"
+import { realtimeDb } from "@/lib/firebase"
+import { Header } from "@/components/MSBSVET/Header"
+import { Navbar } from "@/components/MSBSVET/Navbar"
+import LiveFooter from "@/components/LiveFooter"
 import { EnquiryModal } from "@/components/enquiry-modal"
 import { ChevronRight, Mail, Building2, Calendar, ShieldCheck, HelpCircle } from "lucide-react"
 
 export default function PrivacyPolicyPage() {
-  const {
-    profile,
-    settings,
-    courses,
-    isLoading,
-    instituteName,
-    resolvedUid
-  } = useInstituteData()
-
+  const [courses, setCourses] = useState<any[]>([])
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
-  const [forceLoad, setForceLoad] = useState(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    const timer = setTimeout(() => {
-      setForceLoad(true)
-    }, 1500)
-    return () => clearTimeout(timer)
+    document.title = "Privacy Policy - Mit Paradh Institute"
+
+    if (!realtimeDb) return
+    const coursesRef = ref(realtimeDb, 'courses')
+    const unsub = onValue(coursesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val()
+        const list = Array.isArray(val) ? val : Object.values(val)
+        setCourses(list)
+      }
+    })
+    return () => unsub()
   }, [])
 
-  useSEO(
-    "Privacy Policy",
-    "Privacy Policy for Mit paradh institute",
-    "privacy-policy",
-    instituteName
-  )
-
-  if (isLoading && !forceLoad) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl font-black animate-pulse text-black tracking-widest">
-          Syncing Portal...
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-white" style={{ fontFamily: settings?.styling?.fontFamily || "Poppins" }}>
-      <Navbar
-        profile={{ ...profile, ...settings?.about }}
-        instituteName={instituteName}
-        onApplyClick={() => setIsEnquiryOpen(true)}
-      />
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <Navbar />
 
       {/* Main Page Container */}
-      <main className="flex-grow pt-32 pb-20">
+      <main className="flex-grow pt-8 pb-20">
         <div className="max-w-[1200px] mx-auto px-4 md:px-10 bg-white">
 
           {/* Top Hero Section */}
@@ -362,17 +342,11 @@ export default function PrivacyPolicyPage() {
         </div>
       </main>
 
-      <Footer
-        profile={profile || {}}
-        settings={settings || {}}
-        instituteName={instituteName}
-        courses={courses || []}
-      />
+      <LiveFooter />
 
       <EnquiryModal
         isOpen={isEnquiryOpen}
         onOpenChange={setIsEnquiryOpen}
-        resolvedUid={resolvedUid}
         displayedCourses={courses}
       />
     </div>
