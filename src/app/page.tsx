@@ -46,7 +46,7 @@ export default function Home() {
     { text: '2 Year exam April 2026 Time Table', isNew: false },
     { text: 'MARCH 2026 FINAL TIME TABLE(27-3-2026)', isNew: false },
   ];
-
+  
   const stats = [
     { value: '2,232', label: 'Institutes', icon: Building2, color: 'text-amber-600' },
     { value: '38', label: 'Sectors', icon: BarChart3, color: 'text-amber-500' },
